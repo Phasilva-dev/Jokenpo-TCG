@@ -1,3 +1,3 @@
-module v0
+module jokenpo
 
 go 1.24.3
