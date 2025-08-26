@@ -2,17 +2,21 @@ package network
 
 import (
 	"fmt"
-	"io"
 	"net"
 )
 
+// Server é a estrutura principal do nosso servidor de rede.
+// Agora ele gerencia um Hub.
 type Server struct {
-
+	hub *Hub
 }
 
-// NewServer cria uma nova instância do nosso servidor.
-func NewServer() *Server {
-	return &Server{}
+// NewServer agora aceita um EventHandler para passá-lo ao Hub.
+// Este é o ponto de injeção da lógica do seu jogo.
+func NewServer(handler EventHandler) *Server {
+	return &Server{
+		hub: NewHub(handler), // Cria o Hub associado a este servidor
+	}
 }
 
 func (s *Server) Listen(address string) error {
@@ -22,6 +26,8 @@ func (s *Server) Listen(address string) error {
 		return err // Não foi possível abrir a porta.
 	}
 	defer listener.Close() // Garante que o listener será fechado ao final.
+
+	go s.hub.Run()
 
 	fmt.Printf("Servidor escutando em %s\n", address)
 
@@ -33,37 +39,20 @@ func (s *Server) Listen(address string) error {
 			continue // Tenta aceitar a próxima conexão.
 		}
 
-		// 3. Inicia uma NOVA GOROUTINE para cada cliente.
-		// A palavra "go" é a mágica da concorrência em Go.
-		// Isso permite que o loop 'for' volte imediatamente para o listener.Accept()
-		// e espere por novos clientes, enquanto o cliente atual é tratado em paralelo.
-		go s.handleConnection(conn)
-	}
-
-}
-
-func (s *Server) handleConnection(conn net.Conn) {
-	
-	defer conn.Close()
-
-	clientAddr := conn.RemoteAddr().String()
-	fmt.Printf("Novo cliente conectado: %s\n", clientAddr)
-
-	// Loop infinito para ler mensagens do cliente.
-	for {
-		// Usamos a função que criamos no protocol.go!
-		msg, err := ReadMessage(conn)
-		if err != nil {
-			// Se o erro for io.EOF, significa que o cliente desconectou de forma limpa.
-			if err == io.EOF {
-				fmt.Printf("Cliente %s desconectou.\n", clientAddr)
-			} else {
-				fmt.Printf("Erro ao ler mensagem do cliente %s: %v\n", clientAddr, err)
-			}
-			return // Sai da função e a conexão é fechada pelo defer.
+		// 4. Para cada nova conexão, criamos um novo Cliente.
+		client := &Client{
+			conn: conn,
+			hub:  s.hub,
+			send: make(chan Message, 256), // Cria um canal de envio com buffer
 		}
 
-		// Por enquanto, apenas imprimimos a mensagem recebida no console do servidor.
-		fmt.Printf("Mensagem recebida de %s: Tipo=%s, Payload=%s\n", clientAddr, msg.Type, string(msg.Payload))
+		// 5. Registra o novo cliente no Hub.
+		client.hub.register <- client
+
+		// 6. Inicia as goroutines de leitura e escrita para este cliente.
+		// Agora o cliente está totalmente ativo e independente.
+		go client.writeLoop()
+		go client.readLoop()
 	}
+
 }
