@@ -66,7 +66,7 @@ func (h *Hub) Run() {
 				h.handler.OnDisconnect(client)
 			}
 			// --- Caso 3: Uma nova mensagem chegou de um cliente ---
-		case clientMsg := <-h.incoming:
+		case clientMsg := <- h.incoming:
 			// O Hub não se importa com o conteúdo da mensagem.
 			// Ele simplesmente a delega para o handler da lógica do jogo processar.
 			h.handler.OnMessage(clientMsg.client, clientMsg.msg)
