@@ -1,26 +1,23 @@
 package player
 
 import (
-	"jokenpo/internal/game/card"
-	"jokenpo/internal/game/deck"
+	"jokenpo/internal/game/player/inventory"
 	//"jokenpo/internal/network"
 )
 
 type Player struct {
-	collection *card.PlayerCollection
-	deck *deck.Deck
+	inventory inventory.Inventory
 	playing bool
 	//client *network.Client jogar isso pro NetWorkPlayer
 }
 
 func NewPlayer() *Player {
 	return &Player{
-		collection: card.NewPlayerCollection(),
-		deck: deck.NewDeck(),
+		inventory: *inventory.NewInventory(),
 		playing: false,
 	}
 }
 
 func (p *Player) SeeDeck() {
-	p.deck.PrintZone("deck")
+	p.inventory.GameDeck().PrintZone("deck")
 }

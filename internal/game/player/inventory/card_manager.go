@@ -1,20 +1,21 @@
-package player
+package inventory
 
 import (
 	"jokenpo/internal/game/card"
-	"jokenpo/internal/game/deck"
 	"fmt"
 )
 
 
+
+
 // AddCardToDeck attempts to add a card from a player's collection to their game deck.
-func AddCardToDeck(key string, collection *card.PlayerCollection, gameDeck *deck.Deck) error {
-	cardToAdd, err := collection.GetCard(key)
+func (i *Inventory) AddCardToDeck(key string) error {
+	cardToAdd, err := i.collection.GetCard(key)
 	if err != nil {
 		return err
 	}
 
-	currentDeck, err := gameDeck.GetCardsInZone("deck")
+	currentDeck, err := i.gameDeck.GetCardsInZone("deck")
 	if err != nil {
 		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
@@ -23,20 +24,20 @@ func AddCardToDeck(key string, collection *card.PlayerCollection, gameDeck *deck
 	hypotheticalDeck := append(currentDeck, cardToAdd)
 
 	// Validate this new state using the orchestrator.
-	if err := validateDeckState(hypotheticalDeck, collection); err != nil {
+	if err := validateDeckState(hypotheticalDeck, i.collection); err != nil {
 		return err // If validation fails, return the specific error.
 	}
 
 	// Validation passed, so we can safely execute the change.
-	return gameDeck.AddCardToZone("deck", cardToAdd)
+	return i.gameDeck.AddCardToZone("deck", cardToAdd)
 }
 
 // RemoveCardFromDeck removes a card from the deck at a specific index.
 // Note: With the current rules, removing a card can't cause a violation,
 // so validation is not strictly necessary. If a "minimum deck size" rule were added,
 // this function would also need to use the validation helpers.
-func RemoveCardFromDeck(index int, gameDeck *deck.Deck) error {
-	deckPile, err := gameDeck.GetZone("deck")
+func (i *Inventory) RemoveCardFromDeck(index int) error {
+	deckPile, err := i.gameDeck.GetZone("deck")
 	if err != nil {
 		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
@@ -45,13 +46,13 @@ func RemoveCardFromDeck(index int, gameDeck *deck.Deck) error {
 
 // ReplaceCardInDeck safely replaces a card at a given index with a new one.
 // It uses the validation orchestrator to ensure the operation is valid before executing it.
-func ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string, collection *card.PlayerCollection, gameDeck *deck.Deck) error {
-	cardToAdd, err := collection.GetCard(keyOfCardToAdd)
+func (i *Inventory) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) error {
+	cardToAdd, err := i.collection.GetCard(keyOfCardToAdd)
 	if err != nil {
 		return err
 	}
 
-	currentDeck, err := gameDeck.GetCardsInZone("deck")
+	currentDeck, err := i.gameDeck.GetCardsInZone("deck")
 	if err != nil {
 		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
@@ -70,12 +71,12 @@ func ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string, collection *car
 	hypotheticalDeck[indexToRemove] = cardToAdd
 
 	// Validate this new state.
-	if err := validateDeckState(hypotheticalDeck, collection); err != nil {
+	if err := validateDeckState(hypotheticalDeck, i.collection); err != nil {
 		return err
 	}
 
 	// Validation passed, so we can safely execute the change.
-	deckPile, _ := gameDeck.GetZone("deck")
+	deckPile, _ := i.gameDeck.GetZone("deck")
 	if err := deckPile.RemoveCardByIndex(indexToRemove); err != nil {
 		// This should not happen since we already validated the index.
 		return fmt.Errorf("internal error during removal: %w", err)
