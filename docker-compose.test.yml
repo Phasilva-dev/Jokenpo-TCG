@@ -1,0 +1,28 @@
+# A linha 'version' foi removida para resolver o aviso.
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./cmd/server/Dockerfile
+    container_name: jokenpo_server_test
+    networks:
+      - jokenpo_test_net # Diz ao serviço para se conectar a esta rede
+
+  client:
+    build:
+      context: .
+      dockerfile: ./cmd/client/Dockerfile
+    depends_on:
+      - server
+    networks:
+      - jokenpo_test_net # Diz ao serviço para se conectar a esta rede
+    environment:
+      - SERVER_ADDR=server:8080
+      - CLIENT_MODE=bot
+
+# --- BLOCO CORRIGIDO/ADICIONADO ---
+# Este bloco de nível superior define as redes que os serviços podem usar.
+networks:
+  jokenpo_test_net: # Define a rede com o nome que usamos acima
+    driver: bridge   # 'bridge' é o tipo de rede padrão e mais comum

@@ -1,48 +1,62 @@
-// cmd/server/main.go
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
-	"jokenpo/internal/network" // Verifique se o nome do módulo está correto!
+	"sync"
+
+	"jokenpo/internal/network" // Verifique se este é o path correto
 )
 
-// GameHandler é a nossa implementação da interface network.EventHandler.
-// É aqui que TODA a lógica do seu jogo vai viver.
+// GameHandler agora mantém o estado do número de clientes de forma segura.
 type GameHandler struct {
-	// Futuramente: mapas de jogadores, salas de jogo, etc.
+	mu          sync.Mutex
+	clientCount int
 }
 
-// OnConnect é chamado pelo pacote de rede quando um novo cliente se conecta.
 func (h *GameHandler) OnConnect(c *network.Client) {
-	fmt.Printf("[GameHandler] Novo cliente conectado: %s\n", c.Conn().RemoteAddr())
+	h.mu.Lock()
+	h.clientCount++
+	h.mu.Unlock()
+	log.Printf("[GameHandler] Novo cliente conectado: %s. Total: %d\n", c.Conn().RemoteAddr(), h.clientCount)
 }
 
-// OnDisconnect é chamado quando um cliente se desconecta.
 func (h *GameHandler) OnDisconnect(c *network.Client) {
-	fmt.Printf("[GameHandler] Cliente desconectado: %s\n", c.Conn().RemoteAddr())
+	h.mu.Lock()
+	h.clientCount--
+	h.mu.Unlock()
+	log.Printf("[GameHandler] Cliente desconectado: %s. Total: %d\n", c.Conn().RemoteAddr(), h.clientCount)
 }
 
-// OnMessage é chamado para cada mensagem recebida de um cliente.
 func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
-	fmt.Printf("[GameHandler] Mensagem de %s: Tipo=%s, Payload=%s\n", c.Conn().RemoteAddr(), msg.Type, string(msg.Payload))
+	log.Printf("[GameHandler] Mensagem de %s: Tipo=%s\n", c.Conn().RemoteAddr(), msg.Type)
 
-	// Exemplo de como você pode responder ou retransmitir uma mensagem:
-	// Vamos simplesmente ecoar a mensagem de volta para o cliente que a enviou.
-	
-	// ATENÇÃO: Nunca escreva diretamente na conexão aqui.
-	// Use o canal 'send' do cliente. É seguro para concorrência.
-	c.Send() <- msg
+	switch msg.Type {
+	case "TEST":
+		// Simplesmente ecoa a mensagem de teste de volta para o remetente
+		c.Send() <- msg
+
+	case "GET_CLIENT_COUNT":
+		h.mu.Lock()
+		count := h.clientCount
+		h.mu.Unlock()
+
+		// Cria um payload de resposta com a contagem atual
+		payload := map[string]int{"count": count}
+		payloadBytes, _ := json.Marshal(payload)
+
+		// Cria e envia a mensagem de resposta
+		response := network.Message{
+			Type:    "CLIENT_COUNT_RESPONSE",
+			Payload: payloadBytes,
+		}
+		c.Send() <- response
+	}
 }
 
 func main() {
-	// 1. Crie uma instância da sua lógica de jogo.
 	gameHandler := &GameHandler{}
-
-	// 2. Crie um novo servidor, injetando sua lógica de jogo nele.
 	server := network.NewServer(gameHandler)
-
-	// 3. Inicie o servidor.
 	err := server.Listen(":8080")
 	if err != nil {
 		log.Fatalf("Não foi possível iniciar o servidor: %v", err)

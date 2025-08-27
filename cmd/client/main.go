@@ -7,6 +7,10 @@ import (
 	"io"
 	"net"
 	"strconv"
+	"os"
+	"log"
+	"bufio"
+	"time"
 
 	"jokenpo/internal/network" // ajuste para o path real do seu módulo
 )
@@ -55,56 +59,85 @@ func readMessage(conn net.Conn) (*network.Message, error) {
 	return &msg, nil
 }
 
-func main() {
-	// conecta no servidor
+// runInteractiveMode é para um jogador humano.
+func runInteractiveMode() {
 	conn, err := net.Dial("tcp", "127.0.0.1:8080")
 	if err != nil {
-		panic(err)
+		log.Fatalf("Erro ao conectar: %v", err)
 	}
 	defer conn.Close()
-	fmt.Println("Conectado ao servidor.")
 
-	i := 0
-	for {
-		
-	// envia uma mensagem de teste
-	payload := map[string]string{
-		"text": "Olá servidor! Req de número: " + strconv.Itoa(i),
+	// Goroutine para ler respostas do servidor
+	go func() {
+		for {
+			resp, err := readMessage(conn)
+			if err != nil { return }
+			log.Printf("\n<-- SERVIDOR: Tipo=%s, Payload=%s\n> ", resp.Type, string(resp.Payload))
+		}
+	}()
+
+	log.Println("Modo Interativo. Formato: TIPO {\"json\":\"payload\"}")
+	fmt.Print("> ")
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		// Lógica para parsear e enviar a mensagem do usuário...
+		// (pode reaproveitar a lógica do cliente de teste interativo anterior)
+		fmt.Print("> ")
 	}
-	i++
-	payloadBytes, _ := json.Marshal(payload)
+}
 
-	msg := network.Message{
-		Type:    "TEST",
-		Payload: payloadBytes,
+// runBotMode é o nosso testador de carga automatizado.
+func runBotMode() {
+	log.Println("Iniciando cliente em MODO BOT.")
+	serverAddr := os.Getenv("SERVER_ADDR")
+	if serverAddr == "" {
+		log.Fatal("SERVER_ADDR não definido para o modo bot.")
 	}
 
-	
-	if err := writeMessage(conn, msg); err != nil {
-		panic(err)
-	}
-	fmt.Println("Mensagem enviada.")
-	
-
-	// espera resposta
-	resp, err := readMessage(conn)
+	conn, err := net.Dial("tcp", serverAddr)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Erro ao conectar em %s: %v", serverAddr, err)
 	}
-	fmt.Printf("Resposta recebida: %+v\n", resp)
+	defer conn.Close()
+
+	// Goroutine para logar respostas
+	go func() {
+		for {
+			resp, err := readMessage(conn)
+			if err != nil { return }
+			log.Printf("Resposta recebida: Tipo=%s, Payload=%s", resp.Type, string(resp.Payload))
+		}
+	}()
+
+	numRequests := 10
+	for i := 0; i < numRequests; i++ {
+		payload := map[string]string{"text": "Req #" + strconv.Itoa(i)}
+		payloadBytes, _ := json.Marshal(payload)
+		msg := network.Message{Type: "TEST", Payload: payloadBytes}
+
+		if err := writeMessage(conn, msg); err != nil {
+			log.Fatalf("Erro ao enviar mensagem: %v", err)
+		}
+		time.Sleep(500 * time.Millisecond)
 	}
 
-	/*// opcional: envia uma mensagem gigante para disparar o limite
-	bigPayload := make([]byte, network.MaxMessageSize+100) // estoura os 10KB
-	for i := range bigPayload {
-		bigPayload[i] = 'A'
+	log.Println("Enviando requisição para contagem de clientes...")
+	getCountMsg := network.Message{Type: "GET_CLIENT_COUNT"}
+	if err := writeMessage(conn, getCountMsg); err != nil {
+		log.Fatalf("Erro ao enviar GET_CLIENT_COUNT: %v", err)
 	}
-	bigMsg := network.Message{
-		Type:    "BIG_TEST",
-		Payload: bigPayload,
+
+	log.Println("Teste concluído. Cliente em modo de espera.")
+	select {} // Bloqueia para sempre
+}
+
+func main() {
+	// Pega o modo de operação da variável de ambiente
+	clientMode := os.Getenv("CLIENT_MODE")
+	
+	if clientMode == "bot" {
+		runBotMode()
+	} else {
+		runInteractiveMode()
 	}
-	fmt.Println("Enviando mensagem gigante...")
-	if err := writeMessage(conn, bigMsg); err != nil {
-		fmt.Println("Erro esperado (mensagem muito grande):", err)
-	}*/
 }
