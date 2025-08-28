@@ -12,6 +12,6 @@ type NetworkPlayer struct {
 
 	state string
 
-	room *GameRoom
+	//room *GameRoom
 }
 

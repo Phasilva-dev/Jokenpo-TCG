@@ -1,5 +1,5 @@
 package session
-
+/*
 import (
 	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
@@ -13,3 +13,4 @@ type Manager struct {
 	matchmaker *Matchmaker
 	shop       *shop.Shop // Você adicionaria a loja aqui também
 }
+	*/
