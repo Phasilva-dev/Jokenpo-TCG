@@ -25,6 +25,11 @@ var allowedColors = map[string]struct{}{
 	"green": {},
 }
 
+var (
+	CardTypes  = []string{"rock", "paper", "scissor"}
+	CardColors = []string{"red", "green", "blue"}
+)
+
 // ---- Funções de validação ----
 
 func validateTypo(c *Card) error {
