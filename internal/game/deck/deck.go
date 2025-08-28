@@ -3,21 +3,31 @@ package deck
 import (
 	"fmt"
 	"jokenpo/internal/game/card"
+	"strings"
 )
 
+const DECK = "deck"
+const HAND = "hand"
+const WIN = "win"
+const OUT = "out"
+const PLAY = "play"
+
+var zoneOrder = []string{DECK, HAND, PLAY, WIN, OUT}
+
+
 type Deck struct {
-	zones map[string]*pileOfCards
+	zones map[string]*card.Pile
 }
 
 // Inicializa todas as zonas vazias
 func NewDeck() *Deck {
 	return &Deck{
-		zones: map[string]*pileOfCards{
-			"deck":  new(pileOfCards),
-			"hand":  new(pileOfCards),
-			"win":   new(pileOfCards),
-			"out":   new(pileOfCards),
-			"play":  new(pileOfCards),
+		zones: map[string]*card.Pile{
+			DECK:  new(card.Pile),
+			HAND:  new(card.Pile),
+			WIN:   new(card.Pile),
+			OUT:   new(card.Pile),
+			PLAY:  new(card.Pile),
 		},
 	}
 }
@@ -25,7 +35,7 @@ func NewDeck() *Deck {
 // GetZone returns a pointer to the pile of cards of a specific zone.
 // This is used for direct manipulation of a zone, such as removing a card by index
 // or shuffling.
-func (d *Deck) GetZone(zoneName string) (*pileOfCards, error) {
+func (d *Deck) GetZone(zoneName string) (*card.Pile, error) {
 	// Look up the zone in the map.
 	pile, ok := d.zones[zoneName]
 	if !ok {
@@ -37,23 +47,7 @@ func (d *Deck) GetZone(zoneName string) (*pileOfCards, error) {
 	return pile, nil
 }
 
-// RemoveCardByIndex removes a card from the pile at a specific index.
-// It modifies the original slice.
-func (p *pileOfCards) RemoveCardByIndex(index int) error {
-	// 1. Validate the index to prevent a program crash (panic).
-	// Checks if the index is negative or greater than or equal to the pile's length.
-	if index < 0 || index >= len(*p) {
-		return fmt.Errorf("index %d is out of bounds for a pile of size %d", index, len(*p))
-	}
 
-	// 2. Perform the removal using a standard Go slice trick.
-	// It works by creating a new slice that combines everything *before* the index
-	// with everything *after* the index, effectively cutting out the element at the index.
-	*p = append((*p)[:index], (*p)[index+1:]...)
-
-	// 3. Return nil to indicate that the operation was successful.
-	return nil
-}
 
 // Move uma carta do topo do deck para a mão
 func (d *Deck) DrawToHand() error {
@@ -87,7 +81,7 @@ func (d *Deck) PlayCardFromHand(index int) error {
 
 func (d *Deck) ResolvePlay(won bool) error {
 	play := d.zones["play"]
-	var target *pileOfCards
+	var target *card.Pile
 
 	if won {
 		target = d.zones["win"]
@@ -183,37 +177,57 @@ func (d *Deck) GetCardsInZone(zoneName string) ([]*card.Card, error) {
 	}
 
 	// 2. Dereferencia o ponteiro para obter o slice.
-	// `pile` é do tipo *pileOfCards, que é um *[]*card.Card.
+	// `pile` é do tipo *card.Pile, que é um *[]*card.Card.
 	// `*pile` é do tipo []*card.Card, que é o que você quer retornar.
 	return *pile, nil
 }
 
-func (d *Deck) PrintZone(zoneName string) error {
-	pile, ok := d.zones[zoneName]
-	if !ok {
-		return fmt.Errorf("error: this zone '%s' not exist", zoneName)
+func (d *Deck) String() string {
+	if d == nil || len(d.zones) == 0 {
+		return "(Empty Deck)"
 	}
 
-	fmt.Printf("--- Zona: %s ---\n", zoneName)
-	if len(*pile) == 0 {
-		fmt.Println("(Vazia)")
-	} else {
-		for i, card := range *pile {
-			// Usamos o método String() da carta que definimos acima.
-			fmt.Printf("[%d]: %s\n", i, card)
+	var sb strings.Builder
+	sb.WriteString("\n================== DECK ==================\n")
+
+	for _, zoneName := range zoneOrder {
+		pile, ok := d.zones[zoneName]
+		if !ok || len(*pile) == 0 {
+			// pula zonas vazias
+			continue
 		}
+
+		// usa ZoneString para cada zona
+		zoneStr, err := d.ZoneString(zoneName)
+		if err != nil {
+			// se ocorrer algum erro, apenas ignora a zona
+			continue
+		}
+		sb.WriteString(zoneStr + "\n")
 	}
-	fmt.Println("--------------------")
-	return nil
+
+	sb.WriteString("=========================================\n")
+	return sb.String()
 }
 
-// PrintAllZones exibe o conteúdo de todas as zonas do deck.
-func (d *Deck) PrintAllZones() {
-	fmt.Println("\n================== ESTADO ATUAL DO JOGO ==================")
-	// Definimos uma ordem para a impressão ser sempre consistente
-	zoneOrder := []string{"deck", "hand", "play", "win", "out"}
-	for _, zoneName := range zoneOrder {
-		d.PrintZone(zoneName)
+func (d *Deck) ZoneString(zoneName string) (string, error) {
+	pile, ok := d.zones[zoneName]
+	if !ok {
+		return "", fmt.Errorf("error: this zone '%s' does not exist", zoneName)
 	}
-	fmt.Println("==========================================================")
+
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("--- %s ---\n", zoneName))
+
+	if len(*pile) == 0 {
+		sb.WriteString("(Vazia)\n")
+	} else {
+		for i, card := range *pile {
+			// chama automaticamente Card.String()
+			sb.WriteString(fmt.Sprintf("[%d]: %s\n", i, card))
+		}
+	}
+
+	sb.WriteString("--------------------\n")
+	return sb.String(), nil
 }

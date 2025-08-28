@@ -14,7 +14,15 @@ type CardInstance struct {
 
 func (ci *CardInstance) Count() uint { return ci.count }
 
-func (ci *CardInstance) Card() *Card { return ci.card } 
+func (ci *CardInstance) Card() *Card { return ci.card }
+
+func (ci *CardInstance) String() string {
+    if ci == nil || ci.card == nil {
+        return "<nil card instance>"
+    }
+    // Retorna algo como: "[x2] Rock:5:Red"
+    return fmt.Sprintf("[x%d] %s", ci.count, ci.card)
+}
 
 type PlayerCollection struct {
 	collection map[string]*CardInstance
@@ -78,7 +86,6 @@ func (pc *PlayerCollection) GetCard(key string) (*Card, error) {
 
 // String implementa a interface fmt.Stringer para PlayerCollection.
 func (pc *PlayerCollection) String() string {
-	// Se a coleção estiver vazia, retorne uma mensagem simples.
 	if len(pc.collection) == 0 {
 		return "players collection is empty"
 	}
@@ -89,19 +96,15 @@ func (pc *PlayerCollection) String() string {
 	}
 	sort.Strings(keys) // Ordena as chaves alfabeticamente
 
-	// strings.Builder é a forma mais eficiente de construir strings em Go.
 	var sb strings.Builder
 	sb.WriteString("--- Player Collection ---\n")
 
-	// Itera sobre as chaves ordenadas para uma saída consistente.
 	for _, key := range keys {
 		instance := pc.collection[key]
-		// Formata a linha: [x<contagem>] <Representação da Carta>
-		// A representação da carta vem do método String() do *Card
-		sb.WriteString(fmt.Sprintf("[x%d] %s\n", instance.Count(), instance.Card()))
+		sb.WriteString(instance.String() + "\n")
 	}
-	sb.WriteString("--------------------------")
 
+	sb.WriteString("--------------------------")
 	return sb.String()
 }
 

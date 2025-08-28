@@ -6,13 +6,13 @@ import (
 )
 
 func generateRandomCardTypo(r *rand.Rand) string {
-	randomIndexType := rand.IntN(len(card.CardTypes))
+	randomIndexType := r.IntN(len(card.CardTypes))
 	randomType := card.CardTypes[randomIndexType]
 	return randomType
 }
 
 func generateRandomCardColor(r *rand.Rand) string {
-	randomIndexColor := rand.IntN(len(card.CardColors))
+	randomIndexColor := r.IntN(len(card.CardColors))
 	randomColor := card.CardTypes[randomIndexColor]
 	return randomColor
 }

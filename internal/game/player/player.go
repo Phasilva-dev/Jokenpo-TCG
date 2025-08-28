@@ -2,19 +2,20 @@ package player
 
 import (
 	"jokenpo/internal/game/player/inventory"
-	//"jokenpo/internal/network"
 )
+
+const play = "playing"
+const MENU = "menu"
 
 type Player struct {
 	inventory *inventory.Inventory
-	playing bool
-	//client *network.Client jogar isso pro NetWorkPlayer
+	state string
 }
 
 func NewPlayer() *Player {
 	return &Player{
 		inventory: inventory.NewInventory(),
-		playing: false,
+		state: "in-shop",
 	}
 }
 
@@ -22,10 +23,5 @@ func (p *Player) Inventory() *inventory.Inventory {
 	return p.inventory
 }
 
-func (p *Player) IsPlaying() bool {
-	return p.playing
-}
 
-func (p *Player) SeeDeck() {
-	p.inventory.GameDeck().PrintZone("deck")
-}
+
