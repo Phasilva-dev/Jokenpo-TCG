@@ -2,6 +2,7 @@ package inventory
 
 import (
 	"jokenpo/internal/game/card"
+	"jokenpo/internal/game/deck"
 	"fmt"
 )
 
@@ -9,15 +10,15 @@ import (
 
 
 // AddCardToDeck attempts to add a card from a player's collection to their game deck.
-func (i *Inventory) AddCardToDeck(key string) error {
+func (i *Inventory) AddCardToDeck(key string) (string, error) {
 	cardToAdd, err := i.collection.GetCard(key)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	currentDeck, err := i.gameDeck.GetCardsInZone("deck")
+	currentDeck, err := i.gameDeck.GetCardsInZone(deck.DECK)
 	if err != nil {
-		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
+		return "", fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
 
 	// Create a hypothetical state of the deck after the addition.
@@ -25,44 +26,54 @@ func (i *Inventory) AddCardToDeck(key string) error {
 
 	// Validate this new state using the orchestrator.
 	if err := validateDeckState(hypotheticalDeck, i.collection); err != nil {
-		return err // If validation fails, return the specific error.
+		return "", err // If validation fails, return the specific error.
 	}
 
 	// Validation passed, so we can safely execute the change.
-	return i.gameDeck.AddCardToZone("deck", cardToAdd)
+	err = i.gameDeck.AddCardToZone(deck.DECK, cardToAdd)
+	if err != nil {
+		return "", err
+	}
+	string := fmt.Sprintf("This card %s is added to you deck", cardToAdd.String())
+	return string, nil
 }
 
 // RemoveCardFromDeck removes a card from the deck at a specific index.
 // Note: With the current rules, removing a card can't cause a violation,
 // so validation is not strictly necessary. If a "minimum deck size" rule were added,
 // this function would also need to use the validation helpers.
-func (i *Inventory) RemoveCardFromDeck(index int) error {
+func (i *Inventory) RemoveCardFromDeck(index int) (string, error) {
 	deckPile, err := i.gameDeck.GetZone("deck")
 	if err != nil {
-		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
+		return "",fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
-	return deckPile.RemoveCardByIndex(index)
+	card, err := deckPile.RemoveCardByIndex(index)
+	if err != nil {
+		return "", err
+	}
+	string := fmt.Sprintf("This card %s is removed from you deck", card.String())
+	return string, nil
 }
 
 // ReplaceCardInDeck safely replaces a card at a given index with a new one.
 // It uses the validation orchestrator to ensure the operation is valid before executing it.
-func (i *Inventory) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) error {
+func (i *Inventory) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) (string, error) {
 	cardToAdd, err := i.collection.GetCard(keyOfCardToAdd)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	currentDeck, err := i.gameDeck.GetCardsInZone("deck")
 	if err != nil {
-		return fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
+		return "", fmt.Errorf("internal error: could not access 'deck' zone: %w", err)
 	}
 
 	if indexToRemove < 0 || indexToRemove >= len(currentDeck) {
-		return fmt.Errorf("index %d is out of bounds for the current deck", indexToRemove)
+		return "", fmt.Errorf("index %d is out of bounds for the current deck", indexToRemove)
 	}
 
 	if currentDeck[indexToRemove] == cardToAdd {
-		return nil // No change needed, the operation is trivially successful.
+		return "", nil // No change needed, the operation is trivially successful.
 	}
 
 	// Create a hypothetical state of the deck after the replacement.
@@ -72,18 +83,21 @@ func (i *Inventory) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) 
 
 	// Validate this new state.
 	if err := validateDeckState(hypotheticalDeck, i.collection); err != nil {
-		return err
+		return "", err
 	}
 
 	// Validation passed, so we can safely execute the change.
 	deckPile, _ := i.gameDeck.GetZone("deck")
-	if err := deckPile.RemoveCardByIndex(indexToRemove); err != nil {
+	cardToRemove, err := deckPile.RemoveCardByIndex(indexToRemove)
+	if err != nil {
 		// This should not happen since we already validated the index.
-		return fmt.Errorf("internal error during removal: %w", err)
+		return "", fmt.Errorf("internal error during removal: %w", err)
 	}
 	deckPile.AddCard(cardToAdd)
 
-	return nil
+	string := fmt.Sprintf("The card [%s] is removed and replaced by [%s]", cardToRemove.String(), cardToAdd.String())
+
+	return string, nil
 }
 
 // --- Rule 1: Deck Size Validation ---

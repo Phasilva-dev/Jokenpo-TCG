@@ -8,25 +8,47 @@ import (
 )
 
 func (p *Player) SeeDeck() (string,error) {
-	if p.state == MENU {
-		string := p.inventory.GameDeck().String()
-		return string, nil
+	if p.state != MENU {
+		return "", fmt.Errorf("error: Player must be in MENU state to see the deck")
 	}
-	return "",fmt.Errorf("")
+	str := p.inventory.GameDeck().String()
+	return str, nil
+	
 }
 
 
 func (p *Player) PurchasePackage(shop *shop.Shop, r *rand.Rand) (string, error){
-	if p.state == MENU {
-		return shop.PurchasePackage(r, p.inventory.Collection())
+	if p.state != MENU {
+		return "", fmt.Errorf("error: Player must be in MENU state to purchase a package")
 	}
-	return "", fmt.Errorf("")
+	return shop.PurchasePackage(r, p.inventory.Collection())
 }
 
 func (p *Player) SeeCollection() (string, error) {
-	if p.state == MENU {
-		string := p.inventory.Collection().String()
-		return string, nil
+	if p.state != MENU {
+		return "", fmt.Errorf("error: Player must be in MENU state to see the collection")
 	}
-	return "", fmt.Errorf("")
+	str := p.inventory.Collection().String()
+	return str, nil
+}
+
+func (p *Player) AddCardToDeck(key string) (string, error) {
+	if p.state != MENU {
+		return "", fmt.Errorf("")
+	}
+	return p.inventory.AddCardToDeck(key)
+}
+
+func (p *Player) RemoveCardFromDeck(index int) (string, error) {
+	if p.state != MENU {
+		return "", fmt.Errorf("")
+	}
+	return  p.inventory.RemoveCardFromDeck(index)
+}
+
+func (p *Player) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) (string, error) {
+	if p.state != MENU {
+		return "", fmt.Errorf("")
+	}
+	return p.inventory.ReplaceCardInDeck(indexToRemove, keyOfCardToAdd)
 }

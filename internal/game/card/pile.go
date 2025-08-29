@@ -64,11 +64,15 @@ func (p *Pile) RemoveCard(c *Card) error {
 
 // RemoveCardByIndex removes a card from the pile at a specific index.
 // It modifies the original slice.
-func (p *Pile) RemoveCardByIndex(index int) error {
+func (p *Pile) RemoveCardByIndex(index int) (*Card, error) {
 	// 1. Validate the index to prevent a program crash (panic).
 	// Checks if the index is negative or greater than or equal to the pile's length.
 	if index < 0 || index >= len(*p) {
-		return fmt.Errorf("index %d is out of bounds for a pile of size %d", index, len(*p))
+		return nil, fmt.Errorf("index %d is out of bounds for a pile of size %d", index, len(*p))
+	}
+	card, err := p.GetCard(index)
+	if err != nil {
+		return nil, err
 	}
 
 	// 2. Perform the removal using a standard Go slice trick.
@@ -77,7 +81,7 @@ func (p *Pile) RemoveCardByIndex(index int) error {
 	*p = append((*p)[:index], (*p)[index+1:]...)
 
 	// 3. Return nil to indicate that the operation was successful.
-	return nil
+	return card, nil
 }
 
 func (p *Pile) String() string {

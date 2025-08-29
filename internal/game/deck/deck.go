@@ -50,52 +50,55 @@ func (d *Deck) GetZone(zoneName string) (*card.Pile, error) {
 
 
 // Move uma carta do topo do deck para a mão
-func (d *Deck) DrawToHand() error {
+func (d *Deck) DrawToHand() (*card.Card,error) {
 	deck := d.zones["deck"]
 	hand := d.zones["hand"]
 
 	card, err := deck.DrawTop()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	hand.AddCard(card)
-	return nil
+	return card, nil
 }
 
 // Move uma carta da mão para a zona de play (index da mão)
-func (d *Deck) PlayCardFromHand(index int) error {
+func (d *Deck) PlayCardFromHand(index int) (*card.Card, error) {
 	hand := d.zones["hand"]
 	play := d.zones["play"]
 
 	card, err := hand.GetCard(index)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := hand.RemoveCard(card); err != nil {
-		return err
+		return nil, err
 	}
 	play.AddCard(card)
-	return nil
+	return card, nil
 }
 
-func (d *Deck) ResolvePlay(won bool) error {
+func (d *Deck) ResolvePlay(won bool) (string, error) {
 	play := d.zones["play"]
 	var target *card.Pile
+	var string string
 
 	if won {
 		target = d.zones["win"]
+		string = "you win this round"
 	} else {
 		target = d.zones["out"]
+		string = "you lose this round"
 	}
 
 	card, err := play.DrawTop() //Como é uma pilha de uma carta só, faz sentido isso.
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	target.AddCard(card)
-	return nil
+	return string, nil
 }
 
 func (d *Deck) WinCondition() bool {
