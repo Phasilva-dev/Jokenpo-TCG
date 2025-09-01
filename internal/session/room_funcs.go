@@ -1,0 +1,84 @@
+package session
+
+import (
+	"fmt"
+	"jokenpo/internal/session/message"
+	"strings"
+)
+
+func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
+	var warningMessage string
+	drawSuccessful := true // Começamos assumindo que a compra será bem-sucedida.
+
+	// 1. Tenta comprar o número de cartas especificado.
+	for i := 0; i < numToDraw; i++ {
+		_, err := p.Player.DrawToHand()
+		if err != nil {
+			warningMessage = "Warning: Not enough cards in your deck. Play with the cards you received. \n"
+			drawSuccessful = false
+			break
+		}
+	}
+
+	// 2. Após as tentativas de compra, pega a visão da mão atual do jogador.
+	handStr, err := p.Player.SeeHand()
+	if err != nil {
+		// Loga o erro crítico no servidor. A partida continua para os outros.
+		fmt.Printf("ERRO CRÍTICO na sala %s: Falha ao obter a mão do jogador: %v\n", gr.ID, err)
+		return drawSuccessful // Retorna para não enviar uma mensagem quebrada.
+	}
+
+	// 3. Monta a mensagem final e personalizada para este jogador.
+	var finalMsgBuilder strings.Builder
+
+	// Adiciona o aviso, se houver um.
+	if warningMessage != "" {
+		finalMsgBuilder.WriteString("\n" + warningMessage)
+	}
+
+	// Anexa o estado atual da mão.
+	finalMsgBuilder.WriteString("Your current hand:\n")
+	finalMsgBuilder.WriteString(handStr)
+
+	// 4. Cria e envia a mensagem para o jogador.
+	msg := message.CreateSuccessResponse(finalMsgBuilder.String(), nil)
+	p.Client.Send() <- msg
+
+	return drawSuccessful
+}
+
+func (gr *GameRoom) checkDeckOutWinCondition(drawStatus map[*PlayerSession]bool) bool {
+	p1 := gr.players[0]
+	p2 := gr.players[1]
+	p1DrawOK := drawStatus[p1]
+	p2DrawOK := drawStatus[p2]
+
+	// Cenário 1: P1 não conseguiu comprar, mas P2 sim. P2 vence.
+	if !p1DrawOK && p2DrawOK {
+		gr.handleGameOver(p2, "Player 1 ran out of cards.")
+		return true // O jogo terminou.
+	}
+
+	// Cenário 2: P2 não conseguiu comprar, mas P1 sim. P1 vence.
+	if !p2DrawOK && p1DrawOK {
+		gr.handleGameOver(p1, "Player 2 ran out of cards.")
+		return true // O jogo terminou.
+	}
+
+	// Cenário 3: Ambos não conseguiram comprar. É um empate.
+	if !p1DrawOK && !p2DrawOK {
+		gr.handleGameOver(nil, "Both players ran out of cards.") // 'nil' indica empate.
+		return true // O jogo terminou.
+	}
+
+	return false // Nenhuma condição de Deck Out foi encontrada. O jogo continua.
+}
+
+func (gr *GameRoom) closeRoom() {
+	// 1. Sinaliza para a própria goroutine (Run) que ela deve parar.
+	// Usamos close() em vez de enviar um valor. É um padrão comum para canais de sinalização.
+	close(gr.quit)
+
+	// 2. Notifica o GameHandler que esta sala terminou, enviando seu ID.
+	gr.finished <- gr.ID
+}

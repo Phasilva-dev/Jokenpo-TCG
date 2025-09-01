@@ -19,6 +19,8 @@ type GameHandler struct {
 	rooms      map[string]*GameRoom
 	shop       *shop.Shop
 
+	roomFinished chan string
+
 	// Teremos dois roteadores, um para cada estado do jogador.
 	lobbyRouter map[string]CommandHandlerFunc
 	matchRouter map[string]CommandHandlerFunc
@@ -28,12 +30,13 @@ type GameHandler struct {
 func NewGameHandler() *GameHandler {
 	h := &GameHandler{
 		sessions:    make(map[*network.Client]*PlayerSession),
-		matchmaker:  NewMatchmaker(),
+		matchmaker:  nil,
 		rooms:       make(map[string]*GameRoom),
 		shop:        shop.NewShop(),
 		lobbyRouter: make(map[string]CommandHandlerFunc),
 		matchRouter: make(map[string]CommandHandlerFunc),
 	}
+	h.matchmaker = NewMatchmaker(h)
 	// Populamos os roteadores com seus respectivos comandos.
 	h.registerLobbyHandlers()
 	h.registerMatchHandlers()
