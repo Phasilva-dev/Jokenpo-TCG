@@ -1,8 +1,9 @@
 package player
 
 import (
-	"jokenpo/internal/game/player/inventory"
 	"fmt"
+	"jokenpo/internal/game/player/inventory"
+	"math/rand/v2"
 )
 
 const PLAY = "playing"
@@ -13,12 +14,17 @@ var possibleStates = []string{PLAY, MENU}
 type Player struct {
 	inventory *inventory.Inventory
 	state string
+	rng *rand.Rand
 }
 
-func NewPlayer() *Player {
+func NewPlayer(seed uint64) *Player {
+	// PCG é um gerador rápido e de boa qualidade para jogos.
+	rngSource := rand.NewPCG(seed, 1) 
+
 	return &Player{
 		inventory: inventory.NewInventory(),
-		state: "menu",
+		state:     "menu",
+		rng:       rand.New(rngSource), // Cria a instância do Rand a partir da fonte
 	}
 }
 

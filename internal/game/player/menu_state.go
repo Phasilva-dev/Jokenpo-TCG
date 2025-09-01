@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 
+	"jokenpo/internal/game/deck"
 	"jokenpo/internal/game/shop"
 )
 
@@ -51,4 +52,22 @@ func (p *Player) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) (st
 		return "", fmt.Errorf("")
 	}
 	return p.inventory.ReplaceCardInDeck(indexToRemove, keyOfCardToAdd)
+}
+
+func (p *Player) StartPlay() (error) {
+	if p.state != MENU {
+		return fmt.Errorf("")
+	}
+	
+	p.inventory.GameDeck().ResetToDeck()
+	deck, err := p.inventory.GameDeck().GetZone(deck.DECK)
+	if err != nil {
+		return err
+	}
+	if deck.Size() != 12 {
+		return fmt.Errorf("")
+	}
+
+	p.state = PLAY
+	return nil
 }

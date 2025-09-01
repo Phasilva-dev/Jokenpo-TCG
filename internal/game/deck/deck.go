@@ -159,7 +159,7 @@ func (d *Deck) ResetToDeck() {
 	deck := d.zones["deck"]
 
 	for zoneName, pile := range d.zones {
-		if zoneName == "deck" {
+		if zoneName == "deck" || pile.Size() == 0 {
 			continue
 		}
 		// adiciona todas as cartas de volta ao deck

@@ -5,6 +5,18 @@ import (
 	"jokenpo/internal/game/deck"
 )
 
+
+
+func (p *Player) EndPlay() (error) {
+	if p.state != MENU {
+		return fmt.Errorf("")
+	}
+	p.inventory.GameDeck().ResetToDeck()
+	p.state = MENU
+	return nil
+
+}
+
 func (p *Player) DrawToHand() (string, error) {
 	if p.state != PLAY {
 		return "", fmt.Errorf("")
