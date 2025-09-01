@@ -5,65 +5,132 @@ import (
 	"fmt"
 	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
+	"jokenpo/internal/session/message" // Importe seu novo pacote de mensagens
+	"strings"
 )
 
-// GameHandler implementa a interface network.EventHandler.
-// Ele gerencia o estado do jogo e confia no network.Hub para serializar
-// o acesso aos seus métodos, tornando desnecessário o uso de mutexes ou canais internos.
+// CommandHandlerFunc define a assinatura para todas as nossas funções que lidam com comandos.
+// Elas recebem o contexto da sessão e o payload bruto da mensagem.
+type CommandHandlerFunc func(h *GameHandler, session *PlayerSession, payload json.RawMessage)
+
 type GameHandler struct {
 	sessions   map[*network.Client]*PlayerSession
 	matchmaker *Matchmaker
 	rooms      map[string]*GameRoom
 	shop       *shop.Shop
+
+	// Teremos dois roteadores, um para cada estado do jogador.
+	lobbyRouter map[string]CommandHandlerFunc
+	matchRouter map[string]CommandHandlerFunc
 }
 
-// NewGameHandler cria um novo GameHandler.
+// NewGameHandler agora também inicializa e registra os handlers dos roteadores.
 func NewGameHandler() *GameHandler {
-	return &GameHandler{
-		sessions:   make(map[*network.Client]*PlayerSession),
-		matchmaker: NewMatchmaker(),
-		rooms:      make(map[string]*GameRoom),
-		shop:       shop.NewShop(),
+	h := &GameHandler{
+		sessions:    make(map[*network.Client]*PlayerSession),
+		matchmaker:  NewMatchmaker(),
+		rooms:       make(map[string]*GameRoom),
+		shop:        shop.NewShop(),
+		lobbyRouter: make(map[string]CommandHandlerFunc),
+		matchRouter: make(map[string]CommandHandlerFunc),
 	}
+	// Populamos os roteadores com seus respectivos comandos.
+	h.registerLobbyHandlers()
+	h.registerMatchHandlers()
+	return h
 }
 
 // --- Implementação da Interface network.EventHandler ---
 
 // OnConnect é chamado pela goroutine do network.Hub. É seguro modificar o estado aqui.
 func (h *GameHandler) OnConnect(c *network.Client) {
+	// 1. Cria a sessão do jogador
 	session := NewPlayerSession(c)
 	h.sessions[c] = session
-	fmt.Printf("Sessão criada para %s. Total de sessões: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
+	fmt.Printf("Session created for %s. Total sessions: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
+
+	// --- Abertura de Pacotes ---
+	const initialPacksToOpen = 4
+	var purchasedPacksResults []string // Para guardar as strings formatadas originais
+	var allObtainedCardKeys []string   // Para guardar apenas as chaves das cartas
+
+	for i := 0; i < initialPacksToOpen; i++ {
+		packResultStr, err := session.Player.PurchasePackage(h.shop)
+		if err != nil {
+			fmt.Printf("ERROR giving initial pack #%d to player %s: %v\n", i+1, c.Conn().RemoteAddr(), err)
+			continue
+		}
+		
+		purchasedPacksResults = append(purchasedPacksResults, packResultStr)
+		
+		cardKeys := parseCardKeysFromPackageString(packResultStr)
+		allObtainedCardKeys = append(allObtainedCardKeys, cardKeys...)
+	}
+
+	// --- Lógica de Construção do Deck Inicial ---
+	deckBuildMessage := "Your first 12 cards have been added to your deck."
 	
-	// Envia mensagem de boas-vindas
-	welcomeMsg := createSuccessResponse("Bem-vindo ao servidor!", nil)
+	for _, key := range allObtainedCardKeys {
+		_, err := session.Player.AddCardToDeck(key)
+		if err != nil {
+			deckBuildMessage = "Your initial cards were so powerful they exceeded the 80 power limit! Not all cards could be added to your starting deck."
+			break
+		}
+	}
+
+	// --- Formatação da Mensagem Final para o Cliente ---
+	var sb strings.Builder
+	sb.WriteString("Welcome to the Jokenpo Game!\n")
+	sb.WriteString(fmt.Sprintf("As a bonus, you received %d card packs:\n\n", initialPacksToOpen))
+	
+	// Mostra os pacotes que o jogador abriu
+	fullPacksString := strings.Join(purchasedPacksResults, "\n")
+	sb.WriteString(fullPacksString)
+
+	// Adiciona a mensagem sobre o status da construção do deck
+	sb.WriteString("\n\n") // Duas quebras de linha para espaçamento
+	sb.WriteString(deckBuildMessage)
+
+	// Envia a resposta final
+	welcomeMsg := message.CreateSuccessResponse(
+		"Connection successful! Welcome!",
+		sb.String(),
+	)
 	c.Send() <- welcomeMsg
 }
 
-// OnDisconnect é chamado pela goroutine do network.Hub. É seguro modificar o estado aqui.
 func (h *GameHandler) OnDisconnect(c *network.Client) {
-	if _, ok := h.sessions[c]; ok {
-		// Lógica futura: se o jogador estava em uma sala, notifique o oponente.
-		delete(h.sessions, c)
-		fmt.Printf("Sessão removida para %s. Total de sessões: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
-	}
+	// Futuramente: notificar sala de jogo, remover do matchmaking, etc.
+	delete(h.sessions, c)
+	fmt.Printf("Session removed. Total: %d\n", len(h.sessions))
 }
 
-// OnMessage é chamado pela goroutine do network.Hub. É seguro modificar o estado aqui.
+// OnMessage agora é um despachante limpo e simples.
 func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
 	session, ok := h.sessions[c]
 	if !ok {
-		// Cliente enviou mensagem mas não tem sessão. Ignorar.
+		return // Ignora mensagens de clientes sem sessão.
+	}
+
+	var router map[string]CommandHandlerFunc
+	// 1. Seleciona o roteador apropriado baseado no estado do jogador.
+	switch session.State {
+	case StateLobby:
+		router = h.lobbyRouter
+	case StateInMatch:
+		router = h.matchRouter
+	default:
+		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid state of player: %s", session.State))
 		return
 	}
 
-	// Aqui, você roteia o comando baseado no estado da sessão.
-	switch session.State {
-	case StateLobby:
-		h.handleLobbyCommand(session, msg)
-	case StateInMatch:
-		h.handleMatchCommand(session, msg)
-	default:
-		// Estado desconhecido, talvez envie um erro.
+	// 2. Procura pelo handler do comando no roteador selecionado.
+	handler, found := router[msg.Type]
+	if !found {
+		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Unknown or invalid command for actual state of player: %s", msg.Type))
+		return
 	}
+
+	// 3. Executa o handler encontrado.
+	handler(h, session, msg.Payload)
 }
