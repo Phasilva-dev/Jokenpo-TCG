@@ -2,9 +2,17 @@ package session
 
 import (
 	"fmt"
+	"jokenpo/internal/network"
 	"jokenpo/internal/session/message"
 	"strings"
 )
+
+// broadcast é uma função de conveniência para enviar a mesma mensagem para ambos os jogadores.
+func (gr *GameRoom) broadcast(msg network.Message) {
+	for _, p := range gr.players {
+		p.Client.Send() <- msg
+	}
+}
 
 func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	var warningMessage string
@@ -72,6 +80,14 @@ func (gr *GameRoom) checkDeckOutWinCondition(drawStatus map[*PlayerSession]bool)
 	}
 
 	return false // Nenhuma condição de Deck Out foi encontrada. O jogo continua.
+}
+
+// getOpponent é um pequeno utilitário para encontrar o oponente de um jogador na sala.
+func (gr *GameRoom) getOpponent(p *PlayerSession) *PlayerSession {
+	if gr.players[0] == p {
+		return gr.players[1]
+	}
+	return gr.players[0]
 }
 
 func (gr *GameRoom) closeRoom() {

@@ -3,6 +3,7 @@ package deck
 import (
 	"fmt"
 	"jokenpo/internal/game/card"
+	"math/rand/v2"
 	"strings"
 )
 
@@ -68,6 +69,23 @@ func (d *Deck) PlayCardFromHand(index int) (*card.Card, error) {
 	play := d.zones["play"]
 
 	card, err := hand.GetCard(index)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := hand.RemoveCard(card); err != nil {
+		return nil, err
+	}
+	play.AddCard(card)
+	return card, nil
+}
+
+func (d *Deck) PlayRandomCardFromHand(rng *rand.Rand) (*card.Card, error) {
+	hand := d.zones["hand"]
+	play := d.zones["play"]
+
+	n := rng.IntN(hand.Size())
+	card, err := hand.GetCard(n)
 	if err != nil {
 		return nil, err
 	}

@@ -42,6 +42,18 @@ func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
 	return card, nil
 }
 
+func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
+	if p.state != PLAY {
+		return nil, fmt.Errorf("")
+	}
+	card, err := p.Inventory().GameDeck().PlayRandomCardFromHand(p.rng)
+	if err != nil {
+		return nil, err
+	}
+	//String personalizada, algo como "Você comprou a seguinte carta card.string()"
+	return card, nil
+}
+
 func (p *Player) ResolvePlay(won bool) (string, error) {
 	if p.state != PLAY {
 		return "", fmt.Errorf("")
@@ -62,23 +74,6 @@ func (p *Player) WinCondition() (bool, error) {
 		return false, fmt.Errorf("")
 	}
 	return p.inventory.GameDeck().WinCondition(), nil
-}
-
-func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
-	if p.state != PLAY {
-		return nil, fmt.Errorf("")
-	}
-	pile, err :=p.inventory.GameDeck().GetZone(deck.DECK)
-	if err != nil {
-		return nil, err
-	}
-	n := p.rng.IntN(pile.Size())
-	card, err := p.Inventory().GameDeck().PlayCardFromHand(n)
-	if err != nil {
-		return nil, err
-	}
-	return card, nil
-
 }
 
 // HasNoMoreMoves verifica se o jogador não tem mais cartas no deck nem na mão.

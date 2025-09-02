@@ -5,6 +5,7 @@ import (
 	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
 	"jokenpo/internal/session/message"
+	"github.com/google/uuid"
 )
 
 func (h *GameHandler) Matchmaker() *Matchmaker { return h.matchmaker }
@@ -37,12 +38,30 @@ func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	p2.State = state_IN_MATCH
 
 	// TODO: Criar e gerenciar a GameRoom.
+	roomID := uuid.New().String()
 
-	NewGameRoom("",p1,p2, nil)
+	// 2. Cria a instância da GameRoom, passando o ID e o canal 'finished'.
+	room := NewGameRoom(roomID, p1, p2, h.roomFinished)
+
+	// 3. Armazena a sala no mapa de salas ativas do GameHandler.
+	h.rooms[roomID] = room
+	p1.CurrentRoom = room
+	p2.CurrentRoom = room
+
+	// 4. Inicia a goroutine da sala de jogo. É AQUI QUE O JOGO COMEÇA!
+	go room.Run()
 	
 	msg := message.CreateSuccessResponse("Match found! The game is starting.", nil)
 	p1.Client.Send() <- msg
 	p2.Client.Send() <- msg
 
 	fmt.Printf("Game room created successfully for %s and %s.\n", p1.Client.Conn().RemoteAddr(), p2.Client.Conn().RemoteAddr())
+}
+
+// registerMatchHandlers popula o roteador com os comandos disponíveis durante uma partida.
+func (h *GameHandler) registerMatchHandlers() {
+
+	h.matchRouter["PLAY_CARD"] = handlePlayCard
+
+	// Se no futuro você adicionar mais ações de partida (ex: "USE_SKILL"),
 }
