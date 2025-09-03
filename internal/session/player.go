@@ -10,6 +10,7 @@ import (
 const (
 	state_LOBBY = "lobby"  // Jogador está online, no menu, pode usar o chat, etc.
 	state_IN_MATCH = "in-match" // Jogador está em uma partida ativa.
+	state_IN_QUEUE = "in-queue"
 )
 
 // PlayerSession representa um jogador único e conectado ao servidor.

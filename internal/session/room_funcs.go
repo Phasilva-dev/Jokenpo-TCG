@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"jokenpo/internal/game/card"
 	"jokenpo/internal/network"
 	"jokenpo/internal/session/message"
 	"strings"
@@ -18,22 +19,25 @@ func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	var warningMessage string
 	drawSuccessful := true // Começamos assumindo que a compra será bem-sucedida.
 
+	var card *card.Card
 	// 1. Tenta comprar o número de cartas especificado.
 	for i := 0; i < numToDraw; i++ {
-		_, err := p.Player.DrawToHand()
+		var err error
+		card, err = p.Player.DrawToHand()
 		if err != nil {
 			warningMessage = "Warning: Not enough cards in your deck. Play with the cards you received. \n"
 			drawSuccessful = false
 			break
 		}
+		p.Client.Send()
 	}
 
 	// 2. Após as tentativas de compra, pega a visão da mão atual do jogador.
 	handStr, err := p.Player.SeeHand()
 	if err != nil {
-		// Loga o erro crítico no servidor. A partida continua para os outros.
-		fmt.Printf("ERRO CRÍTICO na sala %s: Falha ao obter a mão do jogador: %v\n", gr.ID, err)
-		return drawSuccessful // Retorna para não enviar uma mensagem quebrada.
+		// Erro critico, encerra o game em empate
+		msg := fmt.Sprintf("critical error in the room %s: failed to see player's hand: %v\n", gr.ID, err)
+		gr.handleGameOver(nil, msg)
 	}
 
 	// 3. Monta a mensagem final e personalizada para este jogador.
@@ -42,6 +46,11 @@ func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	// Adiciona o aviso, se houver um.
 	if warningMessage != "" {
 		finalMsgBuilder.WriteString("\n" + warningMessage)
+	} else {
+		if numToDraw == 1 && card != nil {
+			msg := fmt.Sprintf("You drew this card: %s \n", card.String())
+			finalMsgBuilder.WriteString(msg)
+		}
 	}
 
 	// Anexa o estado atual da mão.

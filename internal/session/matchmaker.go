@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"jokenpo/internal/session/message"
+	"strings"
 	"time"
 )
 
@@ -11,6 +12,8 @@ type Matchmaker struct {
 
 	// Canal para adicionar jogadores à fila de forma segura e concorrente.
 	enqueue chan *PlayerSession
+
+	dequeue chan *PlayerSession
 
 	// Uma referência de volta ao GameHandler para que o Matchmaker possa
 	// criar salas de jogo e atualizar o estado dos jogadores.
@@ -22,6 +25,7 @@ func NewMatchmaker(gh *GameHandler) *Matchmaker {
 	return &Matchmaker{
 		queue:       make([]*PlayerSession, 0),
 		enqueue:     make(chan *PlayerSession),
+		dequeue:     make(chan *PlayerSession),
 		gameHandler: gh,
 	}
 }
@@ -35,6 +39,7 @@ func (m *Matchmaker) Run() {
 
 	for {
 		select {
+		
 		// Um novo jogador quer entrar na fila.
 		case playerSession := <-m.enqueue:
 			m.queue = append(m.queue, playerSession)
@@ -45,6 +50,24 @@ func (m *Matchmaker) Run() {
 			playerSession.Client.Send() <- msg
 
 
+		case playerToLeave := <- m.dequeue:
+			for i, playerInQueue := range m.queue {
+				if playerInQueue == playerToLeave {
+					// Encontramos! Removemos o jogador usando o truque de slice do Go.
+					m.queue = append(m.queue[:i], m.queue[i+1:]...)
+					
+					// Log no servidor para depuração.
+					fmt.Printf("Player %s left matchmaking queue. Queue size now: %d\n",
+						playerToLeave.Client.Conn().RemoteAddr(), len(m.queue))
+
+					// Envia uma mensagem de confirmação para o jogador.
+					msg := message.CreateSuccessResponse("You have left the matchmaking queue.", nil)
+					playerToLeave.Client.Send() <- msg
+					
+					// Para o loop 'for' pois já encontramos e removemos o jogador.
+					break 
+				}
+			}
 		// O ticker disparou, hora de verificar se podemos formar um par.
 		case <-ticker.C:
 			if len(m.queue) >= 2 {
@@ -59,6 +82,8 @@ func (m *Matchmaker) Run() {
 				
 				// Delega a criação da sala de jogo para o GameHandler.
 				m.gameHandler.CreateNewRoom(player1, player2)
+			} else {
+				m.broadcastQueue()
 			}
 		}
 	}
@@ -69,4 +94,29 @@ func (m *Matchmaker) EnqueuePlayer(session *PlayerSession) {
 	// Apenas envia a sessão para o canal. A goroutine Run do Matchmaker
 	// fará o resto do trabalho. Isso é rápido e não bloqueia.
 	m.enqueue <- session
+}
+
+func (m *Matchmaker) broadcastQueue() {
+	// --- NOVA LÓGICA AQUI ---
+	// Se não temos um par, mas há jogadores na fila, vamos atualizá-los.
+	// O 'for range' em um slice vazio não faz nada, então é seguro.
+	for i, playerInQueue := range m.queue {
+	// O índice 'i' é 0-based, então a posição é 'i + 1'.
+		position := i + 1
+
+		statusMsg := fmt.Sprintf("Still searching for a match... You are position %d in queue.\n", position)
+		dequeueMsg := "Send 0 to dequeue or continue waiting\n"
+
+		var sb strings.Builder
+
+		sb.WriteString(statusMsg)
+		sb.WriteString(dequeueMsg)
+					
+		msg := message.CreateSuccessResponse(sb.String(), nil)
+		playerInQueue.Client.Send() <- msg
+	}
+}
+
+func (m *Matchmaker) LeaveQueue(session *PlayerSession) {
+	m.dequeue <- session
 }

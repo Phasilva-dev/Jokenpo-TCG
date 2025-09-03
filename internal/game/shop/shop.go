@@ -5,7 +5,7 @@ import (
 	"jokenpo/internal/game/card"
 	"math"
 	"math/rand/v2"
-	"strings"
+	//"strings"
 )
 
 type Shop struct {
@@ -20,10 +20,10 @@ func NewShop() *Shop {
 
 const maxPurchases = math.MaxUint64
 
-func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) (string, error) {
+func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) ([]*card.Card, error) {
 
 	if s.packageCount >= maxPurchases {
-		return "", fmt.Errorf("cannot process purchase: maximum purchase limit reached")
+		return nil, fmt.Errorf("cannot process purchase: maximum purchase limit reached")
 	}
 
 	const packageSize = 3
@@ -43,7 +43,7 @@ func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) 
 		if err != nil {
 			// If even one card is invalid, the entire package purchase fails.
 			// This prevents an inconsistent state.
-			return "", fmt.Errorf("failed to generate a valid card for the package: %w", err)
+			return nil, fmt.Errorf("failed to generate a valid card for the package: %w", err)
 		}
 		
 		keys[i] = key
@@ -52,7 +52,7 @@ func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) 
 	for i := 0; i < 3; i++ {
 		err := collection.AddCard(keys[i],1)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
@@ -71,11 +71,11 @@ func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) 
 	}
 
 	// 
-	var sb strings.Builder
+	/*var sb strings.Builder
 	sb.WriteString("Purchased Package:\n")
 	for i, c := range cardsToAdd {
 		sb.WriteString(fmt.Sprintf("[%d]: %s\n", i, c))
-	}
+	}*/
 
-	return sb.String(), nil
+	return cardsToAdd, nil
 }

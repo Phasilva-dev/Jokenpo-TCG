@@ -26,3 +26,4 @@ func (h *GameHandler) handleRoomCreationError(failedPlayer, innocentPlayer *Play
 	fmt.Printf("Failed to create room. Player (%s) failed: %v. Player (%s) was re-queued.\n",
 		failedPlayer.Client.Conn().RemoteAddr(), err, innocentPlayer.Client.Conn().RemoteAddr())
 }
+

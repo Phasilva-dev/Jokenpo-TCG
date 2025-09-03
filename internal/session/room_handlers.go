@@ -18,7 +18,7 @@ func (gr *GameRoom) startGame() {
 
 	drawStatus := make(map[*PlayerSession]bool)
 	for _, p := range gr.players {
-		drawStatus[p] = gr.drawCardsAndNotify(p, 1)
+		drawStatus[p] = gr.drawCardsAndNotify(p, initial_HAND_SIZE)
 	}
 
 	if gr.checkDeckOutWinCondition(drawStatus) {

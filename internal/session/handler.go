@@ -3,6 +3,7 @@ package session
 import (
 	"encoding/json"
 	"fmt"
+	"jokenpo/internal/game/card"
 	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
 	"jokenpo/internal/session/message" // Importe seu novo pacote de mensagens
@@ -54,29 +55,28 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 
 	// --- Abertura de Pacotes ---
 	const initialPacksToOpen = 4
-	var purchasedPacksResults []string // Para guardar as strings formatadas originais
-	var allObtainedCardKeys []string   // Para guardar apenas as chaves das cartas
+	var purchasedPacksResults []*card.Card // Para guardar as strings formatadas originais
 
 	for i := 0; i < initialPacksToOpen; i++ {
-		packResultStr, err := session.Player.PurchasePackage(h.shop)
+		packResult, err := session.Player.PurchasePackage(h.shop)
 		if err != nil {
 			fmt.Printf("ERROR giving initial pack #%d to player %s: %v\n", i+1, c.Conn().RemoteAddr(), err)
 			continue
 		}
 		
-		purchasedPacksResults = append(purchasedPacksResults, packResultStr)
-		
-		cardKeys := parseCardKeysFromPackageString(packResultStr)
-		allObtainedCardKeys = append(allObtainedCardKeys, cardKeys...)
+		purchasedPacksResults = append(purchasedPacksResults, packResult...)
+	
 	}
 
 	// --- Lógica de Construção do Deck Inicial ---
 	deckBuildMessage := "Your first 12 cards have been added to your deck."
 	
-	for _, key := range allObtainedCardKeys {
-		_, err := session.Player.AddCardToDeck(key)
+	for i, card := range purchasedPacksResults {
+		_, err := session.Player.AddCardToDeck(card.Key())
 		if err != nil {
-			deckBuildMessage = "Your initial cards were so powerful they exceeded the 80 power limit! Not all cards could be added to your starting deck."
+			
+			deckBuildMessage = 
+			fmt.Sprintf("Your initial cards were so powerful they exceeded the 80 power limit!\n Not all cards could be added to your starting deck.\n You have added only %d", i)
 			break
 		}
 	}
@@ -87,8 +87,8 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	sb.WriteString(fmt.Sprintf("As a bonus, you received %d card packs:\n\n", initialPacksToOpen))
 	
 	// Mostra os pacotes que o jogador abriu
-	fullPacksString := strings.Join(purchasedPacksResults, "\n")
-	sb.WriteString(fullPacksString)
+	results := card.SliceOfCardsToString(purchasedPacksResults)
+	sb.WriteString(results)
 
 	// Adiciona a mensagem sobre o status da construção do deck
 	sb.WriteString("\n\n") // Duas quebras de linha para espaçamento
@@ -118,9 +118,9 @@ func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
 	var router map[string]CommandHandlerFunc
 	// 1. Seleciona o roteador apropriado baseado no estado do jogador.
 	switch session.State {
-	case StateLobby:
+	case state_LOBBY:
 		router = h.lobbyRouter
-	case StateInMatch:
+	case state_IN_MATCH:
 		router = h.matchRouter
 	default:
 		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid state of player: %s", session.State))

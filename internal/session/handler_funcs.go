@@ -19,6 +19,7 @@ func (h *GameHandler) Shop() *shop.Shop { return h.shop }
 func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	// Tenta preparar o primeiro jogador.
 	if err := p1.Player.StartPlay(); err != nil {
+		p1.Player.EndPlay()
 		// Se p1 falhar, p2 é o "inocente".
 		h.handleRoomCreationError(p1, p2, err)
 		return
@@ -26,6 +27,7 @@ func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 
 	// Tenta preparar o segundo jogador.
 	if err := p2.Player.StartPlay(); err != nil {
+		p2.Player.EndPlay()
 		// Se p2 falhar, p1 é o "inocente".
 		h.handleRoomCreationError(p2, p1, err)
 		return

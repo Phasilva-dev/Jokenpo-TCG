@@ -18,16 +18,15 @@ func (p *Player) EndPlay() (error) {
 
 }
 
-func (p *Player) DrawToHand() (string, error) {
+func (p *Player) DrawToHand() (*card.Card, error) {
 	if p.state != PLAY {
-		return "", fmt.Errorf("")
+		return nil, fmt.Errorf("")
 	}
 	card, err := p.Inventory().GameDeck().DrawToHand()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	//String personalizada, algo como "Você comprou a seguinte carta card.string()"
-	return card.String(), nil
+	return card, nil
 }
 
 func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
@@ -38,7 +37,6 @@ func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
 	if err != nil {
 		return nil, err
 	}
-	//String personalizada, algo como "Você comprou a seguinte carta card.string()"
 	return card, nil
 }
 
@@ -50,7 +48,6 @@ func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
 	if err != nil {
 		return nil, err
 	}
-	//String personalizada, algo como "Você comprou a seguinte carta card.string()"
 	return card, nil
 }
 

@@ -2,6 +2,7 @@ package card
 
 import (
 	"fmt"
+	"strings"
 )
 
 func CardKey (typo string, value uint8, color string) string{
@@ -51,4 +52,20 @@ func validateColor(c *Card) error {
 		return fmt.Errorf("invalid card color: %s", c.color)
 	}
 	return nil
+}
+
+func SliceOfCardsToString(cards []*Card) string {
+
+	if cards == nil || len(cards) == 0 {
+		return "(No cards to display)"
+	}
+
+	var sb strings.Builder
+
+	for i, c := range cards {
+		line := fmt.Sprintf("[%d]: %s\n", i, c)
+
+		sb.WriteString(line)
+	}
+	return strings.TrimSuffix(sb.String(), "\n")
 }
