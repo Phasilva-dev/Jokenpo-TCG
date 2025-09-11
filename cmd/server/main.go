@@ -1,64 +1,45 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
-	"sync"
 
-	"jokenpo/internal/network" // Verifique se este é o path correto
+	"jokenpo/internal/game/card"
+	"jokenpo/internal/network"
+	"jokenpo/internal/session"
 )
 
-// GameHandler agora mantém o estado do número de clientes de forma segura.
-type GameHandler struct {
-	mu          sync.Mutex
-	clientCount int
-}
-
-func (h *GameHandler) OnConnect(c *network.Client) {
-	h.mu.Lock()
-	h.clientCount++
-	h.mu.Unlock()
-	log.Printf("[GameHandler] Novo cliente conectado: %s. Total: %d\n", c.Conn().RemoteAddr(), h.clientCount)
-}
-
-func (h *GameHandler) OnDisconnect(c *network.Client) {
-	h.mu.Lock()
-	h.clientCount--
-	h.mu.Unlock()
-	log.Printf("[GameHandler] Cliente desconectado: %s. Total: %d\n", c.Conn().RemoteAddr(), h.clientCount)
-}
-
-func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
-	log.Printf("[GameHandler] Mensagem de %s: Tipo=%s\n", c.Conn().RemoteAddr(), msg.Type)
-
-	switch msg.Type {
-	case "TEST":
-		// Simplesmente ecoa a mensagem de teste de volta para o remetente
-		c.Send() <- msg
-
-	case "GET_CLIENT_COUNT":
-		h.mu.Lock()
-		count := h.clientCount
-		h.mu.Unlock()
-
-		// Cria um payload de resposta com a contagem atual
-		payload := map[string]int{"count": count}
-		payloadBytes, _ := json.Marshal(payload)
-
-		// Cria e envia a mensagem de resposta
-		response := network.Message{
-			Type:    "CLIENT_COUNT_RESPONSE",
-			Payload: payloadBytes,
-		}
-		c.Send() <- response
-	}
-}
-
 func main() {
-	gameHandler := &GameHandler{}
+	// --- ETAPA 1: Inicialização Global ---
+	// Esta é a primeira coisa que fazemos. Se o catálogo de cartas não puder
+	// ser carregado, a aplicação não pode continuar.
+	if err := card.InitGlobalCatalog(); err != nil {
+		log.Fatalf("Falha fatal ao inicializar o catálogo de cartas: %v", err)
+	}
+	fmt.Println("Catálogo de cartas inicializado com sucesso.")
+
+	// --- ETAPA 2: Configuração da Lógica do Jogo ---
+	// Criamos a instância principal que gerenciará toda a lógica do jogo.
+	gameHandler := session.NewGameHandler()
+
+	// Inicia o matchmaker em sua própria goroutine.
+	go gameHandler.Matchmaker().Run()
+	fmt.Println("Matchmaker iniciado.")
+
+	// --- ETAPA 3: Configuração da Camada de Rede ---
+	// Criamos o servidor de rede e injetamos nosso gameHandler.
+	// A partir deste ponto, o servidor de rede notificará o gameHandler sobre
+	// conexões, desconexões e mensagens.
 	server := network.NewServer(gameHandler)
-	err := server.Listen(":8080")
-	if err != nil {
-		log.Fatalf("Não foi possível iniciar o servidor: %v", err)
+	fmt.Println("Servidor de rede criado.")
+
+	// --- ETAPA 4: Iniciar o Servidor ---
+	// Define o endereço e a porta em que o servidor irá escutar.
+	address := "0.0.0.0:8080"
+	
+	// server.Listen() é uma chamada bloqueante. O programa ficará "preso" aqui,
+	// aceitando novas conexões indefinidamente, até que o processo seja encerrado.
+	if err := server.Listen(address); err != nil {
+		log.Fatalf("Falha fatal ao iniciar o servidor de rede: %v", err)
 	}
 }

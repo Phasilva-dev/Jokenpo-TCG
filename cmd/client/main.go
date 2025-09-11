@@ -1,143 +1,205 @@
+// jokenpo/cmd/client/main.go
 package main
 
 import (
-	"encoding/binary"
+	"bufio"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net"
-	"strconv"
-	"os"
+	"jokenpo/internal/network"
 	"log"
-	"bufio"
-	"time"
-
-	"jokenpo/internal/network" // ajuste para o path real do seu módulo
+	"net"
+	"os"
+	"strconv" // Usaremos para converter string para int
+	"strings"
 )
 
-// escreve uma mensagem seguindo o framing
-func writeMessage(conn net.Conn, msg network.Message) error {
-	msgBytes, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
+// Definimos os estados do cliente para sabermos qual menu mostrar.
+const (
+	StateMainMenu = "MainMenu"
+	StateInQueue  = "InQueue"
+	StateInMatch  = "InMatch"
+)
 
-	lenBuf := make([]byte, 4)
-	binary.LittleEndian.PutUint32(lenBuf, uint32(len(msgBytes)))
-
-	if _, err := conn.Write(lenBuf); err != nil {
-		return err
-	}
-	if _, err := conn.Write(msgBytes); err != nil {
-		return err
-	}
-	return nil
-}
-
-// lê uma mensagem seguindo o framing
-func readMessage(conn net.Conn) (*network.Message, error) {
-	lenBuf := make([]byte, 4)
-	if _, err := io.ReadFull(conn, lenBuf); err != nil {
-		return nil, err
-	}
-	msgLen := binary.LittleEndian.Uint32(lenBuf)
-
-	if msgLen > network.MaxMessageSize {
-		return nil, fmt.Errorf("resposta maior que o permitido (%d bytes)", msgLen)
-	}
-
-	msgBytes := make([]byte, msgLen)
-	if _, err := io.ReadFull(conn, msgBytes); err != nil {
-		return nil, err
-	}
-
-	var msg network.Message
-	if err := json.Unmarshal(msgBytes, &msg); err != nil {
-		return nil, err
-	}
-
-	return &msg, nil
-}
-
-// runInteractiveMode é para um jogador humano.
-func runInteractiveMode() {
-	conn, err := net.Dial("tcp", "127.0.0.1:8080")
-	if err != nil {
-		log.Fatalf("Erro ao conectar: %v", err)
-	}
-	defer conn.Close()
-
-	// Goroutine para ler respostas do servidor
-	go func() {
-		for {
-			resp, err := readMessage(conn)
-			if err != nil { return }
-			log.Printf("\n<-- SERVIDOR: Tipo=%s, Payload=%s\n> ", resp.Type, string(resp.Payload))
-		}
-	}()
-
-	log.Println("Modo Interativo. Formato: TIPO {\"json\":\"payload\"}")
-	fmt.Print("> ")
-	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		// Lógica para parsear e enviar a mensagem do usuário...
-		// (pode reaproveitar a lógica do cliente de teste interativo anterior)
-		fmt.Print("> ")
-	}
-}
-
-// runBotMode é o nosso testador de carga automatizado.
-func runBotMode() {
-	log.Println("Iniciando cliente em MODO BOT.")
-	serverAddr := os.Getenv("SERVER_ADDR")
-	if serverAddr == "" {
-		log.Fatal("SERVER_ADDR não definido para o modo bot.")
-	}
-
-	conn, err := net.Dial("tcp", serverAddr)
-	if err != nil {
-		log.Fatalf("Erro ao conectar em %s: %v", serverAddr, err)
-	}
-	defer conn.Close()
-
-	// Goroutine para logar respostas
-	go func() {
-		for {
-			resp, err := readMessage(conn)
-			if err != nil { return }
-			log.Printf("Resposta recebida: Tipo=%s, Payload=%s", resp.Type, string(resp.Payload))
-		}
-	}()
-
-	numRequests := 10
-	for i := 0; i < numRequests; i++ {
-		payload := map[string]string{"text": "Req #" + strconv.Itoa(i)}
-		payloadBytes, _ := json.Marshal(payload)
-		msg := network.Message{Type: "TEST", Payload: payloadBytes}
-
-		if err := writeMessage(conn, msg); err != nil {
-			log.Fatalf("Erro ao enviar mensagem: %v", err)
-		}
-		time.Sleep(500 * time.Millisecond)
-	}
-
-	log.Println("Enviando requisição para contagem de clientes...")
-	getCountMsg := network.Message{Type: "GET_CLIENT_COUNT"}
-	if err := writeMessage(conn, getCountMsg); err != nil {
-		log.Fatalf("Erro ao enviar GET_CLIENT_COUNT: %v", err)
-	}
-
-	log.Println("Teste concluído. Cliente em modo de espera.")
-	select {} // Bloqueia para sempre
-}
+var clientState = StateMainMenu // O cliente começa no menu principal.
 
 func main() {
-	// Pega o modo de operação da variável de ambiente
-	clientMode := os.Getenv("CLIENT_MODE")
-	
-	if clientMode == "bot" {
-		runBotMode()
+	// ... (código de conexão igual ao anterior)
+	address := "localhost:8080"
+	conn, err := net.Dial("tcp", address)
+	if err != nil {
+		log.Fatalf("Não foi possível conectar ao servidor em %s: %v", address, err)
+	}
+	defer conn.Close()
+	fmt.Printf("Conectado a %s!\n", address)
+
+	go readLoop(conn)
+	writeLoop(conn)
+}
+
+// readLoop agora tem uma responsabilidade a mais: mudar o estado do cliente.
+func readLoop(conn net.Conn) {
+	for {
+		msg, err := network.ReadMessage(conn)
+		if err != nil {
+			log.Println("Conexão com o servidor perdida. Pressione Enter para sair.")
+			// Encerra a aplicação se a conexão cair
+			os.Exit(0)
+			return
+		}
+
+		// --- MUDANÇA DE ESTADO DO CLIENTE ---
+		// O cliente "ouve" as mensagens do servidor para mudar seu próprio estado.
+		if msg.Type == "RESPONSE_SUCCESS" {
+			var payload struct{ Message string `json:"message"` }
+			json.Unmarshal(msg.Payload, &payload)
+			
+			// Detectamos palavras-chave na mensagem do servidor.
+			if strings.Contains(payload.Message, "matchmaking queue") {
+				clientState = StateInQueue
+			} else if strings.Contains(payload.Message, "Match found!") {
+				clientState = StateInMatch
+			} else if strings.Contains(payload.Message, "You have returned to the lobby") {
+				clientState = StateMainMenu
+			}
+		}
+
+		// Imprime a mensagem formatada (código anterior)
+		printServerMessage(msg)
+	}
+}
+
+// Extraí a lógica de impressão para uma função separada para manter o readLoop limpo.
+func printServerMessage(msg *network.Message) {
+	fmt.Println("\n<--- MENSAGEM DO SERVIDOR ---")
+	var successPayload struct {
+		Message string `json:"message"`
+		Data    any    `json:"data"`
+	}
+	var errorPayload struct {
+		Error string `json:"error"`
+	}
+
+	if msg.Type == "RESPONSE_SUCCESS" && json.Unmarshal(msg.Payload, &successPayload) == nil {
+		fmt.Printf("Status: SUCESSO\n")
+		fmt.Printf("Mensagem: %s\n", successPayload.Message)
+		if successPayload.Data != nil {
+			dataStr, _ := json.MarshalIndent(successPayload.Data, "", "  ")
+			fmt.Printf("Dados:\n%s\n", string(dataStr))
+		}
+	} else if msg.Type == "RESPONSE_ERROR" && json.Unmarshal(msg.Payload, &errorPayload) == nil {
+		fmt.Printf("Status: ERRO\n")
+		fmt.Printf("Mensagem: %s\n", errorPayload.Error)
 	} else {
-		runInteractiveMode()
+		fmt.Printf("Tipo: %s\n", msg.Type)
+		fmt.Printf("Payload: %s\n", string(msg.Payload))
+	}
+	fmt.Println("<--------------------------->")
+}
+
+// writeLoop agora é um roteador de estado.
+func writeLoop(conn net.Conn) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		// O loop principal agora decide qual menu mostrar com base no estado.
+		switch clientState {
+		case StateMainMenu:
+			handleMainMenu(conn, scanner)
+		case StateInQueue:
+			handleInQueueMenu(conn, scanner)
+		case StateInMatch:
+			handleInMatchMenu(conn, scanner)
+		}
+	}
+}
+
+// handleMainMenu mostra as opções do lobby.
+func handleMainMenu(conn net.Conn, scanner *bufio.Scanner) {
+	fmt.Println("\n--- Menu Principal ---")
+	fmt.Println("1. Procurar Partida")
+	fmt.Println("2. Ver Coleção de Cartas")
+	fmt.Println("3. Ver Baralho de Jogo")
+	fmt.Println("4. Comprar Pacote de Cartas")
+	fmt.Println("5. Adicionar Carta ao Baralho")
+	fmt.Println("6. Remover Carta do Baralho")
+	fmt.Println("7. Substituir Carta no Baralho")
+	fmt.Println("--------------------")
+	fmt.Print("Escolha uma opção: ")
+
+	scanner.Scan()
+	choice := scanner.Text()
+
+	var msg network.Message
+	switch choice {
+	case "1":
+		msg.Type = "FIND_MATCH"
+	case "2":
+		msg.Type = "VIEW_COLLECTION"
+	case "3":
+		msg.Type = "VIEW_DECK"
+	case "4":
+		msg.Type = "PURCHASE_PACKAGE"
+	case "5":
+		fmt.Print("Digite a chave da carta (ex: rock:5:red): ")
+		scanner.Scan()
+		key := scanner.Text()
+		payload, _ := json.Marshal(map[string]string{"key": key})
+		msg = network.Message{Type: "ADD_CARD_TO_DECK", Payload: payload}
+	// Adicione os casos 6 e 7 de forma similar, pedindo o input necessário.
+	case "6":
+		
+	default:
+		fmt.Println("Opção inválida.")
+		return // Volta ao início do loop para mostrar o menu novamente.
+	}
+	
+	if err := network.WriteMessage(conn, msg); err != nil {
+		log.Printf("Erro ao enviar mensagem: %v", err)
+	}
+}
+
+// handleInQueueMenu mostra as opções enquanto o jogador está na fila.
+func handleInQueueMenu(conn net.Conn, scanner *bufio.Scanner) {
+	fmt.Println("\n--- Fila de Espera ---")
+	fmt.Println("Aguardando o servidor encontrar um oponente...")
+	fmt.Println("0. Sair da Fila")
+	fmt.Println("--------------------")
+	fmt.Print("Escolha uma opção: ")
+
+	scanner.Scan()
+	choice := scanner.Text()
+
+	if choice == "0" {
+		msg := network.Message{Type: "LEAVE_QUEUE"}
+		if err := network.WriteMessage(conn, msg); err != nil {
+			log.Printf("Erro ao enviar mensagem: %v", err)
+		}
+	} else {
+		fmt.Println("Opção inválida.")
+	}
+}
+
+// handleInMatchMenu mostra as opções durante a partida.
+func handleInMatchMenu(conn net.Conn, scanner *bufio.Scanner) {
+	fmt.Println("\n--- Em Partida ---")
+	fmt.Println("Sua vez de jogar!")
+	fmt.Print("Digite o número da carta na sua mão para jogar: ")
+
+	scanner.Scan()
+	choiceStr := scanner.Text()
+	
+	// Converte a escolha (string) para um número (int).
+	cardIndex, err := strconv.Atoi(choiceStr)
+	if err != nil {
+		fmt.Println("Entrada inválida. Por favor, digite um número.")
+		return
+	}
+
+	// Monta o payload JSON que o servidor espera.
+	payload, _ := json.Marshal(map[string]int{"cardIndex": cardIndex})
+	msg := network.Message{Type: "PLAY_CARD", Payload: payload}
+
+	if err := network.WriteMessage(conn, msg); err != nil {
+		log.Printf("Erro ao enviar mensagem: %v", err)
 	}
 }

@@ -30,3 +30,11 @@ func handlePlayCard(h *GameHandler, session *PlayerSession, payload json.RawMess
 	// A GameRoom não precisa se preocupar com JSON, apenas com a lógica do jogo.
 	session.CurrentRoom.ForwardPlayCardAction(session, *req.CardIndex)
 }
+
+// registerMatchHandlers popula o roteador com os comandos disponíveis durante uma partida.
+func (h *GameHandler) registerMatchHandlers() {
+
+	h.matchRouter["PLAY_CARD"] = handlePlayCard
+
+	// Se no futuro você adicionar mais ações de partida (ex: "USE_SKILL"),
+}
