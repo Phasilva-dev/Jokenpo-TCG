@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+// --------- Funções Privadas ---------
+
 // broadcast é uma função de conveniência para enviar a mesma mensagem para ambos os jogadores.
 func (gr *GameRoom) broadcast(msg network.Message) {
 	for _, p := range gr.players {
@@ -15,6 +17,7 @@ func (gr *GameRoom) broadcast(msg network.Message) {
 	}
 }
 
+// Compra as cartas de um jogador, notifica ele e retorna um True (Conseguimos comprar) ou False (Acabou as cartas, deck out)
 func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	var warningMessage string
 	drawSuccessful := true // Começamos assumindo que a compra será bem-sucedida.
@@ -56,15 +59,19 @@ func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	// Anexa o estado atual da mão.
 	finalMsgBuilder.WriteString("Your current hand:\n")
 	finalMsgBuilder.WriteString(handStr)
+	finalMsgBuilder.WriteString("\n Escolha o indice da sua carta: ")
 
 	// 4. Cria e envia a mensagem para o jogador.
 	msg := message.CreateSuccessResponse(finalMsgBuilder.String(), nil)
 	p.Client.Send() <- msg
 
 	return drawSuccessful
+	//Função já mostra a mão e seus indices
 }
 
+//Função para checkar se alguém ganhou por deckout
 func (gr *GameRoom) checkDeckOutWinCondition(drawStatus map[*PlayerSession]bool) bool {
+	
 	p1 := gr.players[0]
 	p2 := gr.players[1]
 	p1DrawOK := drawStatus[p1]

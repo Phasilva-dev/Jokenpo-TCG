@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//Compra um pacote
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
 	result, err := session.Player.PurchasePackage(h.shop)
@@ -22,6 +23,7 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	session.Client.Send() <- message.CreateSuccessResponse("Package purchased successfully!", result)
 }
 
+// Compra multiplos pacotes (payload int amount)
 func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
 		Amount *int `json:"amount"`
@@ -59,6 +61,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 }
 
+// Adiciona um card da coleção pro deck, payload card key
 func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
 		Key *string `json:"key"`
@@ -82,13 +85,14 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 	
 }
 
+//Remove uma carta do deck, payload int index
 func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
-		Index *int `json:"amount"`
+		Index *int `json:"index"`
 	}
 
 	if err := json.Unmarshal(payload, &req); err != nil || req.Index == nil {
-		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'amount' field is required and must be a number.")
+		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'index' field is required and must be a number.")
 		return
 	}
 
@@ -100,7 +104,7 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 	deckSize := deck.Size()
 
 	if index < 0 || index > deckSize {
-		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid amount: must be between 0 and %d.", deckSize-1))
+		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid index: must be between 0 and %d.", deckSize-1))
 		return
 	}
 
@@ -169,8 +173,6 @@ func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMe
 func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
 	// 2. Chamada da Lógica de Negócio:
-	// Acessamos o método 'SeeCollection' do Player, que já faz todo o trabalho de
-	// buscar os dados do inventário e formatá-los em uma string legível.
 	collectionString, err := session.Player.SeeCollection()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())

@@ -21,58 +21,75 @@ func (gr *GameRoom) ForwardPlayCardAction(session *PlayerSession, cardIndex int)
 	gr.incoming <- action
 }
 
+//Funçao para iniciar o jogo
 func (gr *GameRoom) startGame() {
+	//Verifica o estado
 	if gr.gameState != phase_ROOM_START {
 		gr.handleGameOver(nil, 
     		fmt.Sprintf("Game start failed: invalid phase. Expected %v, but got %v", phase_ROOM_START, gr.gameState))
 		return
 	}
 
+	//Cria o campo de cartas jogadas
 	gr.playedCards = make(map[*PlayerSession]*card.Card)
 
+	//Cria o campo de quem jogou ou não
 	drawStatus := make(map[*PlayerSession]bool)
+
+	//Entrega as cartas para os dois jogadores
 	for _, p := range gr.players {
 		drawStatus[p] = gr.drawCardsAndNotify(p, initial_HAND_SIZE)
 	}
 
+	//Checka Deckout por segurança
 	if gr.checkDeckOutWinCondition(drawStatus) {
 		return // Se o jogo terminou, não inicie o timer da rodada.
 	}
 
 	
+
 	fmt.Printf("Room %s: Match started, timer of 30s activated.\n", gr.ID)
 	msg := message.CreateSuccessResponse(startHeader, nil)
+
+	//Muda estado pra esperando jogada
 	gr.gameState = phase_WAITING_FOR_PLAYS
-	gr.roundTimer = time.NewTimer(30 * time.Second)
+
+	gr.roundTimer = time.NewTimer(30 * time.Second)	//Inicia timer de 30 segs
 	gr.broadcast(msg)
+	//Devemos colocar o broadcast da
 }
 
+//Função para iniciar um novo Round
 func (gr *GameRoom) startNewRound() {
+	//Checkagem de estado
 	if gr.gameState != phase_ROUND_START {
 		gr.handleGameOver(nil, 
     		fmt.Sprintf("Round start failed: invalid phase. Expected %v, but got %v", phase_ROUND_START, gr.gameState))
 		return
 	}
+
 	gr.playedCards = make(map[*PlayerSession]*card.Card)
 	
 	drawStatus := make(map[*PlayerSession]bool)
-	for _, p := range gr.players {
+
+	for _, p := range gr.players { //Compra uma carta
 		drawStatus[p] = gr.drawCardsAndNotify(p, 1)
 	}
 
 	if gr.checkDeckOutWinCondition(drawStatus) {
-		return // Se o jogo terminou, não inicie o timer da rodada.
+		return 
 	}
 
 	msg := message.CreateSuccessResponse(startHeader, nil)
-	gr.gameState = phase_WAITING_FOR_PLAYS
+	gr.gameState = phase_WAITING_FOR_PLAYS //Mudança de estado
 	gr.roundTimer = time.NewTimer(30 * time.Second)
 	gr.broadcast(msg)
 }
 
+//Função para jogar carta
 func (gr *GameRoom) HandlePlayCard(player *PlayerSession, cardIndex int) {
 
-	if gr.gameState != phase_WAITING_FOR_PLAYS {
+	if gr.gameState != phase_WAITING_FOR_PLAYS { // Checka se estamos no momento correto de jogar
 		msg := message.CreateErrorResponse("It's not time to play a card right now.")
 		player.Client.Send() <- msg
 		return
@@ -109,7 +126,7 @@ func (gr *GameRoom) HandlePlayCard(player *PlayerSession, cardIndex int) {
 	if len(gr.playedCards) == len(gr.players) {
 		// Sim! É hora de resolver a rodada.
 		gr.roundTimer.Stop() // Para o timer para que ele não dispare desnecessariamente.
-		gr.gameState = phase_RESOLVING_ROUND
+		gr.gameState = phase_RESOLVING_ROUND //Muda o estado
 		gr.resolveRound()
 	}
 }

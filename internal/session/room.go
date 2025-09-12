@@ -7,10 +7,10 @@ import (
 )
 
 const (
+	phase_ROOM_START = "room_start" // A partida foi iniciada
 	phase_WAITING_FOR_PLAYS = "waiting_for_plays" // A sala está esperando os jogadores fazerem suas jogadas.
 	phase_RESOLVING_ROUND  = "resolving_round"  // As jogadas foram feitas, a sala está calculando o resultado.
 	phase_GAME_OVER        = "game_over"        // A partida terminou.
-	phase_ROOM_START = "room_start" // A partida foi iniciada
 	phase_ROUND_START = "round_start"
 
 	initial_HAND_SIZE = 5
