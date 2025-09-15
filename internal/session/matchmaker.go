@@ -61,8 +61,8 @@ func (m *Matchmaker) Run() {
 						playerToLeave.Client.Conn().RemoteAddr(), len(m.queue))
 
 					// Envia uma mensagem de confirmação para o jogador.
-					msg := message.CreateSuccessResponse("You have left the matchmaking queue.", nil)
-					playerToLeave.Client.Send() <- msg
+					//msg := message.CreateSuccessResponse("You have left the matchmaking queue.", nil)
+					//playerToLeave.Client.Send() <- msg
 					
 					// Para o loop 'for' pois já encontramos e removemos o jogador.
 					break 

@@ -221,7 +221,12 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 
 func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+
 	if checkQueueState(session) {
+		//
+		msg := message.CreateSuccessResponse("Your request to leave the queue was received.", nil)
+		session.Client.Send() <- msg
+
 		h.matchmaker.LeaveQueue(session)
 		session.State = state_LOBBY
 	}

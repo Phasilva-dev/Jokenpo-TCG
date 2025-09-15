@@ -105,9 +105,34 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 }
 
 func (h *GameHandler) OnDisconnect(c *network.Client) {
-	// Futuramente: notificar sala de jogo, remover do matchmaking, etc.
+	// 1. Encontra a sessão do cliente que desconectou.
+	session, ok := h.sessions[c]
+	if !ok {
+		// Se não havia sessão, não há nada para limpar.
+		return
+	}
+
+	// 2. LÓGICA DE LIMPEZA CENTRAL: Verifica o estado do jogador.
+	// Esta é a correção para o bug.
+	switch session.State {
+	case state_IN_QUEUE:
+		// Se o jogador estava na fila, avisa o Matchmaker para removê-lo.
+		// Isso previne que o Matchmaker tente enviar mensagens para um canal fechado.
+		fmt.Printf("Player %s disconnected while in queue. Removing from matchmaking.\n", c.Conn().RemoteAddr())
+		h.matchmaker.LeaveQueue(session)
+
+	case state_IN_MATCH:
+		// Se o jogador estava em uma partida, avisa a GameRoom.
+		// A GameRoom então lidará com a lógica de fim de jogo por desconexão.
+		if session.CurrentRoom != nil {
+			fmt.Printf("Player %s disconnected from room %s.\n", c.Conn().RemoteAddr(), session.CurrentRoom.ID)
+			session.CurrentRoom.unregister <- session
+		}
+	}
+
+	// 3. Após notificar os outros sistemas, remove a sessão do mapa principal.
 	delete(h.sessions, c)
-	fmt.Printf("Session removed. Total: %d\n", len(h.sessions))
+	fmt.Printf("Session for %s removed. Total sessions: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
 }
 
 // OnMessage agora é um despachante limpo e simples.
