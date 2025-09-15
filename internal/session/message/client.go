@@ -41,3 +41,12 @@ func CreateErrorResponse(errorMsg string) network.Message {
 		Payload: payloadBytes,
 	}
 }
+
+// CreatePromptInputMessage cria a mensagem de controle dedicada.
+// Seu único trabalho é dizer ao cliente para mostrar um prompt.
+func CreatePromptInputMessage() network.Message {
+	return network.Message{
+		Type:    "PROMPT_INPUT",
+		Payload: nil, // Não precisa de payload
+	}
+}

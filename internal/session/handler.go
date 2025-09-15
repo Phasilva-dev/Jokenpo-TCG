@@ -149,6 +149,8 @@ func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
 		router = h.lobbyRouter
 	case state_IN_MATCH:
 		router = h.matchRouter
+	case state_IN_QUEUE:
+		router = h.lobbyRouter
 	default:
 		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid state of player: %s", session.State))
 		return
