@@ -95,13 +95,14 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	sb.WriteString(deckBuildMessage)
 
 	// Envia a resposta final
-	welcomeMsg := message.CreateSuccessResponse(
+	welcomeMsg := message.CreateSuccessResponse(state_LOBBY,
 		"Connection successful! Welcome!",
 		sb.String(),
 	)
 	c.Send() <- welcomeMsg
 
 	printMenuClient(session)
+	c.Send() <- message.CreatePromptInputMessage()
 }
 
 func (h *GameHandler) OnDisconnect(c *network.Client) {

@@ -5,11 +5,11 @@ import (
 	"jokenpo/internal/network"
 )
 
-// SuccessPayload define a estrutura de uma resposta de sucesso.
-// Usar uma struct evita erros de digitação em chaves de mapa ("mesage" vs "message").
+// SuccessClientPayload agora carrega o estado explícito.
 type SuccessClientPayload struct {
+	State   string `json:"state"`
 	Message string `json:"message"`
-	Data    any    `json:"data,omitempty"` // omitempty remove o campo se Data for nil
+	Data    any    `json:"data,omitempty"`
 }
 
 // ErrorPayload define a estrutura de uma resposta de erro.
@@ -17,9 +17,10 @@ type ErrorClientPayload struct {
 	Error string `json:"error"`
 }
 
-// CreateSuccessResponse usando a struct
-func CreateSuccessResponse(message string, data any) network.Message {
+// CreateSuccessResponse agora precisa saber qual estado enviar.
+func CreateSuccessResponse(state, message string, data any) network.Message {
 	payload := SuccessClientPayload{
+		State:   state, 
 		Message: message,
 		Data:    data,
 	}

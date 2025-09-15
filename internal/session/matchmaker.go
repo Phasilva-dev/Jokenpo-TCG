@@ -46,7 +46,7 @@ func (m *Matchmaker) Run() {
 			fmt.Printf("Player added to queue matchmaking. queue now have %d players.\n", len(m.queue))
 			
 			// Informa ao jogador que ele está na fila.
-			msg := message.CreateSuccessResponse("You are now in the matchmaking queue.", nil)
+			msg := message.CreateSuccessResponse(playerSession.State, "You are now in the matchmaking queue.", nil)
 			playerSession.Client.Send() <- msg
 
 
@@ -105,18 +105,18 @@ func (m *Matchmaker) broadcastQueue() {
 		position := i + 1
 
 		statusMsg := fmt.Sprintf("Still searching for a match... You are position %d in queue.\n", position)
-		dequeueMsg := "\nSend 0 to dequeue or continue waiting\n"
 
 		var sb strings.Builder
 
 		sb.WriteString(statusMsg)
-		sb.WriteString(dequeueMsg)
 					
-		msg := message.CreateSuccessResponse(sb.String(), nil)
+		msg := message.CreateSuccessResponse(playerInQueue.State, sb.String(), nil)
 		playerInQueue.Client.Send() <- msg
+		playerInQueue.Client.Send() <- message.CreatePromptInputMessage()
 	}
 }
 
 func (m *Matchmaker) LeaveQueue(session *PlayerSession) {
 	m.dequeue <- session
+	//printMenuClient(session)
 }

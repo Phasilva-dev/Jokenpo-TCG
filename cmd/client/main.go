@@ -10,7 +10,7 @@ import (
 	"net"
 	"os"
 	"strconv"
-	"strings"
+
 )
 
 // --- Máquina de Estados do Cliente ---
@@ -31,30 +31,26 @@ func main() {
 	}
 	defer conn.Close()
 
-	// A goroutine de leitura é responsável por receber mensagens e ATUALIZAR o estado.
+	// A goroutine de leitura agora é a única responsável por TODA a impressão.
 	go readLoop(conn)
 
-	// A goroutine principal tem um único loop para ler o input do usuário.
+	// A goroutine principal agora SÓ lê o input e envia, nada mais.
 	scanner := bufio.NewScanner(os.Stdin)
-
 	for scanner.Scan() {
 		userInput := scanner.Text()
 
-		// Após receber o input, ele o despacha para o handler correto
-		// com base no estado ATUAL, que foi atualizado pelo readLoop.
 		switch clientState {
 		case StateMainMenu:
 			handleMainMenuInput(conn, scanner, userInput)
 		case StateInQueue:
-			handleInQueueInput(conn, userInput)//, scanner
+			handleInQueueInput(conn, userInput)
 		case StateInMatch:
-			handleInMatchInput(conn, userInput)//, scanner
+			handleInMatchInput(conn, userInput)
 		}
 	}
 }
 
 // --- Goroutine de Leitura ---
-
 func readLoop(conn net.Conn) {
 	for {
 		msg, err := network.ReadMessage(conn)
@@ -63,28 +59,40 @@ func readLoop(conn net.Conn) {
 			os.Exit(0)
 		}
 
-		// *** LÓGICA CRÍTICA DE MUDANÇA DE ESTADO ***
+		// Lógica de mudança de estado agora é LIMPA e ROBUSTA
 		if msg.Type == "RESPONSE_SUCCESS" {
-			var payload struct{ Message string `json:"message"` }
+			var payload struct {
+				State string `json:"state"` // <-- Lemos o novo campo de estado
+			}
 			json.Unmarshal(msg.Payload, &payload)
 			
-			if strings.Contains(payload.Message, "matchmaking queue") {
-				clientState = StateInQueue
-			} else if strings.Contains(payload.Message, "Match found!") || strings.Contains(payload.Message, "The round has started!") {
-				clientState = StateInMatch
-			} else if strings.Contains(payload.Message, "You have returned to the lobby") {
-				clientState = StateMainMenu
+			// ATUALIZAÇÃO DIRETA! Sem 'strings.Contains'.
+			// O servidor é a fonte da verdade.
+			if payload.State != "" {
+				switch payload.State {
+				case "lobby":
+					clientState = StateMainMenu
+				case "in-queue":
+					clientState = StateInQueue
+				case "in-match":
+					clientState = StateInMatch
+				default:
+					log.Panic("alerta: Servidor enviou um estado desconhecido")
+					clientState = StateMainMenu
+				}
 			}
 		}
 
-		// Apenas imprime a mensagem do servidor e depois o prompt correto.
 		printServerMessage(msg)
-		printPrompt()
+
+		if msg.Type == "PROMPT_INPUT" {
+			printPrompt()
+		}
 	}
 }
 
-// --- Handlers de Input (Recebem o input, não o leem) ---
-
+// --- Handlers de Input (Simplificados) ---
+// Eles não precisam mais chamar printPrompt() em caso de erro.
 func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 	var msg network.Message
 	shouldSend := true
@@ -94,9 +102,10 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 	case "2": msg.Type = "PURCHASE_PACKAGE"
 	case "3":
 		amount, err := promptForInt(scanner, "Digite a quantidade: ")
-		if err != nil { fmt.Println(err); printPrompt(); shouldSend = false; return }
+		if err != nil { fmt.Println(err); shouldSend = false; return } // Apenas retorna
 		payload, _ := json.Marshal(map[string]int{"amount": amount})
 		msg = network.Message{Type: "PURCHASE_MULTI_PACKAGE", Payload: payload}
+	// ... (outros cases permanecem os mesmos, mas sem chamar printPrompt())
 	case "4": msg.Type = "VIEW_COLLECTION"
 	case "5": msg.Type = "VIEW_DECK"
 	case "6":
@@ -105,18 +114,17 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 		msg = network.Message{Type: "ADD_CARD_TO_DECK", Payload: payload}
 	case "7":
 		index, err := promptForInt(scanner, "Digite o índice da carta a remover: ")
-		if err != nil { fmt.Println(err); printPrompt(); shouldSend = false; return }
+		if err != nil { fmt.Println(err); shouldSend = false; return }
 		payload, _ := json.Marshal(map[string]int{"index": index})
 		msg = network.Message{Type: "REMOVE_CARD_FROM_DECK", Payload: payload}
 	case "8":
 		index, err := promptForInt(scanner, "Digite o índice da carta a substituir: ")
-		if err != nil { fmt.Println(err); printPrompt(); shouldSend = false; return }
+		if err != nil { fmt.Println(err); shouldSend = false; return }
 		key := promptForString(scanner, "Digite a chave da nova carta: ")
 		payload, _ := json.Marshal(map[string]interface{}{"index": index, "key": key})
 		msg = network.Message{Type: "REPLACE_CARD_TO_DECK", Payload: payload}
 	default:
 		fmt.Println("Opção inválida.")
-		printPrompt()
 		shouldSend = false
 	}
 
@@ -124,6 +132,10 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 		if err := network.WriteMessage(conn, msg); err != nil {
 			log.Printf("Erro ao enviar mensagem: %v", err)
 		}
+	} else {
+		// Se a opção for inválida, o servidor não enviará um PROMPT.
+		// Então, nós mesmos imprimimos o prompt para o usuário tentar de novo.
+		printPrompt()
 	}
 }
 
@@ -135,15 +147,15 @@ func handleInQueueInput(conn net.Conn, choice string) {
 		}
 	} else {
 		fmt.Println("Opção inválida.")
-		printPrompt()
+		printPrompt() // Pede para o usuário tentar de novo
 	}
 }
 
-func handleInMatchInput(conn net.Conn , choice string) {//scanner *bufio.Scanner
+func handleInMatchInput(conn net.Conn, choice string) {
 	index, err := strconv.Atoi(choice)
 	if err != nil {
 		fmt.Println("Entrada inválida. Por favor, digite um número.")
-		printPrompt()
+		printPrompt() // Pede para o usuário tentar de novo
 		return
 	}
 
@@ -156,8 +168,11 @@ func handleInMatchInput(conn net.Conn , choice string) {//scanner *bufio.Scanner
 
 // --- Funções de Utilidade ---
 
-// printServerMessage é a única função que foi alterada nesta versão.
 func printServerMessage(msg *network.Message) {
+    if msg.Type == "PROMPT_INPUT" {
+        return // Não imprime nada para a mensagem de controle
+    }
+	// ... (o resto da sua função de impressão de mensagem continua igual)
 	var successPayload struct {
 		Message string `json:"message"`
 		Data    any    `json:"data"`
@@ -167,24 +182,21 @@ func printServerMessage(msg *network.Message) {
 	}
 
 	if msg.Type == "RESPONSE_SUCCESS" && json.Unmarshal(msg.Payload, &successPayload) == nil {
-		fmt.Printf("\n%s\n", successPayload.Message) // Saída limpa
+		fmt.Printf("\n%s\n", successPayload.Message)
 		if successPayload.Data != nil {
-			fmt.Printf("%v\n", successPayload.Data) // Saída limpa
+			fmt.Printf("%v\n", successPayload.Data)
 		}
 	} else if msg.Type == "RESPONSE_ERROR" && json.Unmarshal(msg.Payload, &errorPayload) == nil {
-		fmt.Printf("\nErro: %s\n", errorPayload.Error) // Saída limpa
+		fmt.Printf("\nErro: %s\n", errorPayload.Error)
 	} else {
-		// Para mensagens desconhecidas, ainda é útil ver os detalhes para depuração.
 		fmt.Printf("\nInfo (%s): %s\n", msg.Type, string(msg.Payload))
 	}
 }
 
-
-// printPrompt é chamado após qualquer mensagem do servidor para guiar o usuário.
 func printPrompt() {
 	switch clientState {
 	case StateMainMenu:
-		fmt.Print("\n(Lobby) Digite uma opção (1-8): ")
+		fmt.Print("\n(Lobby) Digite uma opção: ")
 	case StateInQueue:
 		fmt.Print("\n(Na Fila) Digite 0 para sair: ")
 	case StateInMatch:
@@ -192,8 +204,6 @@ func printPrompt() {
 	}
 }
 
-
-// As funções para pedir input adicional não mudam.
 func promptForString(scanner *bufio.Scanner, prompt string) string {
 	fmt.Print(prompt)
 	scanner.Scan()

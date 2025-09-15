@@ -48,15 +48,16 @@ func (gr *GameRoom) startGame() {
 
 	
 
-	fmt.Printf("Room %s: Match started, timer of 30s activated.\n", gr.ID)
-	msg := message.CreateSuccessResponse(startHeader, nil)
+	fmt.Printf("Room %s: Match started, timer of 15s activated.\n", gr.ID)
+	msg := message.CreateSuccessResponse("",startHeader, nil)
 
 	//Muda estado pra esperando jogada
 	gr.gameState = phase_WAITING_FOR_PLAYS
 
-	gr.roundTimer = time.NewTimer(30 * time.Second)	//Inicia timer de 30 segs
+	gr.roundTimer = time.NewTimer(15 * time.Second)	//Inicia timer de 30 segs
 	gr.broadcast(msg)
-	//Devemos colocar o broadcast da
+	gr.broadcast(message.CreatePromptInputMessage())
+
 }
 
 //Função para iniciar um novo Round
@@ -80,10 +81,11 @@ func (gr *GameRoom) startNewRound() {
 		return 
 	}
 
-	msg := message.CreateSuccessResponse(startHeader, nil)
+	msg := message.CreateSuccessResponse("",startHeader, nil)
 	gr.gameState = phase_WAITING_FOR_PLAYS //Mudança de estado
-	gr.roundTimer = time.NewTimer(30 * time.Second)
+	gr.roundTimer = time.NewTimer(15 * time.Second)
 	gr.broadcast(msg)
+	gr.broadcast(message.CreatePromptInputMessage())
 }
 
 //Função para jogar carta
@@ -108,6 +110,7 @@ func (gr *GameRoom) HandlePlayCard(player *PlayerSession, cardIndex int) {
 		// O erro mais comum aqui é "índice inválido".
 		msg := message.CreateErrorResponse(fmt.Sprintf("Failed to play card: %v", err))
 		player.Client.Send() <- msg
+		player.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -117,7 +120,7 @@ func (gr *GameRoom) HandlePlayCard(player *PlayerSession, cardIndex int) {
 	gr.playedCards[player] = playedCard
 
 	// 5. Envia uma confirmação para o jogador.
-	confirmMsg := message.CreateSuccessResponse(fmt.Sprintf("You played %s. Waiting for opponent...", playedCard.Key()), nil)
+	confirmMsg := message.CreateSuccessResponse("",fmt.Sprintf("You played %s. Waiting for opponent...", playedCard.Key()), nil)
 	player.Client.Send() <- confirmMsg
 
 	// --- VERIFICAÇÃO DE FIM DE RODADA ---
@@ -170,7 +173,7 @@ func (gr *GameRoom) resolveRound() {
 	p2.Player.ResolvePlay(p2Won)
 
 	// Notifica ambos os jogadores sobre o resultado da rodada.
-	broadcastMsg := message.CreateSuccessResponse(resultText, nil)
+	broadcastMsg := message.CreateSuccessResponse("",resultText, nil)
 	gr.broadcast(broadcastMsg)
 
 	p1HasWon := p1.Player.Inventory().GameDeck().WinCondition()
@@ -217,7 +220,7 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 	if winner == nil {
 		// --- CENÁRIO DE EMPATE ---
 		finalMessage := fmt.Sprintf("Game Over! It's a draw. Reason: %s", reason)
-		msg := message.CreateSuccessResponse(finalMessage, nil)
+		msg := message.CreateSuccessResponse("",finalMessage, nil)
 		gr.broadcast(msg)
 
 	} else {
@@ -236,8 +239,8 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 		loseMessageStr := fmt.Sprintf("You Lose. Better luck next time. Reason: %s", reason)
 
 		// Cria as mensagens de rede.
-		winMsg := message.CreateSuccessResponse(winMessageStr, nil)
-		loseMsg := message.CreateSuccessResponse(loseMessageStr, nil)
+		winMsg := message.CreateSuccessResponse("", winMessageStr, nil)
+		loseMsg := message.CreateSuccessResponse("", loseMessageStr, nil)
 		
 		// Envia a mensagem correta para cada jogador.
 		winner.Client.Send() <- winMsg
@@ -248,7 +251,7 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 
 	// Mensagem padrão de retorno ao lobby.
 	lobbyMessage := "You have returned to the lobby. You can find a new match now."
-	msg := message.CreateSuccessResponse(lobbyMessage, nil)
+	
 
 	for _, p := range gr.players {
 		// 1. Muda o estado da sessão de volta para o lobby.
@@ -257,9 +260,10 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 		
 		// 2. Remove a referência para esta sala, limpando o estado do jogador.
 		p.CurrentRoom = nil
-		
+		msg := message.CreateSuccessResponse(p.State, lobbyMessage, nil)
 		// 3. Notifica o cliente que ele está de volta ao lobby.
 		p.Client.Send() <- msg
+		printMenuClient(p)
 	}
 
 	time.Sleep(3 * time.Second)

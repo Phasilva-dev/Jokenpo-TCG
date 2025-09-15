@@ -12,39 +12,60 @@ import (
 //Opção 1
 func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
-	if checkLobbyState(session) {
-		h.matchmaker.EnqueuePlayer(session)
-		session.State = state_IN_QUEUE
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		printMenuClient(session)
+		return
 	}
 
+	h.matchmaker.EnqueuePlayer(session)
+	session.State = state_IN_QUEUE
+	session.Client.Send() <- message.CreatePromptInputMessage()
+	
 }
 
 //Compra um pacote
 //Opção 2
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
+
 	result, err := session.Player.PurchasePackage(h.shop)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 	var sb strings.Builder
 	sb.WriteString("The purchased cards are:\n")
 	sb.WriteString(card.SliceOfCardsToString(result))
-	session.Client.Send() <- message.CreateSuccessResponse("Package purchased successfully!", sb.String())
+	session.Client.Send() <- message.CreateSuccessResponse(session.State,"Package purchased successfully!", sb.String())
 	
     printMenuClient(session)
+	
 }
 
 // Compra multiplos pacotes (payload int amount)
 //Opção 3
 func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
+
 	var req struct {
 		Amount *int `json:"amount"`
 	}
 
 	if err := json.Unmarshal(payload, &req); err != nil || req.Amount == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'amount' field is required and must be a number.")
+		printMenuClient(session)
 		return
 	}
 
@@ -52,6 +73,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	if amount <= 0 || amount > 1000 {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid amount: must be between 1 and 1000.")
+		printMenuClient(session)
 		return
 	}
 
@@ -61,6 +83,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 		newCards, err := session.Player.PurchasePackage(h.shop)
 		if err != nil {
 			session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Failed on package #%d: %v", i+1, err))
+			printMenuClient(session)
 			return
 		}
 
@@ -71,7 +94,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	successMessage := fmt.Sprintf("Successfully purchased %d packages!", amount)
 
-	session.Client.Send() <- message.CreateSuccessResponse(successMessage, dataString)
+	session.Client.Send() <- message.CreateSuccessResponse(session.State, successMessage, dataString)
 
 	printMenuClient(session)
 
@@ -80,15 +103,21 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 //Opção 4
 func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
 	// 2. Chamada da Lógica de Negócio:
 	collectionString, err := session.Player.SeeCollection()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 
 	// 3. Envio da Resposta de Sucesso:
-	response := message.CreateSuccessResponse("Your card collection:", collectionString)
+	response := message.CreateSuccessResponse(session.State, "Your card collection:", collectionString)
 	session.Client.Send() <- response
 
 	printMenuClient(session)
@@ -97,17 +126,23 @@ func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.Ra
 //Opção 5
 func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
 	// 2. Chamada da Lógica de Negócio:
 	// Acessamos o método 'SeeCollection' do Player, que já faz todo o trabalho de
 	// buscar os dados do inventário e formatá-los em uma string legível.
 	deckString, err := session.Player.SeeDeck()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 
 	// 3. Envio da Resposta de Sucesso:
-	response := message.CreateSuccessResponse("Your Deck:", deckString)
+	response := message.CreateSuccessResponse(session.State, "Your Deck:", deckString)
 	session.Client.Send() <- response
 
 	printMenuClient(session)
@@ -116,12 +151,20 @@ func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessa
 // Adiciona um card da coleção pro deck, payload card key
 //Opção 6
 func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
+
 	var req struct {
 		Key *string `json:"key"`
 	}
 
 		if err := json.Unmarshal(payload, &req); err != nil || req.Key == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'key' field is required and must be a nom-empty string.")
+		printMenuClient(session)
 		return
 	}
 
@@ -131,10 +174,11 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 
-	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
+	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
 	printMenuClient(session)
 	
@@ -143,12 +187,20 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 //Remove uma carta do deck, payload int index
 //Opção 7
 func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
+
 	var req struct {
 		Index *int `json:"index"`
 	}
 
 	if err := json.Unmarshal(payload, &req); err != nil || req.Index == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'index' field is required and must be a number.")
+		printMenuClient(session)
 		return
 	}
 
@@ -156,11 +208,13 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 	deck, err := session.Player.Inventory().GameDeck().GetZone(deck.DECK)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 	}
 	deckSize := deck.Size()
 
 	if index < 0 || index > deckSize {
 		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid index: must be between 0 and %d.", deckSize-1))
+		printMenuClient(session)
 		return
 	}
 
@@ -168,10 +222,11 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 	
-	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
+	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
 	printMenuClient(session)
 	
@@ -179,6 +234,12 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 
 // Opção 8
 func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	if !checkLobbyState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
 
 	var req struct {
 		IndexToRemove  *int    `json:"index"`
@@ -189,6 +250,7 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 	if err != nil || req.IndexToRemove == nil || req.KeyOfCardToAdd == nil || *req.KeyOfCardToAdd == "" {
 		const errorMessage = "Invalid payload: 'index' (a number) and 'key' (a non-empty string) are required."
 		session.Client.Send() <- message.CreateErrorResponse(errorMessage)
+		printMenuClient(session)
 		return
 	}
 
@@ -198,11 +260,13 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 	deck, err := session.Player.Inventory().GameDeck().GetZone(deck.DECK)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 	}
 	deckSize := deck.Size()
 
 	if index < 0 || index > deckSize {
 		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid amount: must be between 0 and %d.", deckSize-1))
+		printMenuClient(session)
 		return
 	}
 
@@ -210,10 +274,11 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		printMenuClient(session)
 		return
 	}
 	
-	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
+	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
 	printMenuClient(session)
 
@@ -222,14 +287,19 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
 
-	if checkQueueState(session) {
+	if !checkQueueState(session) {
+		session.Client.Send() <- message.CreateErrorResponse("You are not in queue")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
+
+		session.State = state_LOBBY
 		//
-		msg := message.CreateSuccessResponse("Your request to leave the queue was received.", nil)
+		msg := message.CreateSuccessResponse(session.State, "Your request to leave the queue was received.", nil)
 		session.Client.Send() <- msg
 
 		h.matchmaker.LeaveQueue(session)
-		session.State = state_LOBBY
-	}
+		printMenuClient(session)
 
 }
 
@@ -274,13 +344,13 @@ func printMainMenu() string {
 	sb.WriteString("7. Remover Carta do Deck\n")
 	sb.WriteString("8. Substituir Carta no Deck\n")
 	sb.WriteString("---------------------------------\n")
-	sb.WriteString("Escolha uma opção: ")
 
 	return sb.String()
 }
 
 func printMenuClient(session *PlayerSession) {
-	session.Client.Send() <- message.CreateSuccessResponse(printMainMenu(),nil)
+	session.Client.Send() <- message.CreateSuccessResponse(session.State,printMainMenu(),nil)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 }
 
 func checkLobbyState(session *PlayerSession) bool {

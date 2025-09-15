@@ -53,7 +53,7 @@ func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	// 4. Inicia a goroutine da sala de jogo. É AQUI QUE O JOGO COMEÇA!
 	go room.Run()
 	
-	msg := message.CreateSuccessResponse("Match found! The game is starting.", nil)
+	msg := message.CreateSuccessResponse(state_IN_MATCH,"Match found! The game is starting.", nil)
 	p1.Client.Send() <- msg
 	p2.Client.Send() <- msg
 

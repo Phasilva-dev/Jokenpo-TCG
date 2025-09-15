@@ -15,7 +15,7 @@ const (
 
 	initial_HAND_SIZE = 5
 
-	startHeader = "The round has started! You have 30 seconds to play your card.\n\n"
+	startHeader = "The round has started! You have 15 seconds to play your card.\n\n"
 )
 
 type GameRoom struct {

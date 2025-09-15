@@ -59,10 +59,10 @@ func (gr *GameRoom) drawCardsAndNotify(p *PlayerSession, numToDraw int) bool {
 	// Anexa o estado atual da mão.
 	finalMsgBuilder.WriteString("Your current hand:\n")
 	finalMsgBuilder.WriteString(handStr)
-	finalMsgBuilder.WriteString("\n Escolha o indice da sua carta: ")
+	//finalMsgBuilder.WriteString("\n Choose the index of your card: ")
 
 	// 4. Cria e envia a mensagem para o jogador.
-	msg := message.CreateSuccessResponse(finalMsgBuilder.String(), nil)
+	msg := message.CreateSuccessResponse(p.State, finalMsgBuilder.String(), nil)
 	p.Client.Send() <- msg
 
 	return drawSuccessful
