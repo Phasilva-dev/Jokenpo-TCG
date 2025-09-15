@@ -9,8 +9,8 @@ import (
 
 
 func (p *Player) EndPlay() (error) {
-	if p.state != MENU {
-		return fmt.Errorf("")
+	if p.state != PLAY {
+		return fmt.Errorf("error: Player must be in PLAY state to end a play")
 	}
 	p.inventory.GameDeck().ResetToDeck()
 	p.state = MENU
@@ -20,7 +20,7 @@ func (p *Player) EndPlay() (error) {
 
 func (p *Player) DrawToHand() (*card.Card, error) {
 	if p.state != PLAY {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("error: Player must be in PLAY state to draw a card to hand")
 	}
 	card, err := p.Inventory().GameDeck().DrawToHand()
 	if err != nil {
@@ -31,7 +31,7 @@ func (p *Player) DrawToHand() (*card.Card, error) {
 
 func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
 	if p.state != PLAY {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("error: Player must be in PLAY state to play a card from hand")
 	}
 	card, err := p.Inventory().GameDeck().PlayCardFromHand(index)
 	if err != nil {
@@ -42,7 +42,7 @@ func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
 
 func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
 	if p.state != PLAY {
-		return nil, fmt.Errorf("")
+		return nil, fmt.Errorf("error: Player must be in PLAY state to play a random card to hand")
 	}
 	card, err := p.Inventory().GameDeck().PlayRandomCardFromHand(p.rng)
 	if err != nil {
@@ -53,7 +53,7 @@ func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
 
 func (p *Player) ResolvePlay(won bool) (string, error) {
 	if p.state != PLAY {
-		return "", fmt.Errorf("")
+		return "", fmt.Errorf("error: Player must be in PLAY state to resolve play")
 	}
 	return p.inventory.GameDeck().ResolvePlay(won)
 
@@ -61,14 +61,14 @@ func (p *Player) ResolvePlay(won bool) (string, error) {
 
 func (p *Player) SeeHand() (string, error) {
 	if p.state != PLAY {
-		return "", fmt.Errorf("")
+		return "", fmt.Errorf("error: Player must be in PLAY state to see hand")
 	}
 	return p.inventory.GameDeck().ZoneString(deck.HAND)
 }
 
 func (p *Player) WinCondition() (bool, error) {
 	if p.state != PLAY {
-		return false, fmt.Errorf("")
+		return false, fmt.Errorf("error: Player must be in PLAY state to check win condition")
 	}
 	return p.inventory.GameDeck().WinCondition(), nil
 }
@@ -95,7 +95,3 @@ func (p *Player) CardsInWinPile() (int, error) {
     }
     return len(winPile), nil
 }
-
-
-
-

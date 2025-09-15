@@ -263,7 +263,7 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 		msg := message.CreateSuccessResponse(p.State, lobbyMessage, nil)
 		// 3. Notifica o cliente que ele está de volta ao lobby.
 		p.Client.Send() <- msg
-		printMenuClient(p)
+		p.Client.Send() <- message.CreatePromptInputMessage()
 	}
 
 	time.Sleep(3 * time.Second)

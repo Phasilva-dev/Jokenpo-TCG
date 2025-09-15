@@ -101,7 +101,6 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	)
 	c.Send() <- welcomeMsg
 
-	printMenuClient(session)
 	c.Send() <- message.CreatePromptInputMessage()
 }
 

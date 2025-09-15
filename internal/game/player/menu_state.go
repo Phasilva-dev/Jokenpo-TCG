@@ -35,28 +35,28 @@ func (p *Player) PurchasePackage(shop *shop.Shop) ([]*card.Card, error){
 
 func (p *Player) AddCardToDeck(key string) (string, error) {
 	if p.state != MENU {
-		return "", fmt.Errorf("")
+		return "", fmt.Errorf("error: Player must be in MENU state to add a new card to deck")
 	}
 	return p.inventory.AddCardToDeck(key)
 }
 
 func (p *Player) RemoveCardFromDeck(index int) (string, error) {
 	if p.state != MENU {
-		return "", fmt.Errorf("")
+		return "", fmt.Errorf("error: Player must be in MENU state to remove a card from deck")
 	}
 	return  p.inventory.RemoveCardFromDeck(index)
 }
 
 func (p *Player) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) (string, error) {
 	if p.state != MENU {
-		return "", fmt.Errorf("")
+		return "", fmt.Errorf("error: Player must be in MENU state to replace a card from deck")
 	}
 	return p.inventory.ReplaceCardInDeck(indexToRemove, keyOfCardToAdd)
 }
 
 func (p *Player) StartPlay() (error) {
 	if p.state != MENU {
-		return fmt.Errorf("")
+		return fmt.Errorf("error: Player must be in MENU state to start a play")
 	}
 	
 	p.inventory.GameDeck().ResetToDeck()
@@ -64,8 +64,8 @@ func (p *Player) StartPlay() (error) {
 	if err != nil {
 		return err
 	}
-	if deck.Size() != 12 {
-		return fmt.Errorf("")
+	if deck.Size() < 8 {
+		return fmt.Errorf("error: Player must be have at least 8 cards in deck")
 	}
 
 	p.state = PLAY

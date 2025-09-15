@@ -118,5 +118,4 @@ func (m *Matchmaker) broadcastQueue() {
 
 func (m *Matchmaker) LeaveQueue(session *PlayerSession) {
 	m.dequeue <- session
-	//printMenuClient(session)
 }

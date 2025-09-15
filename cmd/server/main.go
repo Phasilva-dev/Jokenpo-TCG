@@ -11,39 +11,42 @@ import (
 
 func main() {
 	// --- ETAPA 1: Inicialização Global ---
-	// Esta é a primeira coisa que fazemos. Se o catálogo de cartas não puder
-	// ser carregado, a aplicação não pode continuar.
 	if err := card.InitGlobalCatalog(); err != nil {
 		log.Fatalf("Falha fatal ao inicializar o catálogo de cartas: %v", err)
 	}
 	fmt.Println("Catálogo de cartas inicializado com sucesso.")
 
 	// --- ETAPA 2: Configuração da Lógica do Jogo ---
-	// Criamos a instância principal que gerenciará toda a lógica do jogo.
 	gameHandler := session.NewGameHandler()
-
-	// Inicia o matchmaker em sua própria goroutine.
 	go gameHandler.Matchmaker().Run()
 	fmt.Println("Matchmaker iniciado.")
 
 	// --- ETAPA 3: Configuração da Camada de Rede ---
-	// Criamos o servidor de rede e injetamos nosso gameHandler.
-	// A partir deste ponto, o servidor de rede notificará o gameHandler sobre
-	// conexões, desconexões e mensagens.
 	server := network.NewServer(gameHandler)
 	fmt.Println("Servidor de rede criado.")
 
-	// --- ETAPA 4: Iniciar o Servidor ---
-	// Define o endereço e a porta em que o servidor irá escutar.
-	address := "0.0.0.0:8080"
-	
-	// server.Listen() é uma chamada bloqueante. O programa ficará "preso" aqui,
-	// aceitando novas conexões indefinidamente, até que o processo seja encerrado.
-	if err := server.Listen(address); err != nil {
-		log.Fatalf("Falha fatal ao iniciar o servidor de rede: %v", err)
-	}
+	// --- ETAPA 4: Iniciar os Servidores ---
 
-	udpAddress := "0.0.0.0:8081"
+	// Inicia o listener TCP em sua própria goroutine para não bloquear.
+	tcpAddress := "0.0.0.0:8080"
+	go func() {
+		if err := server.Listen(tcpAddress); err != nil {
+			log.Fatalf("Falha fatal ao iniciar o servidor de rede TCP: %v", err)
+		}
+	}()
+
 	// Inicia o listener UDP em sua própria goroutine.
-	go server.ListenUDP(udpAddress)
+	udpAddress := "0.0.0.0:8081"
+	go func() {
+		if err := server.ListenUDP(udpAddress); err != nil {
+			// Usamos log.Printf aqui para não encerrar a aplicação se o UDP falhar
+			log.Printf("Falha ao iniciar o servidor de rede UDP: %v", err)
+		}
+	}()
+
+	fmt.Printf("Servidores TCP e UDP configurados para iniciar.\n")
+
+	// Mantém a aplicação rodando indefinidamente.
+	// Sem isso, a função main terminaria e o programa fecharia.
+	select {}
 }

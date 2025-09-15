@@ -14,7 +14,7 @@ func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMes
 
 	if !checkLobbyState(session) {
 		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -37,7 +37,7 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	result, err := session.Player.PurchasePackage(h.shop)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 	var sb strings.Builder
@@ -45,7 +45,7 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	sb.WriteString(card.SliceOfCardsToString(result))
 	session.Client.Send() <- message.CreateSuccessResponse(session.State,"Package purchased successfully!", sb.String())
 	
-    printMenuClient(session)
+    session.Client.Send() <- message.CreatePromptInputMessage()
 	
 }
 
@@ -65,7 +65,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	if err := json.Unmarshal(payload, &req); err != nil || req.Amount == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'amount' field is required and must be a number.")
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -73,7 +73,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	if amount <= 0 || amount > 1000 {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid amount: must be between 1 and 1000.")
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -83,7 +83,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 		newCards, err := session.Player.PurchasePackage(h.shop)
 		if err != nil {
 			session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Failed on package #%d: %v", i+1, err))
-			printMenuClient(session)
+			session.Client.Send() <- message.CreatePromptInputMessage()
 			return
 		}
 
@@ -96,7 +96,7 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, successMessage, dataString)
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 
 }
 
@@ -112,7 +112,7 @@ func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.Ra
 	collectionString, err := session.Player.SeeCollection()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -120,7 +120,7 @@ func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.Ra
 	response := message.CreateSuccessResponse(session.State, "Your card collection:", collectionString)
 	session.Client.Send() <- response
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 }
 
 //Opção 5
@@ -137,7 +137,7 @@ func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessa
 	deckString, err := session.Player.SeeDeck()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -145,7 +145,7 @@ func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessa
 	response := message.CreateSuccessResponse(session.State, "Your Deck:", deckString)
 	session.Client.Send() <- response
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 }
 
 // Adiciona um card da coleção pro deck, payload card key
@@ -164,7 +164,7 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 
 		if err := json.Unmarshal(payload, &req); err != nil || req.Key == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'key' field is required and must be a nom-empty string.")
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -174,13 +174,13 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 	
 }
 
@@ -200,7 +200,7 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 
 	if err := json.Unmarshal(payload, &req); err != nil || req.Index == nil {
 		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'index' field is required and must be a number.")
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -208,13 +208,18 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 	deck, err := session.Player.Inventory().GameDeck().GetZone(deck.DECK)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 	}
 	deckSize := deck.Size()
+	if deckSize == 8 {
+		session.Client.Send() <- message.CreateErrorResponse("You cannot have less than 8 cards in deck")
+		session.Client.Send() <- message.CreatePromptInputMessage()
+		return
+	}
 
 	if index < 0 || index > deckSize {
 		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid index: must be between 0 and %d.", deckSize-1))
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -222,13 +227,13 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 	
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 	
 }
 
@@ -250,7 +255,7 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 	if err != nil || req.IndexToRemove == nil || req.KeyOfCardToAdd == nil || *req.KeyOfCardToAdd == "" {
 		const errorMessage = "Invalid payload: 'index' (a number) and 'key' (a non-empty string) are required."
 		session.Client.Send() <- message.CreateErrorResponse(errorMessage)
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -260,13 +265,13 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 	deck, err := session.Player.Inventory().GameDeck().GetZone(deck.DECK)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 	}
 	deckSize := deck.Size()
 
 	if index < 0 || index > deckSize {
 		session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid amount: must be between 0 and %d.", deckSize-1))
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
@@ -274,13 +279,13 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 	
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
 
-	printMenuClient(session)
+	session.Client.Send() <- message.CreatePromptInputMessage()
 
 }
 
@@ -299,7 +304,7 @@ func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMe
 		session.Client.Send() <- msg
 
 		h.matchmaker.LeaveQueue(session)
-		printMenuClient(session)
+		session.Client.Send() <- message.CreatePromptInputMessage()
 
 }
 
@@ -332,27 +337,6 @@ func (h *GameHandler) registerLobbyHandlers() {
 	h.lobbyRouter["REPLACE_CARD_TO_DECK"] = handleReplaceCardToDeck
 }
 
-func printMainMenu() string {
-	var sb strings.Builder
-	sb.WriteString("\n--- Jokenpo Card Game (Lobby) ---\n")
-	sb.WriteString("1. Buscar Partida\n")
-	sb.WriteString("2. Comprar Pacote\n")
-	sb.WriteString("3. Comprar Múltiplos Pacotes\n")
-	sb.WriteString("4. Ver Coleção\n")
-	sb.WriteString("5. Ver Deck\n")
-	sb.WriteString("6. Adicionar Carta ao Deck\n")
-	sb.WriteString("7. Remover Carta do Deck\n")
-	sb.WriteString("8. Substituir Carta no Deck\n")
-	sb.WriteString("9. Medir Ping (UDP)\n")
-	sb.WriteString("---------------------------------\n")
-
-	return sb.String()
-}
-
-func printMenuClient(session *PlayerSession) {
-	session.Client.Send() <- message.CreateSuccessResponse(session.State,printMainMenu(),nil)
-	session.Client.Send() <- message.CreatePromptInputMessage()
-}
 
 func checkLobbyState(session *PlayerSession) bool {
 	return session.State == state_LOBBY

@@ -178,7 +178,7 @@ func printServerMessage(msg *network.Message) {
     if msg.Type == "PROMPT_INPUT" {
         return // Não imprime nada para a mensagem de controle
     }
-	// ... (o resto da sua função de impressão de mensagem continua igual)
+	
 	var successPayload struct {
 		Message string `json:"message"`
 		Data    any    `json:"data"`
@@ -202,6 +202,17 @@ func printServerMessage(msg *network.Message) {
 func printPrompt() {
 	switch clientState {
 	case StateMainMenu:
+		fmt.Print("\n--- Jokenpo Card Game (Lobby) ---\n")
+		fmt.Print("1. Buscar Partida\n")
+		fmt.Print("2. Comprar Pacote\n")
+		fmt.Print("3. Comprar Múltiplos Pacotes\n")
+		fmt.Print("4. Ver Coleção\n")
+		fmt.Print("5. Ver Deck\n")
+		fmt.Print("6. Adicionar Carta ao Deck\n")
+		fmt.Print("7. Remover Carta do Deck\n")
+		fmt.Print("8. Substituir Carta no Deck\n")
+		fmt.Print("9. Medir Ping (UDP)\n")
+		fmt.Print("---------------------------------\n")
 		fmt.Print("\n(Lobby) Digite uma opção: ")
 	case StateInQueue:
 		fmt.Print("\n(Na Fila) Digite 0 para sair: ")
