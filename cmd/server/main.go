@@ -42,4 +42,8 @@ func main() {
 	if err := server.Listen(address); err != nil {
 		log.Fatalf("Falha fatal ao iniciar o servidor de rede: %v", err)
 	}
+
+	udpAddress := "0.0.0.0:8081"
+	// Inicia o listener UDP em sua própria goroutine.
+	go server.ListenUDP(udpAddress)
 }

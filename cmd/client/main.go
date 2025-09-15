@@ -10,6 +10,8 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"time"
+	
 
 )
 
@@ -123,6 +125,10 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 		key := promptForString(scanner, "Digite a chave da nova carta: ")
 		payload, _ := json.Marshal(map[string]interface{}{"index": index, "key": key})
 		msg = network.Message{Type: "REPLACE_CARD_TO_DECK", Payload: payload}
+	case "9":
+		shouldSend = false // Não envie uma mensagem TCP para este comando.
+		doPing("localhost:8081") // Chama nossa nova função de ping.
+		printPrompt() // Mostra o prompt novamente após o ping.
 	default:
 		fmt.Println("Opção inválida.")
 		shouldSend = false
@@ -219,4 +225,71 @@ func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
 		return 0, fmt.Errorf("entrada inválida. Por favor, digite um número")
 	}
 	return num, nil
+}
+
+func doPing(serverAddress string) {
+	// Resolve o endereço do servidor UDP.
+	serverAddr, err := net.ResolveUDPAddr("udp", serverAddress)
+	if err != nil {
+		fmt.Printf("Erro ao resolver endereço do servidor de ping: %v\n", err)
+		return
+	}
+
+	// Cria uma "conexão" UDP. Para UDP, isso não estabelece uma conexão real,
+	// apenas prepara um socket para enviar e receber dados.
+	conn, err := net.DialUDP("udp", nil, serverAddr)
+	if err != nil {
+		fmt.Printf("Erro ao criar conexão UDP: %v\n", err)
+		return
+	}
+	defer conn.Close()
+
+	// 1. Registra o tempo de início.
+	startTime := time.Now()
+
+	// 2. Codifica e envia o pacote de ping com o timestamp atual.
+	pingPacket := network.EncodePingPacket(network.PING_PACKET_TYPE, startTime.UnixNano())
+	_, err = conn.Write(pingPacket)
+	if err != nil {
+		fmt.Printf("Erro ao enviar ping: %v\n", err)
+		return
+	}
+
+	fmt.Println("Ping enviado, aguardando pong...")
+
+	// 3. Define um timeout. Isso é CRUCIAL para UDP, pois os pacotes podem se perder!
+	// Se não recebermos uma resposta em 2 segundos, desistimos.
+	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+
+	// 4. Espera pela resposta.
+	buffer := make([]byte, 9)
+	n, _, err := conn.ReadFromUDP(buffer)
+	if err != nil {
+		// O erro mais comum aqui será um timeout.
+		fmt.Printf("Erro ao receber pong: %v\n", err)
+		return
+	}
+
+	// 5. Registra o tempo de chegada.
+	endTime := time.Now()
+
+	// 6. Decodifica e valida o pong.
+	packetType, timestamp, err := network.DecodePingPacket(buffer[:n])
+	if err != nil {
+		fmt.Printf("Erro ao decodificar pong: %v\n", err)
+		return
+	}
+
+	if packetType != network.PONG_PACKET_TYPE {
+		fmt.Printf("Recebido pacote inesperado de tipo %x\n", packetType)
+		return
+	}
+	if timestamp != startTime.UnixNano() {
+		fmt.Println("Recebido pong de um ping antigo. Ignorando.")
+		return
+	}
+
+	// 7. Calcula e exibe a latência (Round-Trip Time).
+	latency := endTime.Sub(startTime)
+	fmt.Printf("Pong recebido! Latência: %v\n", latency)
 }

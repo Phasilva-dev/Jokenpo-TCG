@@ -343,6 +343,7 @@ func printMainMenu() string {
 	sb.WriteString("6. Adicionar Carta ao Deck\n")
 	sb.WriteString("7. Remover Carta do Deck\n")
 	sb.WriteString("8. Substituir Carta no Deck\n")
+	sb.WriteString("9. Medir Ping (UDP)\n")
 	sb.WriteString("---------------------------------\n")
 
 	return sb.String()
