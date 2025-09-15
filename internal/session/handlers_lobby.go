@@ -9,7 +9,15 @@ import (
 	"strings"
 )
 
+//Opção 1
+func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	h.matchmaker.EnqueuePlayer(session)
+
+}
+
 //Compra um pacote
+//Opção 2
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
 	result, err := session.Player.PurchasePackage(h.shop)
@@ -20,10 +28,13 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	var sb strings.Builder
 	sb.WriteString("The purchased cards are:\n")
 	sb.WriteString(card.SliceOfCardsToString(result))
-	session.Client.Send() <- message.CreateSuccessResponse("Package purchased successfully!", result)
+	session.Client.Send() <- message.CreateSuccessResponse("Package purchased successfully!", sb.String())
+	
+    printMenuClient(session)
 }
 
 // Compra multiplos pacotes (payload int amount)
+//Opção 3
 func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
 		Amount *int `json:"amount"`
@@ -59,9 +70,48 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 
 	session.Client.Send() <- message.CreateSuccessResponse(successMessage, dataString)
 
+	printMenuClient(session)
+
+}
+
+//Opção 4
+func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	// 2. Chamada da Lógica de Negócio:
+	collectionString, err := session.Player.SeeCollection()
+	if err != nil {
+		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		return
+	}
+
+	// 3. Envio da Resposta de Sucesso:
+	response := message.CreateSuccessResponse("Your card collection:", collectionString)
+	session.Client.Send() <- response
+
+	printMenuClient(session)
+}
+
+//Opção 5
+func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+
+	// 2. Chamada da Lógica de Negócio:
+	// Acessamos o método 'SeeCollection' do Player, que já faz todo o trabalho de
+	// buscar os dados do inventário e formatá-los em uma string legível.
+	deckString, err := session.Player.SeeDeck()
+	if err != nil {
+		session.Client.Send() <- message.CreateErrorResponse(err.Error())
+		return
+	}
+
+	// 3. Envio da Resposta de Sucesso:
+	response := message.CreateSuccessResponse("Your Deck:", deckString)
+	session.Client.Send() <- response
+
+	printMenuClient(session)
 }
 
 // Adiciona um card da coleção pro deck, payload card key
+//Opção 6
 func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
 		Key *string `json:"key"`
@@ -82,10 +132,13 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 	}
 
 	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
+
+	printMenuClient(session)
 	
 }
 
 //Remove uma carta do deck, payload int index
+//Opção 7
 func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	var req struct {
 		Index *int `json:"index"`
@@ -116,9 +169,12 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 	}
 	
 	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
+
+	printMenuClient(session)
 	
 }
 
+// Opção 8
 func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
 	var req struct {
@@ -156,11 +212,7 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 	
 	session.Client.Send() <- message.CreateSuccessResponse(result, nil)
 
-}
-
-func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-	h.matchmaker.EnqueuePlayer(session)
+	printMenuClient(session)
 
 }
 
@@ -168,37 +220,7 @@ func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMe
 	h.matchmaker.LeaveQueue(session)
 }
 
-// Read-only
 
-func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-	// 2. Chamada da Lógica de Negócio:
-	collectionString, err := session.Player.SeeCollection()
-	if err != nil {
-		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		return
-	}
-
-	// 3. Envio da Resposta de Sucesso:
-	response := message.CreateSuccessResponse("Your card collection:", collectionString)
-	session.Client.Send() <- response
-}
-
-func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-	// 2. Chamada da Lógica de Negócio:
-	// Acessamos o método 'SeeCollection' do Player, que já faz todo o trabalho de
-	// buscar os dados do inventário e formatá-los em uma string legível.
-	deckString, err := session.Player.SeeDeck()
-	if err != nil {
-		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		return
-	}
-
-	// 3. Envio da Resposta de Sucesso:
-	response := message.CreateSuccessResponse("Your Deck:", deckString)
-	session.Client.Send() <- response
-}
 
 func (h *GameHandler) registerLobbyHandlers() {
 	// --- Ações de Matchmaking ---
@@ -225,4 +247,25 @@ func (h *GameHandler) registerLobbyHandlers() {
 	h.lobbyRouter["REMOVE_CARD_FROM_DECK"] = handleRemoveCardFromDeck
 	// O comando para substituir uma carta no baralho por outra da coleção.
 	h.lobbyRouter["REPLACE_CARD_TO_DECK"] = handleReplaceCardToDeck
+}
+
+func printMainMenu() string {
+	var sb strings.Builder
+	sb.WriteString("\n--- Jokenpo Card Game (Lobby) ---\n")
+	sb.WriteString("1. Buscar Partida\n")
+	sb.WriteString("2. Comprar Pacote\n")
+	sb.WriteString("3. Comprar Múltiplos Pacotes\n")
+	sb.WriteString("4. Ver Coleção\n")
+	sb.WriteString("5. Ver Deck\n")
+	sb.WriteString("6. Adicionar Carta ao Deck\n")
+	sb.WriteString("7. Remover Carta do Deck\n")
+	sb.WriteString("8. Substituir Carta no Deck\n")
+	sb.WriteString("---------------------------------\n")
+	sb.WriteString("Escolha uma opção: ")
+
+	return sb.String()
+}
+
+func printMenuClient(session *PlayerSession) {
+	session.Client.Send() <- message.CreateSuccessResponse(printMainMenu(),nil)
 }

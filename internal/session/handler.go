@@ -100,6 +100,8 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 		sb.String(),
 	)
 	c.Send() <- welcomeMsg
+
+	printMenuClient(session)
 }
 
 func (h *GameHandler) OnDisconnect(c *network.Client) {

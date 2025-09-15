@@ -13,7 +13,7 @@ func generateRandomCardTypo(r *rand.Rand) string {
 
 func generateRandomCardColor(r *rand.Rand) string {
 	randomIndexColor := r.IntN(len(card.CardColors))
-	randomColor := card.CardTypes[randomIndexColor]
+	randomColor := card.CardColors[randomIndexColor]
 	return randomColor
 }
 

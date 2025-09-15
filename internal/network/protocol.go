@@ -16,7 +16,7 @@ type Message struct {
 	Payload json.RawMessage `json:"payload"` // Dados específicos, mantidos em formato JSON bruto para decodificação posterior.
 }
 
-const MaxMessageSize = 1024 * 10 // 10 Kilobytes
+const MaxMessageSize = 1024 * 1024 // 1000 Kilobytes
 
 func WriteMessage(conn net.Conn, msg Message) error {
 	

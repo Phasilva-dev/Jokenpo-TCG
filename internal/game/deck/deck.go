@@ -210,6 +210,16 @@ func (d *Deck) String() string {
 
 	var sb strings.Builder
 	sb.WriteString("\n================== DECK ==================\n")
+	
+	cards, _ :=d.GetCardsInZone(DECK)
+	var deckPower int
+	for i := 0; i < len(cards); i++ {
+		deckPower += int(cards[i].Value())
+	}
+	deckPowerString := fmt.Sprintf("\nDeck Power = %d\n", deckPower)
+
+	sb.WriteString(deckPowerString)
+
 
 	for _, zoneName := range zoneOrder {
 		pile, ok := d.zones[zoneName]
@@ -238,7 +248,7 @@ func (d *Deck) ZoneString(zoneName string) (string, error) {
 	}
 
 	var sb strings.Builder
-	sb.WriteString(fmt.Sprintf("--- %s ---\n", zoneName))
+	//sb.WriteString(fmt.Sprintf("--- %s ---\n", zoneName))
 
 	if len(*pile) == 0 {
 		sb.WriteString("(Vazia)\n")

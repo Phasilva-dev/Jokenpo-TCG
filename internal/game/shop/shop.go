@@ -49,12 +49,12 @@ func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) 
 		keys[i] = key
 		cardsToAdd[i] = card
 	}
-	for i := 0; i < 3; i++ {
+	/*for i := 0; i < 3; i++ {
 		err := collection.AddCard(keys[i],1)
 		if err != nil {
 			return nil, err
 		}
-	}
+	}*/
 
 
 	
@@ -65,9 +65,10 @@ func (s *Shop) PurchasePackage(r *rand.Rand, collection *card.PlayerCollection) 
 	// This loop is much safer because we know every AddCard call will succeed
 	// in terms of card validity.
 	for _, key := range keys {
-		// We ignore the error here because the only expected error (invalid key)
-		// has already been checked.
-		_ = collection.AddCard(key, 1)
+		err := collection.AddCard(key,1)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// 
