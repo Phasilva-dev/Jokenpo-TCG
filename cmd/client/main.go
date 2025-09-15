@@ -128,7 +128,6 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 	case "9":
 		shouldSend = false // Não envie uma mensagem TCP para este comando.
 		doPing("localhost:8081") // Chama nossa nova função de ping.
-		printPrompt() // Mostra o prompt novamente após o ping.
 	default:
 		fmt.Println("Opção inválida.")
 		shouldSend = false
