@@ -12,7 +12,10 @@ import (
 //Opção 1
 func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
-	h.matchmaker.EnqueuePlayer(session)
+	if checkLobbyState(session) {
+		h.matchmaker.EnqueuePlayer(session)
+		session.State = state_IN_QUEUE
+	}
 
 }
 
@@ -217,7 +220,12 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 }
 
 func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-	h.matchmaker.LeaveQueue(session)
+
+	if checkQueueState(session) {
+		h.matchmaker.LeaveQueue(session)
+		session.State = state_LOBBY
+	}
+
 }
 
 
@@ -268,4 +276,12 @@ func printMainMenu() string {
 
 func printMenuClient(session *PlayerSession) {
 	session.Client.Send() <- message.CreateSuccessResponse(printMainMenu(),nil)
+}
+
+func checkLobbyState(session *PlayerSession) bool {
+	return session.State == state_LOBBY
+}
+
+func checkQueueState(session *PlayerSession) bool {
+	return session.State == state_IN_QUEUE
 }

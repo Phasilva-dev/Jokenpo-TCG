@@ -105,7 +105,7 @@ func (m *Matchmaker) broadcastQueue() {
 		position := i + 1
 
 		statusMsg := fmt.Sprintf("Still searching for a match... You are position %d in queue.\n", position)
-		dequeueMsg := "Send 0 to dequeue or continue waiting\n"
+		dequeueMsg := "\nSend 0 to dequeue or continue waiting\n"
 
 		var sb strings.Builder
 
