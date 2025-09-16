@@ -11,8 +11,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-	
-
 )
 
 // --- Máquina de Estados do Cliente ---
@@ -24,14 +22,34 @@ const (
 
 var clientState = StateMainMenu
 
+// --- Variáveis de Endereço ---
+var (
+	// Essas variáveis globais serão preenchidas na função main.
+	tcpServerAddress string
+	udpServerAddress string
+)
+
 // --- Ponto de Entrada ---
 func main() {
-	address := "localhost:8080"
-	conn, err := net.Dial("tcp", address)
+	// Pega os endereços do servidor das variáveis de ambiente.
+	// Se não estiverem definidas, usa "localhost" como padrão para rodar localmente.
+	tcpServerAddress = os.Getenv("SERVER_ADDRESS")
+	if tcpServerAddress == "" {
+		tcpServerAddress = "localhost:8080"
+	}
+
+	udpServerAddress = os.Getenv("PING_SERVER_ADDRESS")
+	if udpServerAddress == "" {
+		udpServerAddress = "localhost:8081"
+	}
+
+	log.Printf("Tentando conectar ao servidor TCP em %s...", tcpServerAddress)
+	conn, err := net.Dial("tcp", tcpServerAddress)
 	if err != nil {
 		log.Fatalf("Não foi possível conectar ao servidor: %v", err)
 	}
 	defer conn.Close()
+	log.Println("Conexão bem-sucedida!")
 
 	// A goroutine de leitura agora é a única responsável por TODA a impressão.
 	go readLoop(conn)
@@ -67,8 +85,8 @@ func readLoop(conn net.Conn) {
 				State string `json:"state"` // <-- Lemos o novo campo de estado
 			}
 			json.Unmarshal(msg.Payload, &payload)
-			
-			// ATUALIZAÇÃO DIRETA! Sem 'strings.Contains'.
+
+			// ATUALIZAÇÃO DIRETA!
 			// O servidor é a fonte da verdade.
 			if payload.State != "" {
 				switch payload.State {
@@ -79,7 +97,8 @@ func readLoop(conn net.Conn) {
 				case "in-match":
 					clientState = StateInMatch
 				default:
-					log.Panic("alerta: Servidor enviou um estado desconhecido")
+					// Failsafe: se o servidor enviar um estado que não conhecemos, voltamos ao lobby.
+					log.Printf("Alerta: Servidor enviou um estado desconhecido ('%s'). Voltando ao menu principal.\n", payload.State)
 					clientState = StateMainMenu
 				}
 			}
@@ -94,40 +113,57 @@ func readLoop(conn net.Conn) {
 }
 
 // --- Handlers de Input (Simplificados) ---
-// Eles não precisam mais chamar printPrompt() em caso de erro.
 func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 	var msg network.Message
 	shouldSend := true
 
 	switch choice {
-	case "1": msg.Type = "FIND_MATCH"
-	case "2": msg.Type = "PURCHASE_PACKAGE"
+	case "1":
+		msg.Type = "FIND_MATCH"
+	case "2":
+		msg.Type = "PURCHASE_PACKAGE"
 	case "3":
 		amount, err := promptForInt(scanner, "Digite a quantidade: ")
-		if err != nil { fmt.Println(err); shouldSend = false; return } // Apenas retorna
-		payload, _ := json.Marshal(map[string]int{"amount": amount})
-		msg = network.Message{Type: "PURCHASE_MULTI_PACKAGE", Payload: payload}
-	// ... (outros cases permanecem os mesmos, mas sem chamar printPrompt())
-	case "4": msg.Type = "VIEW_COLLECTION"
-	case "5": msg.Type = "VIEW_DECK"
+		if err != nil {
+			fmt.Println(err)
+			shouldSend = false
+		} else {
+			payload, _ := json.Marshal(map[string]int{"amount": amount})
+			msg = network.Message{Type: "PURCHASE_MULTI_PACKAGE", Payload: payload}
+		}
+	case "4":
+		msg.Type = "VIEW_COLLECTION"
+	case "5":
+		msg.Type = "VIEW_DECK"
 	case "6":
 		key := promptForString(scanner, "Digite a chave da carta (ex: rock:5:red): ")
 		payload, _ := json.Marshal(map[string]string{"key": key})
 		msg = network.Message{Type: "ADD_CARD_TO_DECK", Payload: payload}
 	case "7":
 		index, err := promptForInt(scanner, "Digite o índice da carta a remover: ")
-		if err != nil { fmt.Println(err); shouldSend = false; return }
-		payload, _ := json.Marshal(map[string]int{"index": index})
-		msg = network.Message{Type: "REMOVE_CARD_FROM_DECK", Payload: payload}
+		if err != nil {
+			fmt.Println(err)
+			shouldSend = false
+		} else {
+			payload, _ := json.Marshal(map[string]int{"index": index})
+			msg = network.Message{Type: "REMOVE_CARD_FROM_DECK", Payload: payload}
+		}
 	case "8":
 		index, err := promptForInt(scanner, "Digite o índice da carta a substituir: ")
-		if err != nil { fmt.Println(err); shouldSend = false; return }
+		if err != nil {
+			fmt.Println(err)
+			shouldSend = false
+			break // Sai do switch
+		}
 		key := promptForString(scanner, "Digite a chave da nova carta: ")
 		payload, _ := json.Marshal(map[string]interface{}{"index": index, "key": key})
 		msg = network.Message{Type: "REPLACE_CARD_TO_DECK", Payload: payload}
 	case "9":
 		shouldSend = false // Não envie uma mensagem TCP para este comando.
-		doPing("localhost:8081") // Chama nossa nova função de ping.
+		// --- CORREÇÃO AQUI ---
+		// Usa a variável global que foi preenchida na função main.
+		doPing(udpServerAddress)
+		// --- FIM DA CORREÇÃO ---
 	default:
 		fmt.Println("Opção inválida.")
 		shouldSend = false
@@ -138,8 +174,8 @@ func handleMainMenuInput(conn net.Conn, scanner *bufio.Scanner, choice string) {
 			log.Printf("Erro ao enviar mensagem: %v", err)
 		}
 	} else {
-		// Se a opção for inválida, o servidor não enviará um PROMPT.
-		// Então, nós mesmos imprimimos o prompt para o usuário tentar de novo.
+		// Se a opção for inválida ou falhar na validação,
+		// imprime o prompt novamente para o usuário tentar de novo.
 		printPrompt()
 	}
 }
@@ -174,11 +210,12 @@ func handleInMatchInput(conn net.Conn, choice string) {
 // --- Funções de Utilidade ---
 
 func printServerMessage(msg *network.Message) {
-    if msg.Type == "PROMPT_INPUT" {
-        return // Não imprime nada para a mensagem de controle
-    }
-	
+	if msg.Type == "PROMPT_INPUT" {
+		return // Não imprime nada para a mensagem de controle
+	}
+
 	var successPayload struct {
+		State   string `json:"state"` // Ignoramos este campo aqui, já foi usado
 		Message string `json:"message"`
 		Data    any    `json:"data"`
 	}
@@ -187,12 +224,12 @@ func printServerMessage(msg *network.Message) {
 	}
 
 	if msg.Type == "RESPONSE_SUCCESS" && json.Unmarshal(msg.Payload, &successPayload) == nil {
-		fmt.Printf("\n%s\n", successPayload.Message)
+		fmt.Printf("\n%s\n", successPayload.Message) // Saída limpa
 		if successPayload.Data != nil {
-			fmt.Printf("%v\n", successPayload.Data)
+			fmt.Printf("%v\n", successPayload.Data) // Saída limpa
 		}
 	} else if msg.Type == "RESPONSE_ERROR" && json.Unmarshal(msg.Payload, &errorPayload) == nil {
-		fmt.Printf("\nErro: %s\n", errorPayload.Error)
+		fmt.Printf("\nErro: %s\n", errorPayload.Error) // Saída limpa
 	} else {
 		fmt.Printf("\nInfo (%s): %s\n", msg.Type, string(msg.Payload))
 	}
@@ -213,6 +250,7 @@ func printPrompt() {
 		fmt.Print("9. Medir Ping (UDP)\n")
 		fmt.Print("---------------------------------\n")
 		fmt.Print("\n(Lobby) Digite uma opção: ")
+		fmt.Print("")
 	case StateInQueue:
 		fmt.Print("\n(Na Fila) Digite 0 para sair: ")
 	case StateInMatch:
@@ -237,16 +275,14 @@ func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
 	return num, nil
 }
 
+// doPing usa a variável global udpServerAddress
 func doPing(serverAddress string) {
-	// Resolve o endereço do servidor UDP.
 	serverAddr, err := net.ResolveUDPAddr("udp", serverAddress)
 	if err != nil {
 		fmt.Printf("Erro ao resolver endereço do servidor de ping: %v\n", err)
 		return
 	}
 
-	// Cria uma "conexão" UDP. Para UDP, isso não estabelece uma conexão real,
-	// apenas prepara um socket para enviar e receber dados.
 	conn, err := net.DialUDP("udp", nil, serverAddr)
 	if err != nil {
 		fmt.Printf("Erro ao criar conexão UDP: %v\n", err)
@@ -254,10 +290,8 @@ func doPing(serverAddress string) {
 	}
 	defer conn.Close()
 
-	// 1. Registra o tempo de início.
 	startTime := time.Now()
 
-	// 2. Codifica e envia o pacote de ping com o timestamp atual.
 	pingPacket := network.EncodePingPacket(network.PING_PACKET_TYPE, startTime.UnixNano())
 	_, err = conn.Write(pingPacket)
 	if err != nil {
@@ -267,23 +301,17 @@ func doPing(serverAddress string) {
 
 	fmt.Println("Ping enviado, aguardando pong...")
 
-	// 3. Define um timeout. Isso é CRUCIAL para UDP, pois os pacotes podem se perder!
-	// Se não recebermos uma resposta em 2 segundos, desistimos.
 	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 
-	// 4. Espera pela resposta.
 	buffer := make([]byte, 9)
 	n, _, err := conn.ReadFromUDP(buffer)
 	if err != nil {
-		// O erro mais comum aqui será um timeout.
 		fmt.Printf("Erro ao receber pong: %v\n", err)
 		return
 	}
 
-	// 5. Registra o tempo de chegada.
 	endTime := time.Now()
 
-	// 6. Decodifica e valida o pong.
 	packetType, timestamp, err := network.DecodePingPacket(buffer[:n])
 	if err != nil {
 		fmt.Printf("Erro ao decodificar pong: %v\n", err)
@@ -299,7 +327,6 @@ func doPing(serverAddress string) {
 		return
 	}
 
-	// 7. Calcula e exibe a latência (Round-Trip Time).
 	latency := endTime.Sub(startTime)
 	fmt.Printf("Pong recebido! Latência: %v\n", latency)
 }

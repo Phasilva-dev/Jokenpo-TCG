@@ -1,12 +1,8 @@
 # docker-compose.yml
-version: '3.8'
-
 services:
   # O serviço do servidor do jogo
   server:
-    # A instrução 'build' diz ao Docker Compose como construir a imagem
     build:
-      # O 'context' é a raiz do projeto, para que o Dockerfile possa encontrar o go.mod
       context: .
       # Especifica o caminho para o Dockerfile do servidor
       dockerfile: ./cmd/server/Dockerfile
@@ -25,6 +21,14 @@ services:
     # Garante que o cliente só tente conectar depois que o servidor estiver pronto
     depends_on:
       - server
+    
+    # --- ADIÇÃO CRUCIAL AQUI ---
+    # Define as variáveis de ambiente para o container do cliente.
+    # O cliente usará 'server:8080' porque 'server' é o nome deste serviço na rede do Docker Compose.
+    environment:
+      - SERVER_ADDRESS=server:8080
+      - PING_SERVER_ADDRESS=server:8081
+
     # --- LINHAS CRUCIAIS PARA CLIENTES INTERATIVOS ---
     # Mantém o STDIN aberto para que possamos digitar comandos no terminal
     stdin_open: true
