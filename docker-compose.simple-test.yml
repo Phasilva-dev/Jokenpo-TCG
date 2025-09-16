@@ -13,6 +13,6 @@ services:
     build:
       context: .
       # Aponta para o Dockerfile do bot simples
-      dockerfile: ./cmd/bots/simple-login/Dockerfile
+      dockerfile: ./cmd/bots/simple-bot/Dockerfile
     depends_on:
       - server

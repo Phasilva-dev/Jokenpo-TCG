@@ -3,11 +3,11 @@
 FROM golang:1.24.3-alpine AS builder
 WORKDIR /app
 
-# CORRETO:
+# Copia e baixa as dependências primeiro para aproveitar o cache
 COPY go.mod go.sum ./
 RUN go mod download
 
-# CORRETO:
+# Copia todo o código fonte
 COPY . .
 
 # Este caminho já estava correto

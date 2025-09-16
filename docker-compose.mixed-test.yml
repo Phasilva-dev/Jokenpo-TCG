@@ -13,7 +13,7 @@ services:
     build:
       context: .
       # Todos os serviços de bot usam o mesmo Dockerfile
-      dockerfile: ./cmd/bots/mixed-behavior/Dockerfile
+      dockerfile: ./cmd/bots/mixed-bot/Dockerfile
     depends_on:
       - server
     environment:
@@ -22,7 +22,7 @@ services:
   bot-pinger:
     build:
       context: .
-      dockerfile: ./cmd/bots/mixed-behavior/Dockerfile
+      dockerfile: ./cmd/bots/mixed-bot/Dockerfile
     depends_on:
       - server
     environment:
@@ -31,7 +31,7 @@ services:
   bot-matchmaker:
     build:
       context: .
-      dockerfile: ./cmd/bots/mixed-behavior/Dockerfile
+      dockerfile: ./cmd/bots/mixed-bot/Dockerfile
     depends_on:
       - server
     environment:

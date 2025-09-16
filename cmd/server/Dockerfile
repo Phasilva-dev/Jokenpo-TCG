@@ -5,11 +5,11 @@ FROM golang:1.24.3-alpine AS builder
 WORKDIR /app
 
 # Copia e baixa as dependências primeiro para aproveitar o cache
-COPY ../../go.mod ../../go.sum ./
+COPY go.mod go.sum ./
 RUN go mod download
 
 # Copia todo o código fonte
-COPY ../../ .
+COPY . .
 
 # Compila o servidor como um binário estático para Linux
 # Esta é a sua excelente sugestão em ação.
