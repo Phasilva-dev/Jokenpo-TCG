@@ -1,34 +1,32 @@
+# docker-compose.yml
 version: '3.8'
 
 services:
+  # O serviço do servidor do jogo
   server:
+    # A instrução 'build' diz ao Docker Compose como construir a imagem
     build:
-      # O contexto é a raiz do projeto (onde este arquivo está),
-      # pois os Dockerfiles precisam de acesso ao go.mod e a todo o código.
+      # O 'context' é a raiz do projeto, para que o Dockerfile possa encontrar o go.mod
       context: .
+      # Especifica o caminho para o Dockerfile do servidor
       dockerfile: ./cmd/server/Dockerfile
-    container_name: jokenpo_server
+    container_name: jokenpo-server
+    # Mapeia as portas do container para a sua máquina local
     ports:
-      # Mapeia a porta 8080 do seu PC para a porta 8080 do container.
       - "8080:8080"
-    networks:
-      - jokenpo_net
+      - "8081:8081/udp"
 
+  # O serviço do cliente interativo para um jogador humano
   client:
     build:
       context: .
       dockerfile: ./cmd/client/Dockerfile
-    # Não definimos um 'container_name' para que o Docker possa criar múltiplos
-    # containers com nomes únicos (ex: jokenpo_client_1, jokenpo_client_2, etc).
+    container_name: jokenpo-client
+    # Garante que o cliente só tente conectar depois que o servidor estiver pronto
     depends_on:
       - server
-    networks:
-      - jokenpo_net
-    # É assim que o cliente dentro do Docker encontrará o servidor.
-    # 'server' é o nome do serviço definido acima.
-    environment:
-      - SERVER_ADDR=server:8080
-
-networks:
-  jokenpo_net:
-    driver: bridge
+    # --- LINHAS CRUCIAIS PARA CLIENTES INTERATIVOS ---
+    # Mantém o STDIN aberto para que possamos digitar comandos no terminal
+    stdin_open: true
+    # Aloca um pseudo-TTY, o que torna a experiência do terminal correta
+    tty: true

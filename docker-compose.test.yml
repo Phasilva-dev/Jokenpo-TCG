@@ -1,28 +1,23 @@
-# A linha 'version' foi removida para resolver o aviso.
+# docker-compose.test.yml
+version: '3.8'
 
 services:
+  # O serviço do servidor é praticamente o mesmo
   server:
     build:
       context: .
       dockerfile: ./cmd/server/Dockerfile
-    container_name: jokenpo_server_test
-    networks:
-      - jokenpo_test_net # Diz ao serviço para se conectar a esta rede
+    container_name: jokenpo-server
+    ports:
+      - "8080:8080"
+      - "8081:8081/udp"
 
-  client:
+  # O serviço do BOT não-interativo
+  bot:
     build:
       context: .
-      dockerfile: ./cmd/client/Dockerfile
+      dockerfile: ./cmd/bot/Dockerfile
     depends_on:
       - server
-    networks:
-      - jokenpo_test_net # Diz ao serviço para se conectar a esta rede
-    environment:
-      - SERVER_ADDR=server:8080
-      - CLIENT_MODE=bot
-
-# --- BLOCO CORRIGIDO/ADICIONADO ---
-# Este bloco de nível superior define as redes que os serviços podem usar.
-networks:
-  jokenpo_test_net: # Define a rede com o nome que usamos acima
-    driver: bridge   # 'bridge' é o tipo de rede padrão e mais comum
+    # Note que não precisamos de 'stdin_open' ou 'tty' aqui,
+    # pois o bot não precisa de um terminal interativo.

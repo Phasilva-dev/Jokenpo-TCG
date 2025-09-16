@@ -1,0 +1,1800 @@
+time="2025-09-16T03:58:48-03:00" level=warning msg="C:\\Users\\Pedro\\Desktop\\Github\\Jokenpo\\docker-compose.test.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Network jokenpo_default  Creating
+ Network jokenpo_default  Created
+ Container jokenpo-server  Creating
+ Container jokenpo-server  Created
+ Container jokenpo-bot-2  Creating
+ Container jokenpo-bot-12  Creating
+ Container jokenpo-bot-27  Creating
+ Container jokenpo-bot-29  Creating
+ Container jokenpo-bot-19  Creating
+ Container jokenpo-bot-10  Creating
+ Container jokenpo-bot-21  Creating
+ Container jokenpo-bot-50  Creating
+ Container jokenpo-bot-60  Creating
+ Container jokenpo-bot-79  Creating
+ Container jokenpo-bot-100  Creating
+ Container jokenpo-bot-78  Creating
+ Container jokenpo-bot-106  Creating
+ Container jokenpo-bot-152  Creating
+ Container jokenpo-bot-14  Creating
+ Container jokenpo-bot-20  Creating
+ Container jokenpo-bot-16  Creating
+ Container jokenpo-bot-26  Creating
+ Container jokenpo-bot-15  Creating
+ Container jokenpo-bot-22  Creating
+ Container jokenpo-bot-34  Creating
+ Container jokenpo-bot-35  Creating
+ Container jokenpo-bot-33  Creating
+ Container jokenpo-bot-8  Creating
+ Container jokenpo-bot-3  Creating
+ Container jokenpo-bot-32  Creating
+ Container jokenpo-bot-5  Creating
+ Container jokenpo-bot-11  Creating
+ Container jokenpo-bot-9  Creating
+ Container jokenpo-bot-66  Creating
+ Container jokenpo-bot-36  Creating
+ Container jokenpo-bot-38  Creating
+ Container jokenpo-bot-82  Creating
+ Container jokenpo-bot-31  Creating
+ Container jokenpo-bot-74  Creating
+ Container jokenpo-bot-68  Creating
+ Container jokenpo-bot-6  Creating
+ Container jokenpo-bot-95  Creating
+ Container jokenpo-bot-153  Creating
+ Container jokenpo-bot-77  Creating
+ Container jokenpo-bot-90  Creating
+ Container jokenpo-bot-156  Creating
+ Container jokenpo-bot-146  Creating
+ Container jokenpo-bot-69  Creating
+ Container jokenpo-bot-124  Creating
+ Container jokenpo-bot-126  Creating
+ Container jokenpo-bot-80  Creating
+ Container jokenpo-bot-157  Creating
+ Container jokenpo-bot-73  Creating
+ Container jokenpo-bot-70  Creating
+ Container jokenpo-bot-47  Creating
+ Container jokenpo-bot-46  Creating
+ Container jokenpo-bot-53  Creating
+ Container jokenpo-bot-161  Creating
+ Container jokenpo-bot-42  Creating
+ Container jokenpo-bot-136  Creating
+ Container jokenpo-bot-57  Creating
+ Container jokenpo-bot-61  Creating
+ Container jokenpo-bot-49  Creating
+ Container jokenpo-bot-62  Creating
+ Container jokenpo-bot-48  Creating
+ Container jokenpo-bot-67  Creating
+ Container jokenpo-bot-41  Creating
+ Container jokenpo-bot-135  Creating
+ Container jokenpo-bot-76  Creating
+ Container jokenpo-bot-75  Creating
+ Container jokenpo-bot-30  Creating
+ Container jokenpo-bot-139  Creating
+ Container jokenpo-bot-51  Creating
+ Container jokenpo-bot-107  Creating
+ Container jokenpo-bot-37  Creating
+ Container jokenpo-bot-44  Creating
+ Container jokenpo-bot-159  Creating
+ Container jokenpo-bot-59  Creating
+ Container jokenpo-bot-24  Creating
+ Container jokenpo-bot-140  Creating
+ Container jokenpo-bot-64  Creating
+ Container jokenpo-bot-182  Creating
+ Container jokenpo-bot-102  Creating
+ Container jokenpo-bot-184  Creating
+ Container jokenpo-bot-63  Creating
+ Container jokenpo-bot-160  Creating
+ Container jokenpo-bot-94  Creating
+ Container jokenpo-bot-45  Creating
+ Container jokenpo-bot-86  Creating
+ Container jokenpo-bot-143  Creating
+ Container jokenpo-bot-4  Creating
+ Container jokenpo-bot-151  Creating
+ Container jokenpo-bot-173  Creating
+ Container jokenpo-bot-97  Creating
+ Container jokenpo-bot-131  Creating
+ Container jokenpo-bot-138  Creating
+ Container jokenpo-bot-83  Creating
+ Container jokenpo-bot-144  Creating
+ Container jokenpo-bot-25  Creating
+ Container jokenpo-bot-155  Creating
+ Container jokenpo-bot-89  Creating
+ Container jokenpo-bot-109  Creating
+ Container jokenpo-bot-145  Creating
+ Container jokenpo-bot-87  Creating
+ Container jokenpo-bot-150  Creating
+ Container jokenpo-bot-110  Creating
+ Container jokenpo-bot-195  Creating
+ Container jokenpo-bot-178  Creating
+ Container jokenpo-bot-96  Creating
+ Container jokenpo-bot-112  Creating
+ Container jokenpo-bot-7  Creating
+ Container jokenpo-bot-99  Creating
+ Container jokenpo-bot-91  Creating
+ Container jokenpo-bot-125  Creating
+ Container jokenpo-bot-17  Creating
+ Container jokenpo-bot-71  Creating
+ Container jokenpo-bot-174  Creating
+ Container jokenpo-bot-197  Creating
+ Container jokenpo-bot-114  Creating
+ Container jokenpo-bot-196  Creating
+ Container jokenpo-bot-122  Creating
+ Container jokenpo-bot-92  Creating
+ Container jokenpo-bot-134  Creating
+ Container jokenpo-bot-105  Creating
+ Container jokenpo-bot-162  Creating
+ Container jokenpo-bot-72  Creating
+ Container jokenpo-bot-148  Creating
+ Container jokenpo-bot-93  Creating
+ Container jokenpo-bot-168  Creating
+ Container jokenpo-bot-180  Creating
+ Container jokenpo-bot-186  Creating
+ Container jokenpo-bot-40  Creating
+ Container jokenpo-bot-137  Creating
+ Container jokenpo-bot-103  Creating
+ Container jokenpo-bot-158  Creating
+ Container jokenpo-bot-101  Creating
+ Container jokenpo-bot-39  Creating
+ Container jokenpo-bot-81  Creating
+ Container jokenpo-bot-28  Creating
+ Container jokenpo-bot-130  Creating
+ Container jokenpo-bot-58  Creating
+ Container jokenpo-bot-113  Creating
+ Container jokenpo-bot-171  Creating
+ Container jokenpo-bot-18  Creating
+ Container jokenpo-bot-85  Creating
+ Container jokenpo-bot-98  Creating
+ Container jokenpo-bot-55  Creating
+ Container jokenpo-bot-192  Creating
+ Container jokenpo-bot-128  Creating
+ Container jokenpo-bot-190  Creating
+ Container jokenpo-bot-117  Creating
+ Container jokenpo-bot-129  Creating
+ Container jokenpo-bot-185  Creating
+ Container jokenpo-bot-164  Creating
+ Container jokenpo-bot-183  Creating
+ Container jokenpo-bot-154  Creating
+ Container jokenpo-bot-181  Creating
+ Container jokenpo-bot-166  Creating
+ Container jokenpo-bot-176  Creating
+ Container jokenpo-bot-194  Creating
+ Container jokenpo-bot-175  Creating
+ Container jokenpo-bot-193  Creating
+ Container jokenpo-bot-191  Creating
+ Container jokenpo-bot-163  Creating
+ Container jokenpo-bot-199  Creating
+ Container jokenpo-bot-119  Creating
+ Container jokenpo-bot-1  Creating
+ Container jokenpo-bot-111  Creating
+ Container jokenpo-bot-167  Creating
+ Container jokenpo-bot-198  Creating
+ Container jokenpo-bot-172  Creating
+ Container jokenpo-bot-141  Creating
+ Container jokenpo-bot-116  Creating
+ Container jokenpo-bot-142  Creating
+ Container jokenpo-bot-200  Creating
+ Container jokenpo-bot-115  Creating
+ Container jokenpo-bot-65  Creating
+ Container jokenpo-bot-123  Creating
+ Container jokenpo-bot-88  Creating
+ Container jokenpo-bot-104  Creating
+ Container jokenpo-bot-147  Creating
+ Container jokenpo-bot-84  Creating
+ Container jokenpo-bot-179  Creating
+ Container jokenpo-bot-189  Creating
+ Container jokenpo-bot-23  Creating
+ Container jokenpo-bot-127  Creating
+ Container jokenpo-bot-52  Creating
+ Container jokenpo-bot-149  Creating
+ Container jokenpo-bot-43  Creating
+ Container jokenpo-bot-132  Creating
+ Container jokenpo-bot-133  Creating
+ Container jokenpo-bot-121  Creating
+ Container jokenpo-bot-118  Creating
+ Container jokenpo-bot-56  Creating
+ Container jokenpo-bot-169  Creating
+ Container jokenpo-bot-170  Creating
+ Container jokenpo-bot-188  Creating
+ Container jokenpo-bot-54  Creating
+ Container jokenpo-bot-13  Creating
+ Container jokenpo-bot-187  Creating
+ Container jokenpo-bot-177  Creating
+ Container jokenpo-bot-108  Creating
+ Container jokenpo-bot-165  Creating
+ Container jokenpo-bot-120  Creating
+ Container jokenpo-bot-12  Created
+ Container jokenpo-bot-19  Created
+ Container jokenpo-bot-27  Created
+ Container jokenpo-bot-95  Created
+ Container jokenpo-bot-10  Created
+ Container jokenpo-bot-153  Created
+ Container jokenpo-bot-17  Created
+ Container jokenpo-bot-109  Created
+ Container jokenpo-bot-21  Created
+ Container jokenpo-bot-158  Created
+ Container jokenpo-bot-29  Created
+ Container jokenpo-bot-5  Created
+ Container jokenpo-bot-42  Created
+ Container jokenpo-bot-36  Created
+ Container jokenpo-bot-130  Created
+ Container jokenpo-bot-98  Created
+ Container jokenpo-bot-176  Created
+ Container jokenpo-bot-78  Created
+ Container jokenpo-bot-159  Created
+ Container jokenpo-bot-124  Created
+ Container jokenpo-bot-100  Created
+ Container jokenpo-bot-52  Created
+ Container jokenpo-bot-66  Created
+ Container jokenpo-bot-89  Created
+ Container jokenpo-bot-140  Created
+ Container jokenpo-bot-60  Created
+ Container jokenpo-bot-123  Created
+ Container jokenpo-bot-193  Created
+ Container jokenpo-bot-84  Created
+ Container jokenpo-bot-156  Created
+ Container jokenpo-bot-113  Created
+ Container jokenpo-bot-9  Created
+ Container jokenpo-bot-196  Created
+ Container jokenpo-bot-88  Created
+ Container jokenpo-bot-151  Created
+ Container jokenpo-bot-75  Created
+ Container jokenpo-bot-157  Created
+ Container jokenpo-bot-35  Created
+ Container jokenpo-bot-16  Created
+ Container jokenpo-bot-86  Created
+ Container jokenpo-bot-155  Created
+ Container jokenpo-bot-115  Created
+ Container jokenpo-bot-55  Created
+ Container jokenpo-bot-51  Created
+ Container jokenpo-bot-136  Created
+ Container jokenpo-bot-134  Created
+ Container jokenpo-bot-53  Created
+ Container jokenpo-bot-33  Created
+ Container jokenpo-bot-40  Created
+ Container jokenpo-bot-168  Created
+ Container jokenpo-bot-39  Created
+ Container jokenpo-bot-70  Created
+ Container jokenpo-bot-189  Created
+ Container jokenpo-bot-129  Created
+ Container jokenpo-bot-43  Created
+ Container jokenpo-bot-132  Created
+ Container jokenpo-bot-97  Created
+ Container jokenpo-bot-191  Created
+ Container jokenpo-bot-177  Created
+ Container jokenpo-bot-152  Created
+ Container jokenpo-bot-72  Created
+ Container jokenpo-bot-56  Created
+ Container jokenpo-bot-59  Created
+ Container jokenpo-bot-103  Created
+ Container jokenpo-bot-11  Created
+ Container jokenpo-bot-23  Created
+ Container jokenpo-bot-76  Created
+ Container jokenpo-bot-99  Created
+ Container jokenpo-bot-80  Created
+ Container jokenpo-bot-144  Created
+ Container jokenpo-bot-14  Created
+ Container jokenpo-bot-93  Created
+ Container jokenpo-bot-87  Created
+ Container jokenpo-bot-15  Created
+ Container jokenpo-bot-185  Created
+ Container jokenpo-bot-48  Created
+ Container jokenpo-bot-7  Created
+ Container jokenpo-bot-3  Created
+ Container jokenpo-bot-127  Created
+ Container jokenpo-bot-34  Created
+ Container jokenpo-bot-6  Created
+ Container jokenpo-bot-63  Created
+ Container jokenpo-bot-184  Created
+ Container jokenpo-bot-195  Created
+ Container jokenpo-bot-22  Created
+ Container jokenpo-bot-138  Created
+ Container jokenpo-bot-106  Created
+ Container jokenpo-bot-94  Created
+ Container jokenpo-bot-73  Created
+ Container jokenpo-bot-175  Created
+ Container jokenpo-bot-58  Created
+ Container jokenpo-bot-8  Created
+ Container jokenpo-bot-135  Created
+ Container jokenpo-bot-50  Created
+ Container jokenpo-bot-172  Created
+ Container jokenpo-bot-126  Created
+ Container jokenpo-bot-96  Created
+ Container jokenpo-bot-38  Created
+ Container jokenpo-bot-143  Created
+ Container jokenpo-bot-154  Created
+ Container jokenpo-bot-28  Created
+ Container jokenpo-bot-57  Created
+ Container jokenpo-bot-186  Created
+ Container jokenpo-bot-166  Created
+ Container jokenpo-bot-74  Created
+ Container jokenpo-bot-31  Created
+ Container jokenpo-bot-104  Created
+ Container jokenpo-bot-118  Created
+ Container jokenpo-bot-79  Created
+ Container jokenpo-bot-133  Created
+ Container jokenpo-bot-128  Created
+ Container jokenpo-bot-13  Created
+ Container jokenpo-bot-178  Created
+ Container jokenpo-bot-91  Created
+ Container jokenpo-bot-181  Created
+ Container jokenpo-bot-179  Created
+ Container jokenpo-bot-199  Created
+ Container jokenpo-bot-131  Created
+ Container jokenpo-bot-107  Created
+ Container jokenpo-bot-139  Created
+ Container jokenpo-bot-54  Created
+ Container jokenpo-bot-116  Created
+ Container jokenpo-bot-174  Created
+ Container jokenpo-bot-65  Created
+ Container jokenpo-bot-173  Created
+ Container jokenpo-bot-188  Created
+ Container jokenpo-bot-110  Created
+ Container jokenpo-bot-4  Created
+ Container jokenpo-bot-197  Created
+ Container jokenpo-bot-160  Created
+ Container jokenpo-bot-41  Created
+ Container jokenpo-bot-145  Created
+ Container jokenpo-bot-49  Created
+ Container jokenpo-bot-32  Created
+ Container jokenpo-bot-90  Created
+ Container jokenpo-bot-30  Created
+ Container jokenpo-bot-162  Created
+ Container jokenpo-bot-180  Created
+ Container jokenpo-bot-71  Created
+ Container jokenpo-bot-20  Created
+ Container jokenpo-bot-148  Created
+ Container jokenpo-bot-119  Created
+ Container jokenpo-bot-62  Created
+ Container jokenpo-bot-150  Created
+ Container jokenpo-bot-187  Created
+ Container jokenpo-bot-163  Created
+ Container jokenpo-bot-141  Created
+ Container jokenpo-bot-149  Created
+ Container jokenpo-bot-183  Created
+ Container jokenpo-bot-198  Created
+ Container jokenpo-bot-46  Created
+ Container jokenpo-bot-67  Created
+ Container jokenpo-bot-26  Created
+ Container jokenpo-bot-68  Created
+ Container jokenpo-bot-137  Created
+ Container jokenpo-bot-102  Created
+ Container jokenpo-bot-64  Created
+ Container jokenpo-bot-1  Created
+ Container jokenpo-bot-112  Created
+ Container jokenpo-bot-169  Created
+ Container jokenpo-bot-114  Created
+ Container jokenpo-bot-24  Created
+ Container jokenpo-bot-2  Created
+ Container jokenpo-bot-105  Created
+ Container jokenpo-bot-200  Created
+ Container jokenpo-bot-190  Created
+ Container jokenpo-bot-165  Created
+ Container jokenpo-bot-122  Created
+ Container jokenpo-bot-92  Created
+ Container jokenpo-bot-125  Created
+ Container jokenpo-bot-25  Created
+ Container jokenpo-bot-170  Created
+ Container jokenpo-bot-121  Created
+ Container jokenpo-bot-47  Created
+ Container jokenpo-bot-171  Created
+ Container jokenpo-bot-44  Created
+ Container jokenpo-bot-69  Created
+ Container jokenpo-bot-182  Created
+ Container jokenpo-bot-101  Created
+ Container jokenpo-bot-167  Created
+ Container jokenpo-bot-146  Created
+ Container jokenpo-bot-85  Created
+ Container jokenpo-bot-83  Created
+ Container jokenpo-bot-45  Created
+ Container jokenpo-bot-18  Created
+ Container jokenpo-bot-161  Created
+ Container jokenpo-bot-82  Created
+ Container jokenpo-bot-37  Created
+ Container jokenpo-bot-164  Created
+ Container jokenpo-bot-77  Created
+ Container jokenpo-bot-61  Created
+ Container jokenpo-bot-120  Created
+ Container jokenpo-bot-108  Created
+ Container jokenpo-bot-194  Created
+ Container jokenpo-bot-111  Created
+ Container jokenpo-bot-147  Created
+ Container jokenpo-bot-81  Created
+ Container jokenpo-bot-192  Created
+ Container jokenpo-bot-117  Created
+ Container jokenpo-bot-142  Created
+Attaching to bot-1, bot-10, bot-100, bot-101, bot-102, bot-103, bot-104, bot-105, bot-106, bot-107, bot-108, bot-109, bot-11, bot-110, bot-111, bot-112, bot-113, bot-114, bot-115, bot-116, bot-117, bot-118, bot-119, bot-12, bot-120, bot-121, bot-122, bot-123, bot-124, bot-125, bot-126, bot-127, bot-128, bot-129, bot-13, bot-130, bot-131, bot-132, bot-133, bot-134, bot-135, bot-136, bot-137, bot-138, bot-139, bot-14, bot-140, bot-141, bot-142, bot-143, bot-144, bot-145, bot-146, bot-147, bot-148, bot-149, bot-15, bot-150, bot-151, bot-152, bot-153, bot-154, bot-155, bot-156, bot-157, bot-158, bot-159, bot-16, bot-160, bot-161, bot-162, bot-163, bot-164, bot-165, bot-166, bot-167, bot-168, bot-169, bot-17, bot-170, bot-171, bot-172, bot-173, bot-174, bot-175, bot-176, bot-177, bot-178, bot-179, bot-18, bot-180, bot-181, bot-182, bot-183, bot-184, bot-185, bot-186, bot-187, bot-188, bot-189, bot-19, bot-190, bot-191, bot-192, bot-193, bot-194, bot-195, bot-196, bot-197, bot-198, bot-199, bot-2, bot-20, bot-200, bot-21, bot-22, bot-23, bot-24, bot-25, bot-26, bot-27, bot-28, bot-29, bot-3, bot-30, bot-31, bot-32, bot-33, bot-34, bot-35, bot-36, bot-37, bot-38, bot-39, bot-4, bot-40, bot-41, bot-42, bot-43, bot-44, bot-45, bot-46, bot-47, bot-48, bot-49, bot-5, bot-50, bot-51, bot-52, bot-53, bot-54, bot-55, bot-56, bot-57, bot-58, bot-59, bot-6, bot-60, bot-61, bot-62, bot-63, bot-64, bot-65, bot-66, bot-67, bot-68, bot-69, bot-7, bot-70, bot-71, bot-72, bot-73, bot-74, bot-75, bot-76, bot-77, bot-78, bot-79, bot-8, bot-80, bot-81, bot-82, bot-83, bot-84, bot-85, bot-86, bot-87, bot-88, bot-89, bot-9, bot-90, bot-91, bot-92, bot-93, bot-94, bot-95, bot-96, bot-97, bot-98, bot-99, jokenpo-server
+jokenpo-server  | Catálogo de cartas inicializado com sucesso.
+jokenpo-server  | Matchmaker iniciado.
+jokenpo-server  | Servidor de rede criado.
+jokenpo-server  | Servidores TCP e UDP configurados para iniciar.
+jokenpo-server  | Matchmaker started.
+jokenpo-server  | Servidor UDP de ping escutando em 0.0.0.0:8081
+jokenpo-server  | Servidor escutando em 0.0.0.0:8080
+jokenpo-server  | Session created for 172.21.0.3:55282. Total sessions: 1
+bot-61          | 2025/09/16 06:59:25 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.4:60500. Total sessions: 2
+bot-77          | 2025/09/16 06:59:25 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.5:54528. Total sessions: 3
+bot-83          | 2025/09/16 06:59:25 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.6:52074. Total sessions: 4
+bot-147         | 2025/09/16 06:59:26 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.7:40842. Total sessions: 5
+bot-82          | 2025/09/16 06:59:26 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.8:58376. Total sessions: 6
+bot-171         | 2025/09/16 06:59:27 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.9:41062. Total sessions: 7
+bot-81          | 2025/09/16 06:59:27 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.10:48312. Total sessions: 8
+bot-117         | 2025/09/16 06:59:27 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.11:49764. Total sessions: 9
+bot-108         | 2025/09/16 06:59:28 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.12:55282. Total sessions: 10
+bot-111         | 2025/09/16 06:59:28 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.13:40732. Total sessions: 11
+bot-142         | 2025/09/16 06:59:29 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.14:41096. Total sessions: 12
+bot-194         | 2025/09/16 06:59:29 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.15:42308. Total sessions: 13
+bot-101         | 2025/09/16 06:59:29 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.16:47766. Total sessions: 14
+bot-161         | 2025/09/16 06:59:30 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.17:38904. Total sessions: 15
+bot-37          | 2025/09/16 06:59:30 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.18:40570. Total sessions: 16
+bot-192         | 2025/09/16 06:59:30 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.19:44482. Total sessions: 17
+bot-167         | 2025/09/16 06:59:31 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.20:44398. Total sessions: 18
+bot-182         | 2025/09/16 06:59:31 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.21:43588. Total sessions: 19
+bot-148         | 2025/09/16 06:59:32 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.22:37364. Total sessions: 20
+bot-164         | 2025/09/16 06:59:32 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.23:33812. Total sessions: 21
+bot-45          | 2025/09/16 06:59:32 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.24:43136. Total sessions: 22
+bot-85          | 2025/09/16 06:59:33 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.25:55416. Total sessions: 23
+bot-120         | 2025/09/16 06:59:33 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.26:41320. Total sessions: 24
+bot-122         | 2025/09/16 06:59:33 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.27:56934. Total sessions: 25
+bot-121         | 2025/09/16 06:59:34 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.28:59672. Total sessions: 26
+bot-2           | 2025/09/16 06:59:34 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.29:42360. Total sessions: 27
+bot-190         | 2025/09/16 06:59:34 Login SUCCESS. Keeping connection open indefinitely.
+bot-61          | fatal error: all goroutines are asleep - deadlock!
+bot-61          | 
+bot-61          | goroutine 1 [select (no cases)]:
+bot-61          | main.main()
+bot-61          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:55282 removed. Total sessions: 26
+bot-77          | fatal error: all goroutines are asleep - deadlock!
+bot-77          | 
+bot-77          | goroutine 1 [select (no cases)]:
+bot-77          | main.main()
+bot-77          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:60500 removed. Total sessions: 25
+jokenpo-server  | Session created for 172.21.0.30:52636. Total sessions: 26
+bot-146         | 2025/09/16 06:59:35 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-61 exited with code 2
+bot-83          | fatal error: all goroutines are asleep - deadlock!
+bot-83          | 
+bot-83          | goroutine 1 [select (no cases)]:
+bot-83          | main.main()
+bot-83          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:54528 removed. Total sessions: 25
+[Kbot-77 exited with code 2
+bot-147         | fatal error: all goroutines are asleep - deadlock!
+bot-147         | 
+bot-147         | goroutine 1 [select (no cases)]:
+bot-147         | main.main()
+bot-147         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:52074 removed. Total sessions: 24
+[Kbot-83 exited with code 2
+jokenpo-server  | Session created for 172.21.0.3:43224. Total sessions: 25
+bot-75          | 2025/09/16 06:59:36 Login SUCCESS. Keeping connection open indefinitely.
+bot-82          | fatal error: all goroutines are asleep - deadlock!
+bot-82          | 
+bot-82          | goroutine 1 [select (no cases)]:
+bot-82          | main.main()
+bot-82          | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-147 exited with code 2
+jokenpo-server  | Session for 172.21.0.7:40842 removed. Total sessions: 24
+jokenpo-server  | Session created for 172.21.0.4:51668. Total sessions: 25
+bot-112         | 2025/09/16 06:59:36 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-82 exited with code 2
+bot-171         | fatal error: all goroutines are asleep - deadlock!
+bot-171         | 
+bot-171         | goroutine 1 [select (no cases)]:
+bot-171         | main.main()
+bot-171         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:58376 removed. Total sessions: 24
+bot-81          | fatal error: all goroutines are asleep - deadlock!
+bot-81          | 
+bot-81          | goroutine 1 [select (no cases)]:
+bot-81          | main.main()
+bot-81          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:41062 removed. Total sessions: 23
+[Kbot-171 exited with code 2
+jokenpo-server  | Session created for 172.21.0.5:53678. Total sessions: 24
+bot-20          | 2025/09/16 06:59:37 Login SUCCESS. Keeping connection open indefinitely.
+bot-117         | fatal error: all goroutines are asleep - deadlock!
+bot-117         | 
+bot-117         | goroutine 1 [select (no cases)]:
+bot-117         | main.main()
+bot-117         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:48312 removed. Total sessions: 23
+[Kbot-81 exited with code 2
+jokenpo-server  | Session created for 172.21.0.6:57584. Total sessions: 24
+bot-25          | 2025/09/16 06:59:38 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-117 exited with code 2
+bot-108         | fatal error: all goroutines are asleep - deadlock!
+bot-108         | 
+bot-108         | goroutine 1 [select (no cases)]:
+bot-108         | main.main()
+bot-108         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:49764 removed. Total sessions: 23
+bot-111         | fatal error: all goroutines are asleep - deadlock!
+bot-111         | 
+bot-111         | goroutine 1 [select (no cases)]:
+bot-111         | main.main()
+bot-111         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:55282 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.7:60758. Total sessions: 23
+bot-102         | 2025/09/16 06:59:38 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-108 exited with code 2
+bot-142         | fatal error: all goroutines are asleep - deadlock!
+bot-142         | 
+bot-142         | goroutine 1 [select (no cases)]:
+bot-142         | main.main()
+bot-142         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:40732 removed. Total sessions: 22
+[Kbot-111 exited with code 2
+bot-183         | 2025/09/16 06:59:39 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.8:45722. Total sessions: 23
+bot-194         | fatal error: all goroutines are asleep - deadlock!
+bot-194         | 
+bot-194         | goroutine 1 [select (no cases)]:
+bot-194         | main.main()
+bot-194         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:41096 removed. Total sessions: 22
+[Kbot-142 exited with code 2
+bot-101         | fatal error: all goroutines are asleep - deadlock!
+bot-101         | 
+bot-101         | goroutine 1 [select (no cases)]:
+bot-101         | main.main()
+bot-101         | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-194 exited with code 2
+jokenpo-server  | Session for 172.21.0.15:42308 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.9:55038. Total sessions: 22
+bot-67          | 2025/09/16 06:59:40 Login SUCCESS. Keeping connection open indefinitely.
+bot-161         | fatal error: all goroutines are asleep - deadlock!
+bot-161         | 
+bot-161         | goroutine 1 [select (no cases)]:
+bot-161         | main.main()
+bot-161         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.16:47766 removed. Total sessions: 21
+[Kbot-101 exited with code 2
+bot-37          | fatal error: all goroutines are asleep - deadlock!
+bot-37          | 
+bot-37          | goroutine 1 [select (no cases)]:
+bot-37          | main.main()
+bot-37          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.17:38904 removed. Total sessions: 20
+bot-192         | fatal error: all goroutines are asleep - deadlock!
+bot-192         | 
+jokenpo-server  | Session for 172.21.0.18:40570 removed. Total sessions: 19
+bot-192         | goroutine 1 [select (no cases)]:
+bot-192         | main.main()
+bot-192         | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-161 exited with code 2
+jokenpo-server  | Session created for 172.21.0.10:57908. Total sessions: 20
+bot-181         | 2025/09/16 06:59:41 Login SUCCESS. Keeping connection open indefinitely.
+bot-167         | fatal error: all goroutines are asleep - deadlock!
+bot-167         | 
+bot-167         | goroutine 1 [select (no cases)]:
+bot-167         | main.main()
+bot-167         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.19:44482 removed. Total sessions: 19
+[Kbot-37 exited with code 2
+[Kbot-192 exited with code 2
+bot-182         | fatal error: all goroutines are asleep - deadlock!
+bot-182         | 
+bot-182         | goroutine 1 [select (no cases)]:
+bot-182         | main.main()
+bot-182         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.20:44398 removed. Total sessions: 18
+[Kbot-167 exited with code 2
+jokenpo-server  | Session created for 172.21.0.11:48540. Total sessions: 19
+bot-178         | 2025/09/16 06:59:41 Login SUCCESS. Keeping connection open indefinitely.
+bot-148         | fatal error: all goroutines are asleep - deadlock!
+bot-148         | 
+bot-148         | goroutine 1 [select (no cases)]:
+bot-148         | main.main()
+bot-148         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.21:43588 removed. Total sessions: 18
+[Kbot-182 exited with code 2
+jokenpo-server  | Session created for 172.21.0.12:49980. Total sessions: 19
+bot-141         | 2025/09/16 06:59:42 Login SUCCESS. Keeping connection open indefinitely.
+bot-164         | fatal error: all goroutines are asleep - deadlock!
+bot-164         | 
+bot-164         | goroutine 1 [select (no cases)]:
+bot-164         | main.main()
+bot-164         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.22:37364 removed. Total sessions: 18
+[Kbot-148 exited with code 2
+bot-45          | fatal error: all goroutines are asleep - deadlock!
+bot-45          | 
+bot-45          | goroutine 1 [select (no cases)]:
+bot-45          | main.main()
+bot-45          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.23:33812 removed. Total sessions: 17
+[Kbot-164 exited with code 2
+bot-188         | 2025/09/16 06:59:43 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.13:57824. Total sessions: 18
+[Kbot-45 exited with code 2
+bot-85          | fatal error: all goroutines are asleep - deadlock!
+bot-85          | 
+bot-85          | goroutine 1 [select (no cases)]:
+bot-85          | main.main()
+bot-85          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.24:43136 removed. Total sessions: 17
+bot-120         | fatal error: all goroutines are asleep - deadlock!
+bot-120         | 
+bot-120         | goroutine 1 [select (no cases)]:
+jokenpo-server  | Session for 172.21.0.25:55416 removed. Total sessions: 16
+bot-120         | main.main()
+bot-120         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session created for 172.21.0.14:44414. Total sessions: 17
+bot-8           | 2025/09/16 06:59:43 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-85 exited with code 2
+bot-122         | fatal error: all goroutines are asleep - deadlock!
+bot-122         | 
+bot-122         | goroutine 1 [select (no cases)]:
+bot-122         | main.main()
+bot-122         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.26:41320 removed. Total sessions: 16
+[Kbot-120 exited with code 2
+bot-121         | fatal error: all goroutines are asleep - deadlock!
+bot-121         | 
+bot-121         | goroutine 1 [select (no cases)]:
+jokenpo-server  | Session for 172.21.0.27:56934 removed. Total sessions: 15
+bot-121         | main.main()
+bot-121         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session created for 172.21.0.15:49058. Total sessions: 16
+bot-92          | 2025/09/16 06:59:44 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-122 exited with code 2
+bot-2           | fatal error: all goroutines are asleep - deadlock!
+bot-2           | 
+bot-2           | goroutine 1 [select (no cases)]:
+bot-2           | main.main()
+bot-2           | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.28:59672 removed. Total sessions: 15
+[Kbot-121 exited with code 2
+bot-190         | fatal error: all goroutines are asleep - deadlock!
+bot-190         | 
+bot-190         | goroutine 1 [select (no cases)]:
+bot-190         | main.main()
+bot-190         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.29:42360 removed. Total sessions: 14
+bot-185         | 2025/09/16 06:59:44 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.16:33236. Total sessions: 15
+[Kbot-2 exited with code 2
+[Kbot-190 exited with code 2
+jokenpo-server  | Session created for 172.21.0.17:41308. Total sessions: 16
+bot-90          | 2025/09/16 06:59:45 Login SUCCESS. Keeping connection open indefinitely.
+bot-146         | fatal error: all goroutines are asleep - deadlock!
+bot-146         | 
+bot-146         | goroutine 1 [select (no cases)]:
+bot-146         | main.main()
+bot-146         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.30:52636 removed. Total sessions: 15
+[Kbot-146 exited with code 2
+bot-114         | 2025/09/16 06:59:46 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.18:36008. Total sessions: 16
+bot-75          | fatal error: all goroutines are asleep - deadlock!
+bot-75          | 
+bot-75          | goroutine 1 [select (no cases)]:
+bot-75          | main.main()
+bot-75          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:43224 removed. Total sessions: 15
+bot-112         | fatal error: all goroutines are asleep - deadlock!
+[Kbot-75 exited with code 2
+bot-112         | 
+bot-112         | goroutine 1 [select (no cases)]:
+bot-112         | main.main()
+bot-112         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:51668 removed. Total sessions: 14
+bot-197         | 2025/09/16 06:59:47 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.19:42030. Total sessions: 15
+[Kbot-112 exited with code 2
+bot-20          | fatal error: all goroutines are asleep - deadlock!
+bot-20          | 
+bot-20          | goroutine 1 [select (no cases)]:
+bot-20          | main.main()
+bot-20          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:53678 removed. Total sessions: 14
+bot-149         | 2025/09/16 06:59:47 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.3:52718. Total sessions: 15
+[Kbot-20 exited with code 2
+bot-25          | fatal error: all goroutines are asleep - deadlock!
+bot-25          | 
+bot-25          | goroutine 1 [select (no cases)]:
+bot-25          | main.main()
+bot-25          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:57584 removed. Total sessions: 14
+jokenpo-server  | Session created for 172.21.0.4:36950. Total sessions: 15
+bot-99          | 2025/09/16 06:59:48 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-25 exited with code 2
+bot-102         | fatal error: all goroutines are asleep - deadlock!
+bot-102         | 
+bot-102         | goroutine 1 [select (no cases)]:
+bot-102         | main.main()
+bot-102         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:60758 removed. Total sessions: 14
+jokenpo-server  | Session created for 172.21.0.5:44882. Total sessions: 15
+bot-62          | 2025/09/16 06:59:49 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-102 exited with code 2
+bot-183         | fatal error: all goroutines are asleep - deadlock!
+bot-183         | 
+bot-183         | goroutine 1 [select (no cases)]:
+bot-183         | main.main()
+bot-183         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:45722 removed. Total sessions: 14
+[Kbot-183 exited with code 2
+bot-67          | fatal error: all goroutines are asleep - deadlock!
+bot-67          | 
+bot-67          | goroutine 1 [select (no cases)]:
+bot-67          | main.main()
+bot-67          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:55038 removed. Total sessions: 13
+jokenpo-server  | Session created for 172.21.0.6:56418. Total sessions: 14
+bot-22          | 2025/09/16 06:59:50 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-67 exited with code 2
+bot-181         | fatal error: all goroutines are asleep - deadlock!
+bot-181         | 
+bot-181         | goroutine 1 [select (no cases)]:
+bot-181         | main.main()
+bot-181         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:57908 removed. Total sessions: 13
+jokenpo-server  | Session created for 172.21.0.7:35528. Total sessions: 14
+bot-175         | 2025/09/16 06:59:51 Login SUCCESS. Keeping connection open indefinitely.
+bot-178         | fatal error: all goroutines are asleep - deadlock!
+bot-178         | 
+bot-178         | goroutine 1 [select (no cases)]:
+bot-178         | main.main()
+bot-178         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:48540 removed. Total sessions: 13
+[Kbot-181 exited with code 2
+bot-141         | fatal error: all goroutines are asleep - deadlock!
+bot-141         | 
+bot-141         | goroutine 1 [select (no cases)]:
+bot-141         | main.main()
+bot-141         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:49980 removed. Total sessions: 12
+jokenpo-server  | Session created for 172.21.0.8:34094. Total sessions: 13
+bot-162         | 2025/09/16 06:59:52 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-178 exited with code 2
+[Kbot-141 exited with code 2
+bot-188         | fatal error: all goroutines are asleep - deadlock!
+bot-188         | 
+bot-188         | goroutine 1 [select (no cases)]:
+bot-188         | main.main()
+bot-188         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:57824 removed. Total sessions: 12
+jokenpo-server  | Session created for 172.21.0.9:54062. Total sessions: 13
+bot-104         | 2025/09/16 06:59:53 Login SUCCESS. Keeping connection open indefinitely.
+bot-8           | fatal error: all goroutines are asleep - deadlock!
+bot-8           | 
+bot-8           | goroutine 1 [select (no cases)]:
+bot-8           | main.main()
+bot-8           | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:44414 removed. Total sessions: 12
+[Kbot-188 exited with code 2
+bot-92          | fatal error: all goroutines are asleep - deadlock!
+bot-92          | 
+bot-92          | goroutine 1 [select (no cases)]:
+bot-92          | main.main()
+bot-92          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.15:49058 removed. Total sessions: 11
+[Kbot-8 exited with code 2
+jokenpo-server  | Session created for 172.21.0.10:52850. Total sessions: 12
+bot-76          | 2025/09/16 06:59:54 Login SUCCESS. Keeping connection open indefinitely.
+bot-185         | fatal error: all goroutines are asleep - deadlock!
+bot-185         | 
+bot-185         | goroutine 1 [select (no cases)]:
+bot-185         | main.main()
+bot-185         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.16:33236 removed. Total sessions: 11
+[Kbot-92 exited with code 2
+bot-90          | fatal error: all goroutines are asleep - deadlock!
+bot-90          | 
+bot-90          | goroutine 1 [select (no cases)]:
+jokenpo-server  | Session for 172.21.0.17:41308 removed. Total sessions: 10
+bot-90          | main.main()
+bot-90          | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-185 exited with code 2
+jokenpo-server  | Session created for 172.21.0.11:33572. Total sessions: 11
+bot-179         | 2025/09/16 06:59:55 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-90 exited with code 2
+bot-114         | fatal error: all goroutines are asleep - deadlock!
+bot-114         | 
+bot-114         | goroutine 1 [select (no cases)]:
+bot-114         | main.main()
+bot-114         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.18:36008 removed. Total sessions: 10
+jokenpo-server  | Session created for 172.21.0.12:36276. Total sessions: 11
+bot-173         | 2025/09/16 06:59:56 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-114 exited with code 2
+bot-197         | fatal error: all goroutines are asleep - deadlock!
+bot-197         | 
+bot-197         | goroutine 1 [select (no cases)]:
+bot-197         | main.main()
+bot-197         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.19:42030 removed. Total sessions: 10
+bot-149         | fatal error: all goroutines are asleep - deadlock!
+bot-149         | 
+bot-149         | goroutine 1 [select (no cases)]:
+bot-149         | main.main()
+bot-149         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:52718 removed. Total sessions: 9
+[Kbot-197 exited with code 2
+jokenpo-server  | Session created for 172.21.0.13:34412. Total sessions: 10
+bot-54          | 2025/09/16 06:59:58 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-149 exited with code 2
+bot-99          | fatal error: all goroutines are asleep - deadlock!
+bot-99          | 
+bot-99          | goroutine 1 [select (no cases)]:
+bot-99          | main.main()
+bot-99          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:36950 removed. Total sessions: 9
+jokenpo-server  | Session created for 172.21.0.3:52318. Total sessions: 10
+bot-14          | 2025/09/16 06:59:58 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-99 exited with code 2
+bot-62          | fatal error: all goroutines are asleep - deadlock!
+bot-62          | 
+bot-62          | goroutine 1 [select (no cases)]:
+bot-62          | main.main()
+bot-62          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:44882 removed. Total sessions: 9
+jokenpo-server  | Session created for 172.21.0.4:50488. Total sessions: 10
+bot-133         | 2025/09/16 06:59:59 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-62 exited with code 2
+bot-22          | fatal error: all goroutines are asleep - deadlock!
+bot-22          | 
+bot-22          | goroutine 1 [select (no cases)]:
+bot-22          | main.main()
+bot-22          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:56418 removed. Total sessions: 9
+bot-63          | 2025/09/16 07:00:00 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.5:56872. Total sessions: 10
+[Kbot-22 exited with code 2
+bot-175         | fatal error: all goroutines are asleep - deadlock!
+bot-175         | 
+bot-175         | goroutine 1 [select (no cases)]:
+bot-175         | main.main()
+bot-175         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:35528 removed. Total sessions: 9
+jokenpo-server  | Session created for 172.21.0.6:57874. Total sessions: 10
+bot-73          | 2025/09/16 07:00:01 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-175 exited with code 2
+bot-162         | fatal error: all goroutines are asleep - deadlock!
+bot-162         | 
+bot-162         | goroutine 1 [select (no cases)]:
+bot-162         | main.main()
+bot-162         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:34094 removed. Total sessions: 9
+bot-15          | 2025/09/16 07:00:03 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.7:41026. Total sessions: 10
+[Kbot-162 exited with code 2
+bot-104         | fatal error: all goroutines are asleep - deadlock!
+bot-104         | 
+bot-104         | goroutine 1 [select (no cases)]:
+bot-104         | main.main()
+bot-104         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:54062 removed. Total sessions: 9
+[Kbot-104 exited with code 2
+jokenpo-server  | Session created for 172.21.0.8:34688. Total sessions: 10
+bot-11          | 2025/09/16 07:00:04 Login SUCCESS. Keeping connection open indefinitely.
+bot-76          | fatal error: all goroutines are asleep - deadlock!
+bot-76          | 
+bot-76          | goroutine 1 [select (no cases)]:
+bot-76          | main.main()
+bot-76          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:52850 removed. Total sessions: 9
+[Kbot-76 exited with code 2
+jokenpo-server  | Session created for 172.21.0.9:32810. Total sessions: 10
+bot-23          | 2025/09/16 07:00:05 Login SUCCESS. Keeping connection open indefinitely.
+bot-179         | fatal error: all goroutines are asleep - deadlock!
+bot-179         | 
+bot-179         | goroutine 1 [select (no cases)]:
+bot-179         | main.main()
+bot-179         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:33572 removed. Total sessions: 9
+[Kbot-179 exited with code 2
+jokenpo-server  | Session created for 172.21.0.10:59838. Total sessions: 10
+bot-195         | 2025/09/16 07:00:06 Login SUCCESS. Keeping connection open indefinitely.
+bot-173         | fatal error: all goroutines are asleep - deadlock!
+bot-173         | 
+bot-173         | goroutine 1 [select (no cases)]:
+bot-173         | main.main()
+bot-173         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:36276 removed. Total sessions: 9
+[Kbot-173 exited with code 2
+bot-48          | 2025/09/16 07:00:07 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.11:55818. Total sessions: 10
+bot-54          | fatal error: all goroutines are asleep - deadlock!
+bot-54          | 
+bot-54          | goroutine 1 [select (no cases)]:
+bot-54          | main.main()
+bot-54          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:34412 removed. Total sessions: 9
+[Kbot-54 exited with code 2
+bot-14          | fatal error: all goroutines are asleep - deadlock!
+bot-14          | 
+bot-14          | goroutine 1 [select (no cases)]:
+bot-14          | main.main()
+bot-14          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:52318 removed. Total sessions: 8
+jokenpo-server  | Session created for 172.21.0.12:41016. Total sessions: 9
+bot-43          | 2025/09/16 07:00:09 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-14 exited with code 2
+bot-133         | fatal error: all goroutines are asleep - deadlock!
+bot-133         | 
+bot-133         | goroutine 1 [select (no cases)]:
+bot-133         | main.main()
+bot-133         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:50488 removed. Total sessions: 8
+jokenpo-server  | Session created for 172.21.0.3:41038. Total sessions: 9
+bot-191         | 2025/09/16 07:00:10 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-133 exited with code 2
+bot-63          | fatal error: all goroutines are asleep - deadlock!
+bot-63          | 
+bot-63          | goroutine 1 [select (no cases)]:
+bot-63          | main.main()
+bot-63          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:56872 removed. Total sessions: 8
+jokenpo-server  | Session created for 172.21.0.4:59028. Total sessions: 9
+bot-80          | 2025/09/16 07:00:11 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-63 exited with code 2
+jokenpo-server  | Session created for 172.21.0.5:54626. Total sessions: 10
+bot-69          | 2025/09/16 07:00:11 Login SUCCESS. Keeping connection open indefinitely.
+bot-73          | fatal error: all goroutines are asleep - deadlock!
+bot-73          | 
+bot-73          | goroutine 1 [select (no cases)]:
+bot-73          | main.main()
+bot-73          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:57874 removed. Total sessions: 9
+[Kbot-73 exited with code 2
+jokenpo-server  | Session created for 172.21.0.6:60914. Total sessions: 10
+bot-119         | 2025/09/16 07:00:13 Login SUCCESS. Keeping connection open indefinitely.
+bot-15          | fatal error: all goroutines are asleep - deadlock!
+bot-15          | 
+bot-15          | goroutine 1 [select (no cases)]:
+bot-15          | main.main()
+bot-15          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:41026 removed. Total sessions: 9
+[Kbot-15 exited with code 2
+jokenpo-server  | Session created for 172.21.0.13:49462. Total sessions: 10
+bot-94          | 2025/09/16 07:00:13 Login SUCCESS. Keeping connection open indefinitely.
+bot-11          | fatal error: all goroutines are asleep - deadlock!
+bot-11          | 
+bot-11          | goroutine 1 [select (no cases)]:
+bot-11          | main.main()
+bot-11          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:34688 removed. Total sessions: 9
+jokenpo-server  | Session created for 172.21.0.7:53074. Total sessions: 10
+bot-74          | 2025/09/16 07:00:15 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-11 exited with code 2
+bot-23          | fatal error: all goroutines are asleep - deadlock!
+bot-23          | 
+bot-23          | goroutine 1 [select (no cases)]:
+bot-23          | main.main()
+bot-23          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:32810 removed. Total sessions: 9
+jokenpo-server  | Session created for 172.21.0.8:44252. Total sessions: 10
+bot-193         | 2025/09/16 07:00:15 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-23 exited with code 2
+jokenpo-server  | Session created for 172.21.0.9:59464. Total sessions: 11
+bot-128         | 2025/09/16 07:00:16 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.14:33222. Total sessions: 12
+bot-127         | 2025/09/16 07:00:16 Login SUCCESS. Keeping connection open indefinitely.
+bot-195         | fatal error: all goroutines are asleep - deadlock!
+bot-195         | 
+bot-195         | goroutine 1 [select (no cases)]:
+bot-195         | main.main()
+bot-195         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:59838 removed. Total sessions: 11
+jokenpo-server  | Session created for 172.21.0.15:50492. Total sessions: 12
+bot-33          | 2025/09/16 07:00:17 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-195 exited with code 2
+bot-53          | 2025/09/16 07:00:17 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.10:49692. Total sessions: 13
+jokenpo-server  | Session created for 172.21.0.16:56702. Total sessions: 14
+bot-79          | 2025/09/16 07:00:17 Login SUCCESS. Keeping connection open indefinitely.
+bot-48          | fatal error: all goroutines are asleep - deadlock!
+bot-48          | 
+bot-48          | goroutine 1 [select (no cases)]:
+bot-48          | main.main()
+bot-48          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:55818 removed. Total sessions: 13
+[Kbot-48 exited with code 2
+jokenpo-server  | Session created for 172.21.0.17:35586. Total sessions: 14
+bot-106         | 2025/09/16 07:00:18 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.11:55530. Total sessions: 15
+bot-86          | 2025/09/16 07:00:18 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.18:51754. Total sessions: 16
+bot-151         | 2025/09/16 07:00:19 Login SUCCESS. Keeping connection open indefinitely.
+bot-43          | fatal error: all goroutines are asleep - deadlock!
+bot-43          | 
+bot-43          | goroutine 1 [select (no cases)]:
+bot-43          | main.main()
+bot-43          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:41016 removed. Total sessions: 15
+[Kbot-43 exited with code 2
+jokenpo-server  | Session created for 172.21.0.19:33606. Total sessions: 16
+bot-51          | 2025/09/16 07:00:19 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.12:60988. Total sessions: 17
+bot-115         | 2025/09/16 07:00:19 Login SUCCESS. Keeping connection open indefinitely.
+bot-191         | fatal error: all goroutines are asleep - deadlock!
+bot-191         | 
+bot-191         | goroutine 1 [select (no cases)]:
+bot-191         | main.main()
+bot-191         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:41038 removed. Total sessions: 16
+jokenpo-server  | Session created for 172.21.0.20:35888. Total sessions: 17
+bot-84          | 2025/09/16 07:00:20 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-191 exited with code 2
+jokenpo-server  | Session created for 172.21.0.21:52746. Total sessions: 18
+bot-35          | 2025/09/16 07:00:20 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.3:43036. Total sessions: 19
+bot-97          | 2025/09/16 07:00:21 Login SUCCESS. Keeping connection open indefinitely.
+bot-80          | fatal error: all goroutines are asleep - deadlock!
+bot-80          | 
+bot-80          | goroutine 1 [select (no cases)]:
+bot-80          | main.main()
+bot-80          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:59028 removed. Total sessions: 18
+[Kbot-80 exited with code 2
+jokenpo-server  | Session created for 172.21.0.22:55958. Total sessions: 19
+bot-189         | 2025/09/16 07:00:21 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.4:34752. Total sessions: 20
+bot-88          | 2025/09/16 07:00:21 Login SUCCESS. Keeping connection open indefinitely.
+bot-69          | fatal error: all goroutines are asleep - deadlock!
+bot-69          | 
+bot-69          | goroutine 1 [select (no cases)]:
+bot-69          | main.main()
+bot-69          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:54626 removed. Total sessions: 19
+jokenpo-server  | Session created for 172.21.0.23:34672. Total sessions: 20
+bot-156         | 2025/09/16 07:00:22 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-69 exited with code 2
+jokenpo-server  | Session created for 172.21.0.5:44028. Total sessions: 21
+bot-152         | 2025/09/16 07:00:22 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.24:47266. Total sessions: 22
+bot-70          | 2025/09/16 07:00:22 Login SUCCESS. Keeping connection open indefinitely.
+bot-119         | fatal error: all goroutines are asleep - deadlock!
+bot-119         | 
+bot-119         | goroutine 1 [select (no cases)]:
+bot-119         | main.main()
+bot-119         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:60914 removed. Total sessions: 21
+[Kbot-119 exited with code 2
+jokenpo-server  | Session created for 172.21.0.25:57216. Total sessions: 22
+bot-56          | 2025/09/16 07:00:23 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.6:54914. Total sessions: 23
+bot-103         | 2025/09/16 07:00:23 Login SUCCESS. Keeping connection open indefinitely.
+bot-94          | fatal error: all goroutines are asleep - deadlock!
+bot-94          | 
+bot-94          | goroutine 1 [select (no cases)]:
+bot-94          | main.main()
+bot-94          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:49462 removed. Total sessions: 22
+[Kbot-94 exited with code 2
+jokenpo-server  | Session created for 172.21.0.26:43814. Total sessions: 23
+bot-129         | 2025/09/16 07:00:24 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.13:55870. Total sessions: 24
+bot-169         | 2025/09/16 07:00:24 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.27:33920. Total sessions: 25
+bot-1           | 2025/09/16 07:00:25 Login SUCCESS. Keeping connection open indefinitely.
+bot-74          | fatal error: all goroutines are asleep - deadlock!
+bot-74          | 
+bot-74          | goroutine 1 [select (no cases)]:
+bot-74          | main.main()
+bot-74          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:53074 removed. Total sessions: 24
+[Kbot-74 exited with code 2
+jokenpo-server  | Session created for 172.21.0.28:33468. Total sessions: 25
+bot-39          | 2025/09/16 07:00:25 Login SUCCESS. Keeping connection open indefinitely.
+bot-193         | fatal error: all goroutines are asleep - deadlock!
+bot-193         | 
+bot-193         | goroutine 1 [select (no cases)]:
+bot-193         | main.main()
+bot-193         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:44252 removed. Total sessions: 24
+bot-68          | 2025/09/16 07:00:26 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.7:41312. Total sessions: 25
+[Kbot-193 exited with code 2
+bot-128         | fatal error: all goroutines are asleep - deadlock!
+bot-128         | 
+bot-128         | goroutine 1 [select (no cases)]:
+bot-128         | main.main()
+bot-128         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:59464 removed. Total sessions: 24
+jokenpo-server  | Session created for 172.21.0.8:47742. Total sessions: 25
+bot-187         | 2025/09/16 07:00:26 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-128 exited with code 2
+bot-127         | fatal error: all goroutines are asleep - deadlock!
+bot-127         | 
+bot-127         | goroutine 1 [select (no cases)]:
+bot-127         | main.main()
+bot-127         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:33222 removed. Total sessions: 24
+[Kbot-127 exited with code 2
+jokenpo-server  | Session created for 172.21.0.9:58340. Total sessions: 25
+bot-150         | 2025/09/16 07:00:27 Login SUCCESS. Keeping connection open indefinitely.
+bot-33          | fatal error: all goroutines are asleep - deadlock!
+bot-33          | 
+bot-33          | goroutine 1 [select (no cases)]:
+bot-33          | main.main()
+bot-33          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.15:50492 removed. Total sessions: 24
+jokenpo-server  | Session created for 172.21.0.14:37114. Total sessions: 25
+bot-170         | 2025/09/16 07:00:27 Login SUCCESS. Keeping connection open indefinitely.
+bot-53          | fatal error: all goroutines are asleep - deadlock!
+bot-53          | 
+bot-53          | goroutine 1 [select (no cases)]:
+bot-53          | main.main()
+bot-53          | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-33 exited with code 2
+jokenpo-server  | Session for 172.21.0.10:49692 removed. Total sessions: 24
+bot-79          | fatal error: all goroutines are asleep - deadlock!
+bot-79          | 
+bot-79          | goroutine 1 [select (no cases)]:
+bot-79          | main.main()
+bot-79          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.16:56702 removed. Total sessions: 23
+[Kbot-53 exited with code 2
+jokenpo-server  | Session created for 172.21.0.15:50626. Total sessions: 24
+bot-125         | 2025/09/16 07:00:28 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-79 exited with code 2
+bot-106         | fatal error: all goroutines are asleep - deadlock!
+bot-106         | 
+bot-106         | goroutine 1 [select (no cases)]:
+bot-106         | main.main()
+bot-106         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.17:35586 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.10:58384. Total sessions: 24
+bot-200         | 2025/09/16 07:00:28 Login SUCCESS. Keeping connection open indefinitely.
+bot-86          | fatal error: all goroutines are asleep - deadlock!
+bot-86          | 
+bot-86          | goroutine 1 [select (no cases)]:
+bot-86          | main.main()
+bot-86          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:55530 removed. Total sessions: 23
+[Kbot-106 exited with code 2
+jokenpo-server  | Session created for 172.21.0.16:42968. Total sessions: 24
+bot-24          | 2025/09/16 07:00:28 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-86 exited with code 2
+bot-151         | fatal error: all goroutines are asleep - deadlock!
+bot-151         | 
+bot-151         | goroutine 1 [select (no cases)]:
+bot-151         | main.main()
+bot-151         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.18:51754 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.11:39468. Total sessions: 24
+bot-44          | 2025/09/16 07:00:29 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-151 exited with code 2
+bot-51          | fatal error: all goroutines are asleep - deadlock!
+bot-51          | 
+bot-51          | goroutine 1 [select (no cases)]:
+bot-51          | main.main()
+bot-51          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.19:33606 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.17:34458. Total sessions: 24
+bot-18          | 2025/09/16 07:00:29 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-51 exited with code 2
+bot-115         | fatal error: all goroutines are asleep - deadlock!
+bot-115         | 
+bot-115         | goroutine 1 [select (no cases)]:
+bot-115         | main.main()
+bot-115         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:60988 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.18:56478. Total sessions: 24
+bot-47          | 2025/09/16 07:00:30 Login SUCCESS. Keeping connection open indefinitely.
+bot-84          | fatal error: all goroutines are asleep - deadlock!
+bot-84          | 
+bot-84          | goroutine 1 [select (no cases)]:
+bot-84          | main.main()
+bot-84          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.20:35888 removed. Total sessions: 23
+[Kbot-115 exited with code 2
+jokenpo-server  | Session created for 172.21.0.19:33302. Total sessions: 24
+bot-198         | 2025/09/16 07:00:30 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-84 exited with code 2
+bot-35          | fatal error: all goroutines are asleep - deadlock!
+bot-35          | 
+bot-35          | goroutine 1 [select (no cases)]:
+bot-35          | main.main()
+bot-35          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.21:52746 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.12:60940. Total sessions: 24
+bot-137         | 2025/09/16 07:00:30 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-35 exited with code 2
+bot-97          | fatal error: all goroutines are asleep - deadlock!
+bot-97          | 
+bot-97          | goroutine 1 [select (no cases)]:
+bot-97          | main.main()
+bot-97          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:43036 removed. Total sessions: 23
+[Kbot-97 exited with code 2
+jokenpo-server  | Session created for 172.21.0.20:38110. Total sessions: 24
+bot-64          | 2025/09/16 07:00:31 Login SUCCESS. Keeping connection open indefinitely.
+bot-189         | fatal error: all goroutines are asleep - deadlock!
+bot-189         | 
+bot-189         | goroutine 1 [select (no cases)]:
+bot-189         | main.main()
+bot-189         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.22:55958 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.3:56388. Total sessions: 24
+bot-26          | 2025/09/16 07:00:31 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-189 exited with code 2
+bot-88          | fatal error: all goroutines are asleep - deadlock!
+bot-88          | 
+bot-88          | goroutine 1 [select (no cases)]:
+bot-88          | main.main()
+bot-88          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:34752 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.21:34564. Total sessions: 24
+bot-32          | 2025/09/16 07:00:32 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-88 exited with code 2
+bot-156         | fatal error: all goroutines are asleep - deadlock!
+bot-156         | 
+bot-156         | goroutine 1 [select (no cases)]:
+bot-156         | main.main()
+bot-156         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.23:34672 removed. Total sessions: 23
+jokenpo-server  | Session created for 172.21.0.4:44696. Total sessions: 24
+bot-71          | 2025/09/16 07:00:32 Login SUCCESS. Keeping connection open indefinitely.
+bot-152         | fatal error: all goroutines are asleep - deadlock!
+bot-152         | 
+bot-152         | goroutine 1 [select (no cases)]:
+bot-152         | main.main()
+bot-152         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:44028 removed. Total sessions: 23
+[Kbot-156 exited with code 2
+[Kbot-152 exited with code 2
+bot-70          | fatal error: all goroutines are asleep - deadlock!
+bot-70          | 
+bot-70          | goroutine 1 [select (no cases)]:
+bot-70          | main.main()
+bot-70          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.24:47266 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.22:34824. Total sessions: 23
+bot-180         | 2025/09/16 07:00:33 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-70 exited with code 2
+bot-56          | fatal error: all goroutines are asleep - deadlock!
+bot-56          | 
+bot-56          | goroutine 1 [select (no cases)]:
+bot-56          | main.main()
+bot-56          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.25:57216 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.5:56766. Total sessions: 23
+bot-110         | 2025/09/16 07:00:33 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-56 exited with code 2
+bot-103         | fatal error: all goroutines are asleep - deadlock!
+bot-103         | 
+bot-103         | goroutine 1 [select (no cases)]:
+bot-103         | main.main()
+bot-103         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:54914 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.23:47244. Total sessions: 23
+bot-65          | 2025/09/16 07:00:34 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-103 exited with code 2
+bot-129         | fatal error: all goroutines are asleep - deadlock!
+bot-129         | 
+bot-129         | goroutine 1 [select (no cases)]:
+bot-129         | main.main()
+bot-129         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.26:43814 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.24:38312. Total sessions: 23
+bot-154         | 2025/09/16 07:00:34 Login SUCCESS. Keeping connection open indefinitely.
+bot-169         | fatal error: all goroutines are asleep - deadlock!
+bot-169         | 
+bot-169         | goroutine 1 [select (no cases)]:
+bot-169         | main.main()
+bot-169         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:55870 removed. Total sessions: 22
+[Kbot-129 exited with code 2
+jokenpo-server  | Session created for 172.21.0.6:58550. Total sessions: 23
+bot-57          | 2025/09/16 07:00:34 Login SUCCESS. Keeping connection open indefinitely.
+bot-1           | fatal error: all goroutines are asleep - deadlock!
+bot-1           | 
+bot-1           | goroutine 1 [select (no cases)]:
+bot-1           | main.main()
+bot-1           | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.27:33920 removed. Total sessions: 22
+[Kbot-169 exited with code 2
+jokenpo-server  | Session created for 172.21.0.13:37184. Total sessions: 23
+bot-50          | 2025/09/16 07:00:35 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-1 exited with code 2
+bot-39          | fatal error: all goroutines are asleep - deadlock!
+bot-39          | 
+bot-39          | goroutine 1 [select (no cases)]:
+bot-39          | main.main()
+bot-39          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.28:33468 removed. Total sessions: 22
+jokenpo-server  | Session created for 172.21.0.25:35138. Total sessions: 23
+bot-96          | 2025/09/16 07:00:35 Login SUCCESS. Keeping connection open indefinitely.
+bot-68          | fatal error: all goroutines are asleep - deadlock!
+bot-68          | 
+bot-68          | goroutine 1 [select (no cases)]:
+bot-68          | main.main()
+bot-68          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:41312 removed. Total sessions: 22
+[Kbot-39 exited with code 2
+bot-58          | 2025/09/16 07:00:36 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.26:54072. Total sessions: 23
+bot-187         | fatal error: all goroutines are asleep - deadlock!
+bot-187         | 
+bot-187         | goroutine 1 [select (no cases)]:
+bot-187         | main.main()
+bot-187         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:47742 removed. Total sessions: 22
+[Kbot-68 exited with code 2
+jokenpo-server  | Session created for 172.21.0.7:56356. Total sessions: 23
+bot-174         | 2025/09/16 07:00:36 Login SUCCESS. Keeping connection open indefinitely.
+bot-150         | fatal error: all goroutines are asleep - deadlock!
+bot-150         | 
+bot-150         | goroutine 1 [select (no cases)]:
+bot-150         | main.main()
+bot-150         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:58340 removed. Total sessions: 22
+[Kbot-187 exited with code 2
+jokenpo-server  | Session created for 172.21.0.8:58448. Total sessions: 23
+bot-126         | 2025/09/16 07:00:37 Login SUCCESS. Keeping connection open indefinitely.
+bot-170         | fatal error: all goroutines are asleep - deadlock!
+bot-170         | 
+bot-170         | goroutine 1 [select (no cases)]:
+bot-170         | main.main()
+bot-170         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:37114 removed. Total sessions: 22
+[Kbot-150 exited with code 2
+[Kbot-170 exited with code 2
+bot-125         | fatal error: all goroutines are asleep - deadlock!
+bot-125         | 
+bot-125         | goroutine 1 [select (no cases)]:
+bot-125         | main.main()
+bot-125         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.15:50626 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.9:42502. Total sessions: 22
+bot-172         | 2025/09/16 07:00:38 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-125 exited with code 2
+bot-200         | fatal error: all goroutines are asleep - deadlock!
+bot-200         | 
+bot-200         | goroutine 1 [select (no cases)]:
+bot-200         | main.main()
+bot-200         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:58384 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.14:58760. Total sessions: 22
+bot-116         | 2025/09/16 07:00:38 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-200 exited with code 2
+bot-24          | fatal error: all goroutines are asleep - deadlock!
+bot-24          | 
+bot-24          | goroutine 1 [select (no cases)]:
+bot-24          | main.main()
+bot-24          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.16:42968 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.15:55180. Total sessions: 22
+bot-186         | 2025/09/16 07:00:39 Login SUCCESS. Keeping connection open indefinitely.
+bot-44          | fatal error: all goroutines are asleep - deadlock!
+bot-44          | 
+bot-44          | goroutine 1 [select (no cases)]:
+bot-44          | main.main()
+bot-44          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:39468 removed. Total sessions: 21
+[Kbot-24 exited with code 2
+jokenpo-server  | Session created for 172.21.0.10:53312. Total sessions: 22
+bot-28          | 2025/09/16 07:00:39 Login SUCCESS. Keeping connection open indefinitely.
+bot-18          | fatal error: all goroutines are asleep - deadlock!
+bot-18          | 
+bot-18          | goroutine 1 [select (no cases)]:
+bot-18          | main.main()
+bot-18          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.17:34458 removed. Total sessions: 21
+[Kbot-44 exited with code 2
+jokenpo-server  | Session created for 172.21.0.16:55564. Total sessions: 22
+bot-132         | 2025/09/16 07:00:39 Login SUCCESS. Keeping connection open indefinitely.
+bot-47          | fatal error: all goroutines are asleep - deadlock!
+[Kbot-18 exited with code 2
+bot-47          | 
+bot-47          | goroutine 1 [select (no cases)]:
+bot-47          | main.main()
+bot-47          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.18:56478 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.11:59260. Total sessions: 22
+bot-139         | 2025/09/16 07:00:40 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-47 exited with code 2
+bot-198         | fatal error: all goroutines are asleep - deadlock!
+bot-198         | 
+bot-198         | goroutine 1 [select (no cases)]:
+bot-198         | main.main()
+bot-198         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.19:33302 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.17:59130. Total sessions: 22
+bot-160         | 2025/09/16 07:00:40 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-198 exited with code 2
+bot-137         | fatal error: all goroutines are asleep - deadlock!
+bot-137         | 
+bot-137         | goroutine 1 [select (no cases)]:
+bot-137         | main.main()
+bot-137         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:60940 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.18:51532. Total sessions: 22
+bot-38          | 2025/09/16 07:00:41 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-137 exited with code 2
+bot-64          | fatal error: all goroutines are asleep - deadlock!
+bot-64          | 
+bot-64          | goroutine 1 [select (no cases)]:
+bot-64          | main.main()
+bot-64          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.20:38110 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.19:46558. Total sessions: 22
+bot-91          | 2025/09/16 07:00:41 Login SUCCESS. Keeping connection open indefinitely.
+bot-26          | fatal error: all goroutines are asleep - deadlock!
+bot-26          | 
+bot-26          | goroutine 1 [select (no cases)]:
+bot-26          | main.main()
+bot-26          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:56388 removed. Total sessions: 21
+[Kbot-64 exited with code 2
+jokenpo-server  | Session created for 172.21.0.12:36698. Total sessions: 22
+bot-199         | 2025/09/16 07:00:42 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-26 exited with code 2
+bot-32          | fatal error: all goroutines are asleep - deadlock!
+bot-32          | 
+bot-32          | goroutine 1 [select (no cases)]:
+bot-32          | main.main()
+bot-32          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.21:34564 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.3:43078. Total sessions: 22
+bot-34          | 2025/09/16 07:00:42 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-32 exited with code 2
+bot-71          | fatal error: all goroutines are asleep - deadlock!
+bot-71          | 
+bot-71          | goroutine 1 [select (no cases)]:
+bot-71          | main.main()
+bot-71          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:44696 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.20:46478. Total sessions: 22
+bot-131         | 2025/09/16 07:00:42 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-71 exited with code 2
+bot-180         | fatal error: all goroutines are asleep - deadlock!
+bot-180         | 
+bot-180         | goroutine 1 [select (no cases)]:
+bot-180         | main.main()
+bot-180         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.22:34824 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.4:55990. Total sessions: 22
+bot-135         | 2025/09/16 07:00:43 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-180 exited with code 2
+bot-110         | fatal error: all goroutines are asleep - deadlock!
+bot-110         | 
+bot-110         | goroutine 1 [select (no cases)]:
+bot-110         | main.main()
+bot-110         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:56766 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.21:33068. Total sessions: 22
+bot-144         | 2025/09/16 07:00:43 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-110 exited with code 2
+bot-65          | fatal error: all goroutines are asleep - deadlock!
+bot-65          | 
+bot-65          | goroutine 1 [select (no cases)]:
+bot-65          | main.main()
+bot-65          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.23:47244 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.22:47966. Total sessions: 22
+bot-93          | 2025/09/16 07:00:44 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-65 exited with code 2
+bot-154         | fatal error: all goroutines are asleep - deadlock!
+bot-154         | 
+bot-154         | goroutine 1 [select (no cases)]:
+bot-154         | main.main()
+bot-154         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.24:38312 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.5:43606. Total sessions: 22
+bot-46          | 2025/09/16 07:00:44 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-154 exited with code 2
+jokenpo-server  | Session created for 172.21.0.23:58442. Total sessions: 23
+bot-30          | 2025/09/16 07:00:44 Login SUCCESS. Keeping connection open indefinitely.
+bot-57          | fatal error: all goroutines are asleep - deadlock!
+bot-57          | 
+bot-57          | goroutine 1 [select (no cases)]:
+bot-57          | main.main()
+bot-57          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:58550 removed. Total sessions: 22
+[Kbot-57 exited with code 2
+bot-50          | fatal error: all goroutines are asleep - deadlock!
+bot-50          | 
+bot-50          | goroutine 1 [select (no cases)]:
+bot-50          | main.main()
+bot-50          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:37184 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.24:36684. Total sessions: 22
+bot-41          | 2025/09/16 07:00:45 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-50 exited with code 2
+bot-96          | fatal error: all goroutines are asleep - deadlock!
+bot-96          | 
+bot-96          | goroutine 1 [select (no cases)]:
+bot-96          | main.main()
+bot-96          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.25:35138 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.6:56708. Total sessions: 22
+bot-4           | 2025/09/16 07:00:45 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-96 exited with code 2
+bot-58          | fatal error: all goroutines are asleep - deadlock!
+bot-58          | 
+bot-58          | goroutine 1 [select (no cases)]:
+bot-58          | main.main()
+bot-58          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.26:54072 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.13:35522. Total sessions: 22
+bot-166         | 2025/09/16 07:00:46 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-58 exited with code 2
+bot-174         | fatal error: all goroutines are asleep - deadlock!
+bot-174         | 
+bot-174         | goroutine 1 [select (no cases)]:
+bot-174         | main.main()
+bot-174         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:56356 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.25:58058. Total sessions: 22
+bot-49          | 2025/09/16 07:00:47 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-174 exited with code 2
+bot-126         | fatal error: all goroutines are asleep - deadlock!
+bot-126         | 
+bot-126         | goroutine 1 [select (no cases)]:
+bot-126         | main.main()
+bot-126         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:58448 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.26:42368. Total sessions: 22
+bot-118         | 2025/09/16 07:00:47 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-126 exited with code 2
+jokenpo-server  | Session created for 172.21.0.7:59472. Total sessions: 23
+bot-138         | 2025/09/16 07:00:48 Login SUCCESS. Keeping connection open indefinitely.
+bot-172         | fatal error: all goroutines are asleep - deadlock!
+bot-172         | 
+bot-172         | goroutine 1 [select (no cases)]:
+bot-172         | main.main()
+bot-172         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.9:42502 removed. Total sessions: 22
+[Kbot-172 exited with code 2
+jokenpo-server  | Session created for 172.21.0.8:59734. Total sessions: 23
+bot-87          | 2025/09/16 07:00:48 Login SUCCESS. Keeping connection open indefinitely.
+bot-116         | fatal error: all goroutines are asleep - deadlock!
+bot-116         | 
+bot-116         | goroutine 1 [select (no cases)]:
+bot-116         | main.main()
+bot-116         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:58760 removed. Total sessions: 22
+bot-186         | fatal error: all goroutines are asleep - deadlock!
+bot-186         | 
+bot-186         | goroutine 1 [select (no cases)]:
+bot-186         | main.main()
+bot-186         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.15:55180 removed. Total sessions: 21
+[Kbot-116 exited with code 2
+jokenpo-server  | Session created for 172.21.0.9:48816. Total sessions: 22
+bot-177         | 2025/09/16 07:00:49 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-186 exited with code 2
+bot-28          | fatal error: all goroutines are asleep - deadlock!
+bot-28          | 
+bot-28          | goroutine 1 [select (no cases)]:
+bot-28          | main.main()
+bot-28          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.10:53312 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.14:42592. Total sessions: 22
+bot-59          | 2025/09/16 07:00:49 Login SUCCESS. Keeping connection open indefinitely.
+bot-132         | fatal error: all goroutines are asleep - deadlock!
+bot-132         | 
+bot-132         | goroutine 1 [select (no cases)]:
+bot-132         | main.main()
+bot-132         | 	/app/cmd/bot/main.go:38 +0x2da
+[Kbot-28 exited with code 2
+jokenpo-server  | Session for 172.21.0.16:55564 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.15:46114. Total sessions: 22
+bot-6           | 2025/09/16 07:00:50 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-132 exited with code 2
+bot-139         | fatal error: all goroutines are asleep - deadlock!
+bot-139         | 
+bot-139         | goroutine 1 [select (no cases)]:
+bot-139         | main.main()
+bot-139         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.11:59260 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.10:42808. Total sessions: 22
+bot-72          | 2025/09/16 07:00:50 Login SUCCESS. Keeping connection open indefinitely.
+bot-160         | fatal error: all goroutines are asleep - deadlock!
+bot-160         | 
+bot-160         | goroutine 1 [select (no cases)]:
+bot-160         | main.main()
+bot-160         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.17:59130 removed. Total sessions: 21
+[Kbot-139 exited with code 2
+jokenpo-server  | Session created for 172.21.0.16:54420. Total sessions: 22
+bot-123         | 2025/09/16 07:00:50 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-160 exited with code 2
+bot-38          | fatal error: all goroutines are asleep - deadlock!
+bot-38          | 
+bot-38          | goroutine 1 [select (no cases)]:
+bot-38          | main.main()
+bot-38          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.18:51532 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.11:40882. Total sessions: 22
+bot-3           | 2025/09/16 07:00:51 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-38 exited with code 2
+bot-91          | fatal error: all goroutines are asleep - deadlock!
+bot-91          | 
+bot-91          | goroutine 1 [select (no cases)]:
+bot-91          | main.main()
+bot-91          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.19:46558 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.17:41472. Total sessions: 22
+bot-31          | 2025/09/16 07:00:51 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-91 exited with code 2
+bot-199         | fatal error: all goroutines are asleep - deadlock!
+bot-199         | 
+bot-199         | goroutine 1 [select (no cases)]:
+bot-199         | main.main()
+bot-199         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.12:36698 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.18:39820. Total sessions: 22
+bot-7           | 2025/09/16 07:00:52 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-199 exited with code 2
+bot-34          | fatal error: all goroutines are asleep - deadlock!
+bot-34          | 
+bot-34          | goroutine 1 [select (no cases)]:
+bot-34          | main.main()
+bot-34          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.3:43078 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.19:36204. Total sessions: 22
+bot-107         | 2025/09/16 07:00:52 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-34 exited with code 2
+bot-131         | fatal error: all goroutines are asleep - deadlock!
+bot-131         | 
+bot-131         | goroutine 1 [select (no cases)]:
+bot-131         | main.main()
+bot-131         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.20:46478 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.12:34176. Total sessions: 22
+bot-184         | 2025/09/16 07:00:52 Login SUCCESS. Keeping connection open indefinitely.
+bot-135         | fatal error: all goroutines are asleep - deadlock!
+bot-135         | 
+bot-135         | goroutine 1 [select (no cases)]:
+bot-135         | main.main()
+bot-135         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.4:55990 removed. Total sessions: 21
+[Kbot-131 exited with code 2
+jokenpo-server  | Session created for 172.21.0.3:53904. Total sessions: 22
+bot-168         | 2025/09/16 07:00:53 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-135 exited with code 2
+bot-144         | fatal error: all goroutines are asleep - deadlock!
+bot-144         | 
+bot-144         | goroutine 1 [select (no cases)]:
+bot-144         | main.main()
+bot-144         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.21:33068 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.4:37934. Total sessions: 22
+bot-176         | 2025/09/16 07:00:54 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-144 exited with code 2
+bot-93          | fatal error: all goroutines are asleep - deadlock!
+bot-93          | 
+bot-93          | goroutine 1 [select (no cases)]:
+bot-93          | main.main()
+bot-93          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.22:47966 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.20:60764. Total sessions: 22
+bot-40          | 2025/09/16 07:00:54 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-93 exited with code 2
+bot-46          | fatal error: all goroutines are asleep - deadlock!
+bot-46          | 
+bot-46          | goroutine 1 [select (no cases)]:
+bot-46          | main.main()
+bot-46          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.5:43606 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.21:51804. Total sessions: 22
+bot-134         | 2025/09/16 07:00:54 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-46 exited with code 2
+bot-30          | fatal error: all goroutines are asleep - deadlock!
+bot-30          | 
+bot-30          | goroutine 1 [select (no cases)]:
+bot-30          | main.main()
+bot-30          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.23:58442 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.5:40568. Total sessions: 22
+bot-136         | 2025/09/16 07:00:55 Login SUCCESS. Keeping connection open indefinitely.
+bot-41          | fatal error: all goroutines are asleep - deadlock!
+bot-41          | 
+bot-41          | goroutine 1 [select (no cases)]:
+bot-41          | main.main()
+bot-41          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.24:36684 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.22:40742. Total sessions: 22
+bot-55          | 2025/09/16 07:00:55 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-30 exited with code 2
+[Kbot-41 exited with code 2
+bot-4           | fatal error: all goroutines are asleep - deadlock!
+bot-4           | 
+bot-4           | goroutine 1 [select (no cases)]:
+bot-4           | main.main()
+bot-4           | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.6:56708 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.23:57896. Total sessions: 22
+bot-155         | 2025/09/16 07:00:55 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-4 exited with code 2
+bot-166         | fatal error: all goroutines are asleep - deadlock!
+bot-166         | 
+bot-166         | goroutine 1 [select (no cases)]:
+bot-166         | main.main()
+bot-166         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.13:35522 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.6:44164. Total sessions: 22
+bot-157         | 2025/09/16 07:00:56 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-166 exited with code 2
+bot-49          | fatal error: all goroutines are asleep - deadlock!
+bot-49          | 
+bot-49          | goroutine 1 [select (no cases)]:
+bot-49          | main.main()
+bot-49          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.25:58058 removed. Total sessions: 21
+jokenpo-server  | Session created for 172.21.0.24:59284. Total sessions: 22
+bot-105         | 2025/09/16 07:00:57 Login SUCCESS. Keeping connection open indefinitely.
+[Kbot-49 exited with code 2
+bot-118         | fatal error: all goroutines are asleep - deadlock!
+bot-118         | 
+bot-118         | goroutine 1 [select (no cases)]:
+bot-118         | main.main()
+bot-118         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.26:42368 removed. Total sessions: 21
+bot-165         | 2025/09/16 07:00:57 Login SUCCESS. Keeping connection open indefinitely.
+jokenpo-server  | Session created for 172.21.0.13:43978. Total sessions: 22
+bot-138         | fatal error: all goroutines are asleep - deadlock!
+bot-138         | 
+bot-138         | goroutine 1 [select (no cases)]:
+bot-138         | main.main()
+bot-138         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.7:59472 removed. Total sessions: 21
+bot-87          | fatal error: all goroutines are asleep - deadlock!
+bot-87          | 
+bot-87          | goroutine 1 [select (no cases)]:
+bot-87          | main.main()
+bot-87          | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.8:59734 removed. Total sessions: 20
+jokenpo-server  | Session for 172.21.0.4:37934 removed. Total sessions: 19
+jokenpo-server  | Session for 172.21.0.24:59284 removed. Total sessions: 18
+jokenpo-server  | Session for 172.21.0.23:57896 removed. Total sessions: 17
+jokenpo-server  | Session for 172.21.0.12:34176 removed. Total sessions: 16
+jokenpo-server  | Session for 172.21.0.3:53904 removed. Total sessions: 15
+jokenpo-server  | Session for 172.21.0.10:42808 removed. Total sessions: 14
+jokenpo-server  | Session for 172.21.0.9:48816 removed. Total sessions: 13
+bot-177         | fatal error: all goroutines are asleep - deadlock!
+bot-177         | 
+bot-177         | goroutine 1 [select (no cases)]:
+bot-177         | main.main()
+bot-177         | 	/app/cmd/bot/main.go:38 +0x2da
+jokenpo-server  | Session for 172.21.0.14:42592 removed. Total sessions: 12
+jokenpo-server  | Session for 172.21.0.15:46114 removed. Total sessions: 11
+jokenpo-server  | Session for 172.21.0.20:60764 removed. Total sessions: 10
+jokenpo-server  | Session for 172.21.0.18:39820 removed. Total sessions: 9
+jokenpo-server  | Session for 172.21.0.22:40742 removed. Total sessions: 8
+jokenpo-server  | Session for 172.21.0.16:54420 removed. Total sessions: 7
+jokenpo-server  | Session for 172.21.0.13:43978 removed. Total sessions: 6
+jokenpo-server  | Session for 172.21.0.19:36204 removed. Total sessions: 5
+jokenpo-server  | Session for 172.21.0.17:41472 removed. Total sessions: 4
+jokenpo-server  | Session for 172.21.0.5:40568 removed. Total sessions: 3
+jokenpo-server  | Session for 172.21.0.21:51804 removed. Total sessions: 2
+jokenpo-server  | Session for 172.21.0.11:40882 removed. Total sessions: 1
+jokenpo-server  | Session for 172.21.0.6:44164 removed. Total sessions: 0
+Gracefully stopping... (press Ctrl+C again to force)
+Error response from daemon: container is marked for removal and cannot be started

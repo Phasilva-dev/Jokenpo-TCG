@@ -1,30 +1,30 @@
-# --- Estágio 1: Build ---
-# Usamos uma imagem oficial do Go para compilar nosso código.
+# --- Estágio de Build ---
+# Usa uma imagem Go completa para compilar o projeto
 FROM golang:1.24.3-alpine AS builder
 
-# Define o diretório de trabalho.
 WORKDIR /app
 
-# Copia os arquivos de módulo primeiro para aproveitar o cache do Docker.
-# O 'COPY' é relativo ao 'context' que definiremos no docker-compose.yml.
-COPY go.mod go.sum ./
+# Copia e baixa as dependências primeiro para aproveitar o cache
+COPY ../../go.mod ../../go.sum ./
 RUN go mod download
 
-# Copia todo o código fonte do projeto
-COPY . .
+# Copia todo o código fonte
+COPY ../../ .
 
-# Compila o executável do servidor de forma estática, para não depender de libs externas.
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
+# Compila o servidor como um binário estático para Linux
+# Esta é a sua excelente sugestão em ação.
+RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server/main.go
 
-# --- Estágio 2: Final ---
-# Usamos uma imagem 'alpine' que é minúscula.
-FROM alpine:latest
+# --- Estágio Final ---
+# Usa a imagem 'scratch', que é completamente vazia
+FROM scratch
 
-# Copia APENAS o binário compilado do estágio anterior.
+# Copia apenas o binário estático do estágio de build
 COPY --from=builder /server /server
 
-# Expõe a porta que nosso servidor escuta dentro do container.
-EXPOSE 8080
+# Expõe as portas
+EXPOSE 8080/tcp
+EXPOSE 8081/udp
 
-# Comando para executar quando o container iniciar.
-ENTRYPOINT ["/server"]
+# Comando para iniciar o servidor
+CMD ["/server"]

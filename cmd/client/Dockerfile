@@ -1,16 +1,11 @@
-# --- Estágio 1: Build ---
 FROM golang:1.24.3-alpine AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY ../../go.mod ../../go.sum ./
 RUN go mod download
-COPY . .
+COPY ../../ .
+# Compila o cliente como um binário estático
+RUN CGO_ENABLED=0 GOOS=linux go build -o /client ./cmd/client/main.go
 
-# A única mudança é aqui, apontando para o pacote main do cliente.
-RUN CGO_ENABLED=0 GOOS=linux go build -o /client ./cmd/client
-
-# --- Estágio 2: Final ---
-FROM alpine:latest
+FROM scratch
 COPY --from=builder /client /client
-
-# O cliente será o nosso bot de teste
-ENTRYPOINT ["/client"]
+CMD ["/client"]
