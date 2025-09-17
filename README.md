@@ -100,7 +100,7 @@ docker compose run client
 ## 📖 Como Jogar
 
 1. O cliente conecta ao servidor via **TCP**.
-2. O jogador escolhe uma das inúmeras opções que o menu exibe
+2. O jogador escolhe uma das inúmeras opções que o menu exibe.
 3. O servidor processa a jogada e retorna o resultado.
 
 ---
