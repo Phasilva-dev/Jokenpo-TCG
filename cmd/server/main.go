@@ -35,6 +35,7 @@ func main() {
 		}
 	}()
 
+	/*
 	// Inicia o listener UDP em sua própria goroutine.
 	udpAddress := "0.0.0.0:8081"
 	go func() {
@@ -42,7 +43,7 @@ func main() {
 			// Usamos log.Printf aqui para não encerrar a aplicação se o UDP falhar
 			log.Printf("Falha ao iniciar o servidor de rede UDP: %v", err)
 		}
-	}()
+	}()*/
 
 	fmt.Printf("Servidores TCP e UDP configurados para iniciar.\n")
 
