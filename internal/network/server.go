@@ -2,13 +2,27 @@ package network
 
 import (
 	"fmt"
-	"net"
+	//"net"
+	"net/http" // Nova importação
+
+	"github.com/gorilla/websocket" // Nova importação
 )
 
 // Server é a estrutura principal do nosso servidor de rede.
 // Agora ele gerencia um Hub.
 type Server struct {
 	hub *Hub
+}
+
+// upgrader armazena as configurações para promover uma conexão HTTP para WebSocket.
+var upgrader = websocket.Upgrader{
+	// CheckOrigin permite controlar quais domínios podem se conectar.
+	// Para desenvolvimento, retornamos 'true' para permitir qualquer origem.
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
 }
 
 // NewServer agora aceita um EventHandler para passá-lo ao Hub.
@@ -19,44 +33,51 @@ func NewServer(handler EventHandler) *Server {
 	}
 }
 
-func (s *Server) Listen(address string) error {
-	// 1. Inicia o listener na porta especificada.
-	listener, err := net.Listen("tcp", address)
+// wsHandler é o nosso novo ponto de entrada para conexões de clientes.
+// Ele lida com a requisição HTTP e a promove para uma conexão WebSocket.
+func (s *Server) wsHandler(w http.ResponseWriter, r *http.Request) {
+	// 1. Promove a conexão HTTP para uma conexão WebSocket persistente.
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		return err // Não foi possível abrir a porta.
-	}
-	defer listener.Close() // Garante que o listener será fechado ao final.
-
-	go s.hub.Run()
-
-	fmt.Printf("Servidor escutando em %s\n", address)
-
-	for {
-		// listener.Accept() é uma chamada bloqueante. O código para aqui até um cliente conectar.
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Printf("Erro ao aceitar conexão: %v\n", err)
-			continue // Tenta aceitar a próxima conexão.
-		}
-
-		// 4. Para cada nova conexão, criamos um novo Cliente.
-		client := &Client{
-			conn: conn,
-			hub:  s.hub,
-			send: make(chan Message, 256), // Cria um canal de envio com buffer
-		}
-
-		// 5. Registra o novo cliente no Hub.
-		client.hub.register <- client
-
-		// 6. Inicia as goroutines de leitura e escrita para este cliente.
-		// Agora o cliente está totalmente ativo e independente.
-		go client.writeLoop()
-		go client.readLoop()
+		fmt.Printf("Erro ao fazer upgrade da conexão: %v\n", err)
+		return
 	}
 
+	// 2. Cria o nosso Client, agora usando a conexão WebSocket.
+	// Isso agora vai compilar, pois seu client.go já foi atualizado.
+	client := &Client{
+		conn: conn, // conn é do tipo *websocket.Conn
+		hub:  s.hub,
+		send: make(chan Message, 256),
+	}
+
+	// 3. Registra o novo cliente no Hub.
+	client.hub.register <- client
+
+	// 4. Inicia as goroutines de leitura e escrita.
+	go client.writeLoop()
+	go client.readLoop()
 }
 
+// Listen agora inicia um servidor HTTP e configura a rota para o WebSocket.
+func (s *Server) Listen(address string) error {
+	// Inicia a goroutine do Hub, exatamente como antes.
+	go s.hub.Run()
+
+	// Configura o handler para a rota "/ws". Todas as conexões WebSocket virão por aqui.
+	http.HandleFunc("/ws", s.wsHandler)
+
+	fmt.Printf("Servidor WebSocket escutando em ws://%s/ws\n", address)
+
+	// Inicia o servidor HTTP. http.ListenAndServe é bloqueante.
+	err := http.ListenAndServe(address, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+/*
 func (s *Server) ListenUDP(address string) error {
 	udpAddr, err := net.ResolveUDPAddr("udp", address)
 	if err != nil {
@@ -102,4 +123,4 @@ func (s *Server) ListenUDP(address string) error {
 			}
 		}
 	}
-}
+}*/
