@@ -119,7 +119,7 @@ func runMatchmaker(conn net.Conn) {
 
 func waitForPrompt(conn net.Conn, context string) bool {
 	for {
-		conn.SetReadDeadline(time.Now().Add(15 * time.Second))
+		conn.SetReadDeadline(time.Now().Add(300 * time.Second))
 		msg, err := network.ReadMessage(conn)
 		if err != nil {
 			log.Printf("FAIL (%s): Did not receive prompt in time: %v\n", context, err)
