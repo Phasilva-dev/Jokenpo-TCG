@@ -6,39 +6,60 @@ import (
 	"jokenpo/internal/network"
 	"log"
 	"math/rand"
-	"net"
+	"net/url"
 	"os"
+	"sync"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
+// O endereço agora é apenas o host:porta, o protocolo 'ws://' será adicionado.
 const serverAddress = "server:8080"
-const pingServerAddress = "server:8081"
+
+// Variáveis globais para o bot PINGER
+var (
+	pingStartTime time.Time
+	pingMutex     sync.Mutex
+)
 
 func main() {
-	// Seeder para aleatoriedade
 	rand.Seed(time.Now().UnixNano())
 
-	// Lê a "personalidade" do bot da variável de ambiente.
 	role := os.Getenv("BOT_ROLE")
 	if role == "" {
 		log.Fatal("FATAL: BOT_ROLE environment variable not set.")
 	}
 
-	// Conecta ao servidor TCP.
-	conn, err := net.DialTimeout("tcp", serverAddress, 10*time.Second)
+	// --- LÓGICA DE CONEXÃO ATUALIZADA ---
+	u := url.URL{Scheme: "ws", Host: serverAddress, Path: "/ws"}
+	log.Printf("INFO (%s): Connecting to WebSocket server at %s", role, u.String())
+
+	// Usa o Dialer do WebSocket em vez de net.Dial
+	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Printf("FAIL (%s): Could not connect: %v\n", role, err)
 		return
 	}
 	defer conn.Close()
 
-	// Realiza o login. Se falhar, o bot encerra.
+	// Se o bot for um PINGER, configuramos o PongHandler para medir a latência.
+	if role == "PINGER" {
+		conn.SetPongHandler(func(appData string) error {
+			pingMutex.Lock()
+			latency := time.Since(pingStartTime)
+			pingMutex.Unlock()
+			log.Printf("SUCCESS (PINGER): Pong received, latency: %v", latency)
+			return nil
+		})
+	}
+
+	// Espera pelo prompt inicial. A função foi adaptada para websocket.Conn
 	if !waitForPrompt(conn, "Login") {
 		return
 	}
 	log.Printf("SUCCESS (%s): Login complete. Starting main loop.", role)
 
-	// Executa a rotina principal com base na personalidade.
 	switch role {
 	case "PACK_OPENER":
 		runPackOpener(conn)
@@ -51,106 +72,89 @@ func main() {
 	}
 }
 
-// --- Rotinas de Personalidade ---
+// --- Rotinas de Personalidade (Atualizadas) ---
 
-// runPackOpener simula um jogador que compra pacotes repetidamente.
-func runPackOpener(conn net.Conn) {
+// runPackOpener agora usa conn.WriteJSON
+func runPackOpener(conn *websocket.Conn) {
 	for {
-		// IMPORTANTE: Enviar 1000 de uma vez criaria uma mensagem enorme e seria rejeitado.
-		// Em vez disso, simulamos o comportamento comprando 10 pacotes por vez, em um loop.
-		// Isso gera um tráfego de rede mais realista e constante.
 		purchaseAmount := 10
 		payload, _ := json.Marshal(map[string]int{"amount": purchaseAmount})
 		msg := network.Message{Type: "PURCHASE_MULTI_PACKAGE", Payload: payload}
 
-		if err := network.WriteMessage(conn, msg); err != nil {
+		if err := conn.WriteJSON(msg); err != nil {
 			log.Printf("FAIL (PACK_OPENER): Could not send purchase command: %v\n", err)
 			return
 		}
 		log.Printf("SUCCESS (PACK_OPENER): Sent request to buy %d packs.", purchaseAmount)
 
-		// Espera a confirmação do servidor.
 		if !waitForPrompt(conn, "Purchase") {
 			return
 		}
-
-		time.Sleep(time.Duration(2+rand.Intn(3)) * time.Second) // Pensa por 2-4 segundos
+		time.Sleep(time.Duration(2+rand.Intn(3)) * time.Second)
 	}
 }
 
-// runPinger simula um jogador que mede a latência repetidamente.
-func runPinger(conn net.Conn) {
-	// Lança uma goroutine para descartar mensagens TCP e manter a conexão viva.
+// runPinger foi completamente reescrito para usar o ping do WebSocket.
+func runPinger(conn *websocket.Conn) {
+	// Lança uma goroutine para descartar mensagens (necessário para receber pongs)
 	go func() {
 		for {
-			_, err := network.ReadMessage(conn)
-			if err != nil {
-				return
+			var msg network.Message
+			if err := conn.ReadJSON(&msg); err != nil {
+				return // Encerra a goroutine se a conexão fechar
 			}
 		}
 	}()
 
+	// Loop principal para enviar pings
 	for {
-		// A lógica de ping UDP que criamos anteriormente.
-		doPing(pingServerAddress)
-		time.Sleep(5 * time.Second) // Mede o ping a cada 5 segundos
+		pingMutex.Lock()
+		pingStartTime = time.Now()
+		pingMutex.Unlock()
+
+		// Envia uma mensagem de controle de PING do WebSocket
+		err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5))
+		if err != nil {
+			log.Printf("FAIL (PINGER): Could not send ping: %v", err)
+			return
+		}
+		
+		time.Sleep(5 * time.Second)
 	}
 }
 
-// runMatchmaker simula um jogador que entra na fila e espera.
-func runMatchmaker(conn net.Conn) {
+// runMatchmaker agora usa conn.WriteJSON e conn.ReadJSON
+func runMatchmaker(conn *websocket.Conn) {
 	msg := network.Message{Type: "FIND_MATCH"}
-	if err := network.WriteMessage(conn, msg); err != nil {
+	if err := conn.WriteJSON(msg); err != nil {
 		log.Printf("FAIL (MATCHMAKER): Could not send find_match command: %v\n", err)
 		return
 	}
 
-	// O bot agora apenas fica lendo mensagens do servidor para sempre,
-	// simulando um jogador que está na fila ou em uma partida ociosa.
+	// O bot fica lendo mensagens do servidor para sempre
 	for {
-		if _, err := network.ReadMessage(conn); err != nil {
-			log.Printf("FAIL (MATCHMAKER): Connection lost while in queue/match: %v\n", err)
+		var dummyMsg network.Message // Usado apenas para descartar a mensagem
+		if err := conn.ReadJSON(&dummyMsg); err != nil {
+			log.Printf("FAIL (MATCHMAKER): Connection lost: %v\n", err)
 			return
 		}
 	}
 }
 
-// --- Funções de Utilidade ---
+// --- Funções de Utilidade (Atualizadas) ---
 
-func waitForPrompt(conn net.Conn, context string) bool {
+// waitForPrompt agora usa conn.ReadJSON
+func waitForPrompt(conn *websocket.Conn, context string) bool {
 	for {
-		conn.SetReadDeadline(time.Now().Add(300 * time.Second))
-		msg, err := network.ReadMessage(conn)
-		if err != nil {
-			log.Printf("FAIL (%s): Did not receive prompt in time: %v\n", context, err)
+		// A biblioteca websocket já tem deadlines, mas podemos adicionar um se quisermos
+		var msg network.Message
+		if err := conn.ReadJSON(&msg); err != nil {
+			log.Printf("FAIL (%s): Did not receive prompt: %v\n", context, err)
 			return false
 		}
+
 		if msg.Type == "PROMPT_INPUT" {
 			return true
 		}
 	}
-}
-
-func doPing(serverAddress string) {
-	serverAddr, err := net.ResolveUDPAddr("udp", serverAddress)
-	if err != nil { return }
-
-	conn, err := net.DialUDP("udp", nil, serverAddr)
-	if err != nil { return }
-	defer conn.Close()
-
-	startTime := time.Now()
-	pingPacket := network.EncodePingPacket(network.PING_PACKET_TYPE, startTime.UnixNano())
-	conn.Write(pingPacket)
-
-	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
-	buffer := make([]byte, 9)
-	n, _, err := conn.ReadFromUDP(buffer)
-	if err != nil { return }
-
-	packetType, _, err := network.DecodePingPacket(buffer[:n])
-	if err != nil || packetType != network.PONG_PACKET_TYPE { return }
-
-	latency := time.Since(startTime)
-	log.Printf("SUCCESS (PINGER): Ping successful, latency: %v", latency)
 }

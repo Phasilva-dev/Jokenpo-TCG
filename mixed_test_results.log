@@ -1,0 +1,1040 @@
+ Network jokenpo_default  Creating
+ Network jokenpo_default  Created
+time="2025-09-26T22:33:10-03:00" level=warning msg="Found orphan containers ([jokenpo-client-run-c7df6b12bd73 jokenpo-client]) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+ Container jokenpo-server-mixed-test  Creating
+ Container jokenpo-server-mixed-test  Created
+ Container jokenpo-bot-pack-opener-2  Creating
+ Container jokenpo-bot-matchmaker-6  Creating
+ Container jokenpo-bot-matchmaker-7  Creating
+ Container jokenpo-bot-pack-opener-4  Creating
+ Container jokenpo-bot-pack-opener-8  Creating
+ Container jokenpo-bot-matchmaker-2  Creating
+ Container jokenpo-bot-pack-opener-3  Creating
+ Container jokenpo-bot-pack-opener-9  Creating
+ Container jokenpo-bot-matchmaker-10  Creating
+ Container jokenpo-bot-pinger-4  Creating
+ Container jokenpo-bot-matchmaker-1  Creating
+ Container jokenpo-bot-pack-opener-5  Creating
+ Container jokenpo-bot-pinger-8  Creating
+ Container jokenpo-bot-pinger-10  Creating
+ Container jokenpo-bot-pack-opener-1  Creating
+ Container jokenpo-bot-pinger-1  Creating
+ Container jokenpo-bot-pinger-3  Creating
+ Container jokenpo-bot-matchmaker-9  Creating
+ Container jokenpo-bot-matchmaker-8  Creating
+ Container jokenpo-bot-matchmaker-4  Creating
+ Container jokenpo-bot-pinger-6  Creating
+ Container jokenpo-bot-matchmaker-5  Creating
+ Container jokenpo-bot-pinger-7  Creating
+ Container jokenpo-bot-pack-opener-10  Creating
+ Container jokenpo-bot-pack-opener-6  Creating
+ Container jokenpo-bot-pack-opener-7  Creating
+ Container jokenpo-bot-pinger-2  Creating
+ Container jokenpo-bot-pinger-5  Creating
+ Container jokenpo-bot-pinger-9  Creating
+ Container jokenpo-bot-matchmaker-3  Creating
+ Container jokenpo-bot-pack-opener-8  Created
+ Container jokenpo-bot-matchmaker-6  Created
+ Container jokenpo-bot-pack-opener-4  Created
+ Container jokenpo-bot-matchmaker-2  Created
+ Container jokenpo-bot-matchmaker-1  Created
+ Container jokenpo-bot-pinger-9  Created
+ Container jokenpo-bot-matchmaker-3  Created
+ Container jokenpo-bot-pack-opener-3  Created
+ Container jokenpo-bot-matchmaker-4  Created
+ Container jokenpo-bot-matchmaker-7  Created
+ Container jokenpo-bot-pack-opener-2  Created
+ Container jokenpo-bot-pinger-4  Created
+ Container jokenpo-bot-pinger-10  Created
+ Container jokenpo-bot-pinger-6  Created
+ Container jokenpo-bot-pinger-7  Created
+ Container jokenpo-bot-matchmaker-10  Created
+ Container jokenpo-bot-pack-opener-5  Created
+ Container jokenpo-bot-pinger-1  Created
+ Container jokenpo-bot-pinger-2  Created
+ Container jokenpo-bot-pinger-5  Created
+ Container jokenpo-bot-pack-opener-6  Created
+ Container jokenpo-bot-pack-opener-1  Created
+ Container jokenpo-bot-pack-opener-9  Created
+ Container jokenpo-bot-pinger-8  Created
+ Container jokenpo-bot-pinger-3  Created
+ Container jokenpo-bot-matchmaker-5  Created
+ Container jokenpo-bot-matchmaker-9  Created
+ Container jokenpo-bot-matchmaker-8  Created
+ Container jokenpo-bot-pack-opener-7  Created
+ Container jokenpo-bot-pack-opener-10  Created
+Attaching to bot-matchmaker-1, bot-matchmaker-10, bot-matchmaker-2, bot-matchmaker-3, bot-matchmaker-4, bot-matchmaker-5, bot-matchmaker-6, bot-matchmaker-7, bot-matchmaker-8, bot-matchmaker-9, bot-pack-opener-1, bot-pack-opener-10, bot-pack-opener-2, bot-pack-opener-3, bot-pack-opener-4, bot-pack-opener-5, bot-pack-opener-6, bot-pack-opener-7, bot-pack-opener-8, bot-pack-opener-9, bot-pinger-1, bot-pinger-10, bot-pinger-2, bot-pinger-3, bot-pinger-4, bot-pinger-5, bot-pinger-6, bot-pinger-7, bot-pinger-8, bot-pinger-9, jokenpo-server-mixed-test
+jokenpo-server-mixed-test  | Catálogo de cartas inicializado com sucesso.
+jokenpo-server-mixed-test  | Matchmaker iniciado.
+jokenpo-server-mixed-test  | Servidor de rede criado.
+jokenpo-server-mixed-test  | Servidores TCP e UDP configurados para iniciar.
+jokenpo-server-mixed-test  | Matchmaker started.
+jokenpo-server-mixed-test  | Servidor WebSocket escutando em ws://0.0.0.0:8080/ws
+bot-pack-opener-10         | 2025/09/27 01:33:14 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.3:38694. Total sessions: 1
+bot-pack-opener-10         | 2025/09/27 01:33:14 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-10         | 2025/09/27 01:33:14 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-matchmaker-9           | 2025/09/27 01:33:15 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.4:37392. Total sessions: 2
+bot-matchmaker-9           | 2025/09/27 01:33:15 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 1 players.
+bot-pinger-3               | 2025/09/27 01:33:15 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.5:44482. Total sessions: 3
+bot-pinger-3               | 2025/09/27 01:33:15 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-3               | 2025/09/27 01:33:15 SUCCESS (PINGER): Pong received, latency: 581.59µs
+bot-pack-opener-7          | 2025/09/27 01:33:15 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.6:49440. Total sessions: 4
+bot-pack-opener-7          | 2025/09/27 01:33:15 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-7          | 2025/09/27 01:33:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:15 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.7:49606. Total sessions: 5
+bot-pinger-8               | 2025/09/27 01:33:15 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-8               | 2025/09/27 01:33:15 SUCCESS (PINGER): Pong received, latency: 495.455µs
+bot-matchmaker-8           | 2025/09/27 01:33:15 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.8:52244. Total sessions: 6
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 2 players.
+bot-matchmaker-8           | 2025/09/27 01:33:15 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Match found! 172.21.0.4:37392 vs 172.21.0.8:52244. in queue now: 0
+jokenpo-server-mixed-test  | Game room created successfully for 172.21.0.4:37392 and 172.21.0.8:52244.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Goroutine starting. Players: 172.21.0.4:37392, 172.21.0.8:52244
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Match started, timer of 15s activated.
+bot-pack-opener-9          | 2025/09/27 01:33:15 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.9:54310. Total sessions: 7
+bot-pack-opener-9          | 2025/09/27 01:33:15 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-9          | 2025/09/27 01:33:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:15 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.10:60266. Total sessions: 8
+bot-pinger-5               | 2025/09/27 01:33:15 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-5               | 2025/09/27 01:33:15 SUCCESS (PINGER): Pong received, latency: 885.921µs
+bot-matchmaker-5           | 2025/09/27 01:33:15 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.11:37762. Total sessions: 9
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 1 players.
+bot-matchmaker-5           | 2025/09/27 01:33:15 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+bot-pack-opener-1          | 2025/09/27 01:33:16 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.12:36244. Total sessions: 10
+bot-pack-opener-1          | 2025/09/27 01:33:16 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-1          | 2025/09/27 01:33:16 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:16 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+bot-pinger-2               | 2025/09/27 01:33:16 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-2               | 2025/09/27 01:33:16 SUCCESS (PINGER): Pong received, latency: 677.614µs
+jokenpo-server-mixed-test  | Session created for 172.21.0.13:53560. Total sessions: 11
+bot-matchmaker-4           | 2025/09/27 01:33:16 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.14:40084. Total sessions: 12
+bot-matchmaker-4           | 2025/09/27 01:33:16 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 2 players.
+jokenpo-server-mixed-test  | Match found! 172.21.0.11:37762 vs 172.21.0.14:40084. in queue now: 0
+jokenpo-server-mixed-test  | Game room created successfully for 172.21.0.11:37762 and 172.21.0.14:40084.
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Goroutine starting. Players: 172.21.0.11:37762, 172.21.0.14:40084
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Match started, timer of 15s activated.
+bot-pack-opener-6          | 2025/09/27 01:33:16 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.15:37354. Total sessions: 13
+bot-pack-opener-6          | 2025/09/27 01:33:16 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-6          | 2025/09/27 01:33:16 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:16 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.16:49030. Total sessions: 14
+bot-pinger-1               | 2025/09/27 01:33:16 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-1               | 2025/09/27 01:33:16 SUCCESS (PINGER): Pong received, latency: 436.224µs
+bot-matchmaker-10          | 2025/09/27 01:33:16 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.17:58710. Total sessions: 15
+bot-matchmaker-10          | 2025/09/27 01:33:16 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 1 players.
+bot-pack-opener-10         | 2025/09/27 01:33:16 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:17 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.18:42790. Total sessions: 16
+bot-pack-opener-5          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-5          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:17 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.19:56814. Total sessions: 17
+bot-pinger-10              | 2025/09/27 01:33:17 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-10              | 2025/09/27 01:33:17 SUCCESS (PINGER): Pong received, latency: 707.245µs
+bot-matchmaker-7           | 2025/09/27 01:33:17 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.20:40920. Total sessions: 18
+bot-matchmaker-7           | 2025/09/27 01:33:17 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 2 players.
+bot-pack-opener-7          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:17 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.21:47092. Total sessions: 19
+bot-pack-opener-2          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-2          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:17 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.22:38956. Total sessions: 20
+bot-pinger-7               | 2025/09/27 01:33:17 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-7               | 2025/09/27 01:33:17 SUCCESS (PINGER): Pong received, latency: 319.675µs
+bot-matchmaker-3           | 2025/09/27 01:33:17 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.23:35302. Total sessions: 21
+bot-matchmaker-3           | 2025/09/27 01:33:17 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 3 players.
+jokenpo-server-mixed-test  | Match found! 172.21.0.17:58710 vs 172.21.0.20:40920. in queue now: 1
+jokenpo-server-mixed-test  | Game room created successfully for 172.21.0.17:58710 and 172.21.0.20:40920.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Goroutine starting. Players: 172.21.0.17:58710, 172.21.0.20:40920
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Match started, timer of 15s activated.
+bot-pack-opener-3          | 2025/09/27 01:33:17 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.24:41094. Total sessions: 22
+bot-pack-opener-3          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-3          | 2025/09/27 01:33:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:17 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.25:40360. Total sessions: 23
+bot-pinger-6               | 2025/09/27 01:33:17 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-6               | 2025/09/27 01:33:17 SUCCESS (PINGER): Pong received, latency: 648.17µs
+bot-matchmaker-1           | 2025/09/27 01:33:17 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.26:34512. Total sessions: 24
+bot-matchmaker-1           | 2025/09/27 01:33:17 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 2 players.
+bot-pack-opener-4          | 2025/09/27 01:33:18 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.27:51410. Total sessions: 25
+bot-pack-opener-4          | 2025/09/27 01:33:18 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-4          | 2025/09/27 01:33:18 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:33:18 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.28:56502. Total sessions: 26
+bot-pinger-4               | 2025/09/27 01:33:18 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-4               | 2025/09/27 01:33:18 SUCCESS (PINGER): Pong received, latency: 747.057µs
+bot-pack-opener-1          | 2025/09/27 01:33:18 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-matchmaker-2           | 2025/09/27 01:33:18 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+bot-matchmaker-2           | 2025/09/27 01:33:18 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Session created for 172.21.0.29:57124. Total sessions: 27
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 3 players.
+bot-pack-opener-8          | 2025/09/27 01:33:18 INFO (PACK_OPENER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.30:44646. Total sessions: 28
+bot-pack-opener-8          | 2025/09/27 01:33:18 SUCCESS (PACK_OPENER): Login complete. Starting main loop.
+bot-pack-opener-8          | 2025/09/27 01:33:18 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:18 INFO (PINGER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.31:41448. Total sessions: 29
+bot-pinger-9               | 2025/09/27 01:33:18 SUCCESS (PINGER): Login complete. Starting main loop.
+bot-pinger-9               | 2025/09/27 01:33:18 SUCCESS (PINGER): Pong received, latency: 390.769µs
+bot-matchmaker-6           | 2025/09/27 01:33:18 INFO (MATCHMAKER): Connecting to WebSocket server at ws://server:8080/ws
+jokenpo-server-mixed-test  | Session created for 172.21.0.32:60784. Total sessions: 30
+bot-matchmaker-6           | 2025/09/27 01:33:18 SUCCESS (MATCHMAKER): Login complete. Starting main loop.
+jokenpo-server-mixed-test  | Player added to queue matchmaking. queue now have 4 players.
+jokenpo-server-mixed-test  | Match found! 172.21.0.23:35302 vs 172.21.0.26:34512. in queue now: 2
+jokenpo-server-mixed-test  | Game room created successfully for 172.21.0.23:35302 and 172.21.0.26:34512.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Goroutine starting. Players: 172.21.0.23:35302, 172.21.0.26:34512
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Match started, timer of 15s activated.
+bot-pack-opener-7          | 2025/09/27 01:33:19 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Match found! 172.21.0.29:57124 vs 172.21.0.32:60784. in queue now: 0
+jokenpo-server-mixed-test  | Game room created successfully for 172.21.0.29:57124 and 172.21.0.32:60784.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Goroutine starting. Players: 172.21.0.29:57124, 172.21.0.32:60784
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Match started, timer of 15s activated.
+bot-pack-opener-9          | 2025/09/27 01:33:19 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:20 SUCCESS (PINGER): Pong received, latency: 676.372µs
+bot-pack-opener-4          | 2025/09/27 01:33:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:20 SUCCESS (PINGER): Pong received, latency: 757.088µs
+bot-pack-opener-6          | 2025/09/27 01:33:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:20 SUCCESS (PINGER): Pong received, latency: 848.359µs
+bot-pack-opener-10         | 2025/09/27 01:33:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:21 SUCCESS (PINGER): Pong received, latency: 652.131µs
+bot-pack-opener-9          | 2025/09/27 01:33:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:21 SUCCESS (PINGER): Pong received, latency: 838.517µs
+bot-pinger-10              | 2025/09/27 01:33:22 SUCCESS (PINGER): Pong received, latency: 467.923µs
+bot-pack-opener-1          | 2025/09/27 01:33:22 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:22 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:22 SUCCESS (PINGER): Pong received, latency: 635.729µs
+bot-pinger-6               | 2025/09/27 01:33:22 SUCCESS (PINGER): Pong received, latency: 504.309µs
+bot-pinger-4               | 2025/09/27 01:33:23 SUCCESS (PINGER): Pong received, latency: 831.253µs
+bot-pinger-9               | 2025/09/27 01:33:23 SUCCESS (PINGER): Pong received, latency: 605.363µs
+bot-pack-opener-6          | 2025/09/27 01:33:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:33:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:25 SUCCESS (PINGER): Pong received, latency: 391.405µs
+bot-pack-opener-5          | 2025/09/27 01:33:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:25 SUCCESS (PINGER): Pong received, latency: 580.94µs
+bot-pack-opener-6          | 2025/09/27 01:33:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:25 SUCCESS (PINGER): Pong received, latency: 685.308µs
+bot-pack-opener-4          | 2025/09/27 01:33:26 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:26 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:26 SUCCESS (PINGER): Pong received, latency: 362.481µs
+bot-pack-opener-8          | 2025/09/27 01:33:26 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:26 SUCCESS (PINGER): Pong received, latency: 541.549µs
+bot-pinger-10              | 2025/09/27 01:33:27 SUCCESS (PINGER): Pong received, latency: 539.428µs
+bot-pinger-7               | 2025/09/27 01:33:27 SUCCESS (PINGER): Pong received, latency: 584.715µs
+bot-pack-opener-6          | 2025/09/27 01:33:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:27 SUCCESS (PINGER): Pong received, latency: 420.833µs
+bot-pack-opener-4          | 2025/09/27 01:33:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:33:28 SUCCESS (PINGER): Pong received, latency: 473.658µs
+bot-pack-opener-8          | 2025/09/27 01:33:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:28 SUCCESS (PINGER): Pong received, latency: 610.046µs
+bot-pack-opener-3          | 2025/09/27 01:33:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:33:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:33:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:30 SUCCESS (PINGER): Pong received, latency: 580.769µs
+bot-pack-opener-4          | 2025/09/27 01:33:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:30 SUCCESS (PINGER): Pong received, latency: 499.902µs
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> scissor:4:blue
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> rock:4:blue
+bot-pack-opener-9          | 2025/09/27 01:33:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:30 SUCCESS (PINGER): Pong received, latency: 589.652µs
+bot-pinger-2               | 2025/09/27 01:33:31 SUCCESS (PINGER): Pong received, latency: 608.84µs
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.11:37762 -> paper:6:green
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.14:40084 -> rock:3:red
+bot-pinger-1               | 2025/09/27 01:33:31 SUCCESS (PINGER): Pong received, latency: 610.825µs
+bot-pack-opener-10         | 2025/09/27 01:33:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:32 SUCCESS (PINGER): Pong received, latency: 590.708µs
+bot-pack-opener-2          | 2025/09/27 01:33:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:32 SUCCESS (PINGER): Pong received, latency: 699.845µs
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> paper:2:green
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> paper:3:blue
+bot-pack-opener-6          | 2025/09/27 01:33:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:32 SUCCESS (PINGER): Pong received, latency: 519.631µs
+bot-pinger-4               | 2025/09/27 01:33:33 SUCCESS (PINGER): Pong received, latency: 660.955µs
+bot-pack-opener-1          | 2025/09/27 01:33:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:33 SUCCESS (PINGER): Pong received, latency: 674.658µs
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> rock:1:green
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> paper:4:red
+bot-pack-opener-3          | 2025/09/27 01:33:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:33:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> scissor:4:blue
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> rock:8:red
+bot-pack-opener-6          | 2025/09/27 01:33:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:35 SUCCESS (PINGER): Pong received, latency: 456.291µs
+bot-pinger-8               | 2025/09/27 01:33:35 SUCCESS (PINGER): Pong received, latency: 334.985µs
+bot-pinger-5               | 2025/09/27 01:33:35 SUCCESS (PINGER): Pong received, latency: 428.035µs
+bot-pack-opener-5          | 2025/09/27 01:33:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:36 SUCCESS (PINGER): Pong received, latency: 513.294µs
+bot-pack-opener-9          | 2025/09/27 01:33:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:36 SUCCESS (PINGER): Pong received, latency: 516.09µs
+bot-pinger-10              | 2025/09/27 01:33:37 SUCCESS (PINGER): Pong received, latency: 666.448µs
+bot-pack-opener-1          | 2025/09/27 01:33:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:37 SUCCESS (PINGER): Pong received, latency: 571.67µs
+bot-pack-opener-3          | 2025/09/27 01:33:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:37 SUCCESS (PINGER): Pong received, latency: 599.573µs
+bot-pack-opener-10         | 2025/09/27 01:33:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:33:38 SUCCESS (PINGER): Pong received, latency: 393.617µs
+bot-pack-opener-2          | 2025/09/27 01:33:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:38 SUCCESS (PINGER): Pong received, latency: 568.756µs
+bot-pack-opener-6          | 2025/09/27 01:33:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:39 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:39 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:39 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:40 SUCCESS (PINGER): Pong received, latency: 549.992µs
+bot-pack-opener-2          | 2025/09/27 01:33:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:40 SUCCESS (PINGER): Pong received, latency: 501.923µs
+bot-pinger-5               | 2025/09/27 01:33:40 SUCCESS (PINGER): Pong received, latency: 547.326µs
+bot-pack-opener-10         | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:41 SUCCESS (PINGER): Pong received, latency: 514.874µs
+bot-pack-opener-8          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:41 SUCCESS (PINGER): Pong received, latency: 449.639µs
+bot-pack-opener-4          | 2025/09/27 01:33:42 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:42 SUCCESS (PINGER): Pong received, latency: 651.537µs
+bot-pack-opener-1          | 2025/09/27 01:33:42 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:42 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:42 SUCCESS (PINGER): Pong received, latency: 586.876µs
+bot-pinger-6               | 2025/09/27 01:33:42 SUCCESS (PINGER): Pong received, latency: 736.465µs
+bot-pack-opener-10         | 2025/09/27 01:33:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:33:43 SUCCESS (PINGER): Pong received, latency: 612.044µs
+bot-pinger-9               | 2025/09/27 01:33:43 SUCCESS (PINGER): Pong received, latency: 590.273µs
+bot-pack-opener-6          | 2025/09/27 01:33:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:44 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:44 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:44 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:45 SUCCESS (PINGER): Pong received, latency: 457.864µs
+bot-pack-opener-1          | 2025/09/27 01:33:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:45 SUCCESS (PINGER): Pong received, latency: 412.906µs
+bot-pack-opener-6          | 2025/09/27 01:33:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:45 SUCCESS (PINGER): Pong received, latency: 383.186µs
+bot-pack-opener-5          | 2025/09/27 01:33:46 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:46 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:46 SUCCESS (PINGER): Pong received, latency: 281.289µs
+bot-pinger-1               | 2025/09/27 01:33:46 SUCCESS (PINGER): Pong received, latency: 651.302µs
+bot-pack-opener-10         | 2025/09/27 01:33:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:47 SUCCESS (PINGER): Pong received, latency: 597.45µs
+bot-pinger-7               | 2025/09/27 01:33:47 SUCCESS (PINGER): Pong received, latency: 517.677µs
+bot-pack-opener-6          | 2025/09/27 01:33:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:33:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:47 SUCCESS (PINGER): Pong received, latency: 374.53µs
+bot-pinger-4               | 2025/09/27 01:33:48 SUCCESS (PINGER): Pong received, latency: 443.704µs
+bot-pack-opener-7          | 2025/09/27 01:33:48 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:48 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:48 SUCCESS (PINGER): Pong received, latency: 538.185µs
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> paper:1:blue
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> paper:5:green
+bot-pack-opener-10         | 2025/09/27 01:33:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:33:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.11:37762 -> paper:10:green
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.14:40084 -> paper:3:red
+bot-pack-opener-6          | 2025/09/27 01:33:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:50 SUCCESS (PINGER): Pong received, latency: 758.126µs
+bot-pack-opener-4          | 2025/09/27 01:33:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:50 SUCCESS (PINGER): Pong received, latency: 464.593µs
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> scissor:8:red
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> paper:4:red
+bot-pack-opener-9          | 2025/09/27 01:33:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:50 SUCCESS (PINGER): Pong received, latency: 635.723µs
+bot-pack-opener-5          | 2025/09/27 01:33:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:33:51 SUCCESS (PINGER): Pong received, latency: 436.489µs
+bot-pack-opener-8          | 2025/09/27 01:33:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> scissor:4:green
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> paper:9:blue
+bot-pinger-1               | 2025/09/27 01:33:51 SUCCESS (PINGER): Pong received, latency: 559.303µs
+bot-pack-opener-10         | 2025/09/27 01:33:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:52 SUCCESS (PINGER): Pong received, latency: 540.628µs
+bot-pinger-7               | 2025/09/27 01:33:52 SUCCESS (PINGER): Pong received, latency: 413.336µs
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> scissor:3:green
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> rock:3:red
+bot-pack-opener-9          | 2025/09/27 01:33:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:33:52 SUCCESS (PINGER): Pong received, latency: 565.144µs
+bot-pinger-4               | 2025/09/27 01:33:53 SUCCESS (PINGER): Pong received, latency: 619.788µs
+bot-pack-opener-2          | 2025/09/27 01:33:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:53 SUCCESS (PINGER): Pong received, latency: 476.169µs
+bot-pack-opener-6          | 2025/09/27 01:33:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:33:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:33:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:33:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:33:55 SUCCESS (PINGER): Pong received, latency: 668.491µs
+bot-pack-opener-5          | 2025/09/27 01:33:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:33:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:33:55 SUCCESS (PINGER): Pong received, latency: 434.153µs
+bot-pack-opener-6          | 2025/09/27 01:33:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:33:55 SUCCESS (PINGER): Pong received, latency: 598.107µs
+bot-pinger-2               | 2025/09/27 01:33:56 SUCCESS (PINGER): Pong received, latency: 463.203µs
+bot-pack-opener-9          | 2025/09/27 01:33:56 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:33:56 SUCCESS (PINGER): Pong received, latency: 673.268µs
+bot-pack-opener-10         | 2025/09/27 01:33:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:33:57 SUCCESS (PINGER): Pong received, latency: 465.956µs
+bot-pack-opener-7          | 2025/09/27 01:33:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:33:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:33:57 SUCCESS (PINGER): Pong received, latency: 617.098µs
+bot-pinger-6               | 2025/09/27 01:33:57 SUCCESS (PINGER): Pong received, latency: 662.028µs
+bot-pack-opener-5          | 2025/09/27 01:33:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:33:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:33:58 SUCCESS (PINGER): Pong received, latency: 526.644µs
+bot-pack-opener-1          | 2025/09/27 01:33:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:33:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:33:58 SUCCESS (PINGER): Pong received, latency: 609.614µs
+bot-pack-opener-3          | 2025/09/27 01:33:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:33:59 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:33:59 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:00 SUCCESS (PINGER): Pong received, latency: 426.733µs
+bot-pack-opener-4          | 2025/09/27 01:34:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:00 SUCCESS (PINGER): Pong received, latency: 414.204µs
+bot-pack-opener-9          | 2025/09/27 01:34:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:00 SUCCESS (PINGER): Pong received, latency: 669.286µs
+bot-pack-opener-10         | 2025/09/27 01:34:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:01 SUCCESS (PINGER): Pong received, latency: 675.709µs
+bot-pack-opener-2          | 2025/09/27 01:34:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:34:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:01 SUCCESS (PINGER): Pong received, latency: 574.838µs
+bot-pack-opener-5          | 2025/09/27 01:34:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:02 SUCCESS (PINGER): Pong received, latency: 590.298µs
+bot-pack-opener-1          | 2025/09/27 01:34:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:02 SUCCESS (PINGER): Pong received, latency: 549.61µs
+bot-pinger-6               | 2025/09/27 01:34:02 SUCCESS (PINGER): Pong received, latency: 521.648µs
+bot-pack-opener-10         | 2025/09/27 01:34:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:03 SUCCESS (PINGER): Pong received, latency: 626.235µs
+bot-pack-opener-2          | 2025/09/27 01:34:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:03 SUCCESS (PINGER): Pong received, latency: 490.49µs
+bot-pack-opener-6          | 2025/09/27 01:34:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:05 SUCCESS (PINGER): Pong received, latency: 590.738µs
+bot-pack-opener-4          | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:05 SUCCESS (PINGER): Pong received, latency: 322.255µs
+bot-pack-opener-6          | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:05 SUCCESS (PINGER): Pong received, latency: 442.543µs
+bot-pack-opener-5          | 2025/09/27 01:34:06 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:06 SUCCESS (PINGER): Pong received, latency: 558.394µs
+bot-pack-opener-8          | 2025/09/27 01:34:06 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> scissor:5:green
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> paper:5:green
+bot-pinger-1               | 2025/09/27 01:34:06 SUCCESS (PINGER): Pong received, latency: 593.184µs
+bot-pinger-10              | 2025/09/27 01:34:07 SUCCESS (PINGER): Pong received, latency: 566.743µs
+bot-pack-opener-2          | 2025/09/27 01:34:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:07 SUCCESS (PINGER): Pong received, latency: 587.864µs
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.11:37762 -> paper:2:red
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Forced play for 172.21.0.14:40084 -> rock:8:blue
+jokenpo-server-mixed-test  | Room 4dfc66b0-c8d0-42a8-99f2-d268e45c15a3: Game Over. Reason: Player 1 met the win condition.
+bot-pack-opener-3          | 2025/09/27 01:34:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:07 SUCCESS (PINGER): Pong received, latency: 528.829µs
+bot-pinger-4               | 2025/09/27 01:34:08 SUCCESS (PINGER): Pong received, latency: 539.749µs
+bot-pack-opener-7          | 2025/09/27 01:34:08 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:08 SUCCESS (PINGER): Pong received, latency: 474.899µs
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> scissor:8:green
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> scissor:5:blue
+bot-pack-opener-9          | 2025/09/27 01:34:08 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> paper:3:red
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> rock:10:green
+bot-pack-opener-6          | 2025/09/27 01:34:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:10 SUCCESS (PINGER): Pong received, latency: 443.061µs
+bot-pack-opener-5          | 2025/09/27 01:34:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:10 SUCCESS (PINGER): Pong received, latency: 763.188µs
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> rock:7:green
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> paper:4:green
+bot-pack-opener-3          | 2025/09/27 01:34:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:10 SUCCESS (PINGER): Pong received, latency: 482.682µs
+bot-pack-opener-7          | 2025/09/27 01:34:11 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:11 SUCCESS (PINGER): Pong received, latency: 640.527µs
+bot-pack-opener-8          | 2025/09/27 01:34:11 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:11 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:11 SUCCESS (PINGER): Pong received, latency: 634.425µs
+bot-pack-opener-10         | 2025/09/27 01:34:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:12 SUCCESS (PINGER): Pong received, latency: 673.953µs
+bot-pack-opener-2          | 2025/09/27 01:34:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:12 SUCCESS (PINGER): Pong received, latency: 448.885µs
+bot-pack-opener-3          | 2025/09/27 01:34:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:12 SUCCESS (PINGER): Pong received, latency: 699.368µs
+bot-pack-opener-5          | 2025/09/27 01:34:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:13 SUCCESS (PINGER): Pong received, latency: 593.32µs
+bot-pack-opener-1          | 2025/09/27 01:34:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:13 SUCCESS (PINGER): Pong received, latency: 504.664µs
+bot-pack-opener-6          | 2025/09/27 01:34:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:14 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:14 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:15 SUCCESS (PINGER): Pong received, latency: 516.886µs
+bot-pack-opener-4          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:15 SUCCESS (PINGER): Pong received, latency: 372.591µs
+bot-pack-opener-9          | 2025/09/27 01:34:15 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:15 SUCCESS (PINGER): Pong received, latency: 543.873µs
+bot-pinger-2               | 2025/09/27 01:34:16 SUCCESS (PINGER): Pong received, latency: 631.348µs
+bot-pinger-1               | 2025/09/27 01:34:16 SUCCESS (PINGER): Pong received, latency: 664.012µs
+bot-pack-opener-10         | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:17 SUCCESS (PINGER): Pong received, latency: 577.103µs
+bot-pack-opener-7          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:17 SUCCESS (PINGER): Pong received, latency: 534.603µs
+bot-pack-opener-6          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:17 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:17 SUCCESS (PINGER): Pong received, latency: 703.053µs
+bot-pinger-4               | 2025/09/27 01:34:18 SUCCESS (PINGER): Pong received, latency: 529.82µs
+bot-pack-opener-1          | 2025/09/27 01:34:18 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:18 SUCCESS (PINGER): Pong received, latency: 496.075µs
+bot-pack-opener-10         | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:20 SUCCESS (PINGER): Pong received, latency: 572.674µs
+bot-pack-opener-5          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:20 SUCCESS (PINGER): Pong received, latency: 535.841µs
+bot-pack-opener-6          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:20 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:20 SUCCESS (PINGER): Pong received, latency: 568.747µs
+bot-pinger-2               | 2025/09/27 01:34:21 SUCCESS (PINGER): Pong received, latency: 609.784µs
+bot-pack-opener-2          | 2025/09/27 01:34:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:21 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:21 SUCCESS (PINGER): Pong received, latency: 595.702µs
+bot-pack-opener-4          | 2025/09/27 01:34:22 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:22 SUCCESS (PINGER): Pong received, latency: 510.588µs
+bot-pack-opener-1          | 2025/09/27 01:34:22 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:22 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:22 SUCCESS (PINGER): Pong received, latency: 418.655µs
+bot-pinger-6               | 2025/09/27 01:34:22 SUCCESS (PINGER): Pong received, latency: 539.835µs
+bot-pack-opener-10         | 2025/09/27 01:34:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:23 SUCCESS (PINGER): Pong received, latency: 805.825µs
+bot-pack-opener-7          | 2025/09/27 01:34:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:23 SUCCESS (PINGER): Pong received, latency: 477.16µs
+bot-pack-opener-3          | 2025/09/27 01:34:23 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:34:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> paper:6:blue
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> rock:7:green
+bot-pack-opener-6          | 2025/09/27 01:34:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:24 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:25 SUCCESS (PINGER): Pong received, latency: 522.59µs
+bot-pack-opener-7          | 2025/09/27 01:34:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:25 SUCCESS (PINGER): Pong received, latency: 535.437µs
+bot-pack-opener-3          | 2025/09/27 01:34:25 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:25 SUCCESS (PINGER): Pong received, latency: 676.494µs
+bot-pack-opener-1          | 2025/09/27 01:34:26 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:26 SUCCESS (PINGER): Pong received, latency: 554.988µs
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> rock:3:blue
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> paper:1:red
+bot-pinger-1               | 2025/09/27 01:34:26 SUCCESS (PINGER): Pong received, latency: 543.563µs
+bot-pack-opener-10         | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:27 SUCCESS (PINGER): Pong received, latency: 581.665µs
+bot-pack-opener-7          | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:27 SUCCESS (PINGER): Pong received, latency: 539.032µs
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> paper:8:blue
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> scissor:6:green
+bot-pack-opener-9          | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:27 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:27 SUCCESS (PINGER): Pong received, latency: 553.668µs
+bot-pack-opener-5          | 2025/09/27 01:34:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:28 SUCCESS (PINGER): Pong received, latency: 497.474µs
+bot-pinger-9               | 2025/09/27 01:34:28 SUCCESS (PINGER): Pong received, latency: 505.987µs
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> rock:6:blue
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> scissor:3:red
+bot-pack-opener-6          | 2025/09/27 01:34:28 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:29 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:30 SUCCESS (PINGER): Pong received, latency: 459.272µs
+bot-pack-opener-2          | 2025/09/27 01:34:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:30 SUCCESS (PINGER): Pong received, latency: 512.171µs
+bot-pack-opener-6          | 2025/09/27 01:34:30 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:30 SUCCESS (PINGER): Pong received, latency: 480.211µs
+bot-pack-opener-10         | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:31 SUCCESS (PINGER): Pong received, latency: 501.303µs
+bot-pack-opener-8          | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:31 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:31 SUCCESS (PINGER): Pong received, latency: 670.593µs
+bot-pack-opener-5          | 2025/09/27 01:34:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:32 SUCCESS (PINGER): Pong received, latency: 554.163µs
+bot-pack-opener-2          | 2025/09/27 01:34:32 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:32 SUCCESS (PINGER): Pong received, latency: 453.312µs
+bot-pinger-6               | 2025/09/27 01:34:32 SUCCESS (PINGER): Pong received, latency: 538.626µs
+bot-pack-opener-4          | 2025/09/27 01:34:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:33 SUCCESS (PINGER): Pong received, latency: 487.878µs
+bot-pinger-9               | 2025/09/27 01:34:33 SUCCESS (PINGER): Pong received, latency: 471.548µs
+bot-pack-opener-9          | 2025/09/27 01:34:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:33 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:34:34 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:35 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:35 SUCCESS (PINGER): Pong received, latency: 435.278µs
+bot-pack-opener-2          | 2025/09/27 01:34:35 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:35 SUCCESS (PINGER): Pong received, latency: 391.382µs
+bot-pack-opener-8          | 2025/09/27 01:34:35 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:35 SUCCESS (PINGER): Pong received, latency: 609.575µs
+bot-pack-opener-5          | 2025/09/27 01:34:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:36 SUCCESS (PINGER): Pong received, latency: 545.399µs
+bot-pack-opener-9          | 2025/09/27 01:34:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:36 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:36 SUCCESS (PINGER): Pong received, latency: 473.931µs
+bot-pinger-10              | 2025/09/27 01:34:37 SUCCESS (PINGER): Pong received, latency: 596.294µs
+bot-pack-opener-2          | 2025/09/27 01:34:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:37 SUCCESS (PINGER): Pong received, latency: 572.086µs
+bot-pack-opener-6          | 2025/09/27 01:34:37 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:37 SUCCESS (PINGER): Pong received, latency: 529.218µs
+bot-pinger-4               | 2025/09/27 01:34:38 SUCCESS (PINGER): Pong received, latency: 334.142µs
+bot-pack-opener-1          | 2025/09/27 01:34:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:38 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:38 SUCCESS (PINGER): Pong received, latency: 387.834µs
+bot-pack-opener-10         | 2025/09/27 01:34:39 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:39 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:40 SUCCESS (PINGER): Pong received, latency: 351.41µs
+bot-pack-opener-5          | 2025/09/27 01:34:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:40 SUCCESS (PINGER): Pong received, latency: 495.118µs
+bot-pack-opener-6          | 2025/09/27 01:34:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:40 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:40 SUCCESS (PINGER): Pong received, latency: 515.102µs
+bot-pack-opener-1          | 2025/09/27 01:34:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:41 SUCCESS (PINGER): Pong received, latency: 533.868µs
+bot-pack-opener-2          | 2025/09/27 01:34:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:41 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:41 SUCCESS (PINGER): Pong received, latency: 776.59µs
+bot-pack-opener-10         | 2025/09/27 01:34:42 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:42 SUCCESS (PINGER): Pong received, latency: 687.119µs
+bot-pinger-7               | 2025/09/27 01:34:42 SUCCESS (PINGER): Pong received, latency: 512.674µs
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> paper:4:red
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> rock:6:green
+bot-pack-opener-6          | 2025/09/27 01:34:42 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:42 SUCCESS (PINGER): Pong received, latency: 704.407µs
+bot-pack-opener-5          | 2025/09/27 01:34:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:43 SUCCESS (PINGER): Pong received, latency: 460.177µs
+bot-pack-opener-7          | 2025/09/27 01:34:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:43 SUCCESS (PINGER): Pong received, latency: 427.786µs
+bot-pack-opener-3          | 2025/09/27 01:34:43 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:44 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> scissor:1:green
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> rock:7:red
+bot-pack-opener-9          | 2025/09/27 01:34:44 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:45 SUCCESS (PINGER): Pong received, latency: 584.293µs
+bot-pack-opener-5          | 2025/09/27 01:34:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:34:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:45 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:45 SUCCESS (PINGER): Pong received, latency: 403.48µs
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> paper:3:green
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> rock:2:green
+bot-pinger-5               | 2025/09/27 01:34:45 SUCCESS (PINGER): Pong received, latency: 496.602µs
+bot-pinger-2               | 2025/09/27 01:34:46 SUCCESS (PINGER): Pong received, latency: 564.306µs
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> paper:2:red
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> paper:3:green
+bot-pack-opener-6          | 2025/09/27 01:34:46 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:46 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:46 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:46 SUCCESS (PINGER): Pong received, latency: 457.031µs
+bot-pack-opener-4          | 2025/09/27 01:34:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:47 SUCCESS (PINGER): Pong received, latency: 462.922µs
+bot-pack-opener-1          | 2025/09/27 01:34:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:47 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:47 SUCCESS (PINGER): Pong received, latency: 520.731µs
+bot-pinger-6               | 2025/09/27 01:34:47 SUCCESS (PINGER): Pong received, latency: 516.981µs
+bot-pinger-4               | 2025/09/27 01:34:48 SUCCESS (PINGER): Pong received, latency: 590.715µs
+bot-pinger-9               | 2025/09/27 01:34:48 SUCCESS (PINGER): Pong received, latency: 402.842µs
+bot-pack-opener-6          | 2025/09/27 01:34:48 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:48 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:34:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:34:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:49 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:50 SUCCESS (PINGER): Pong received, latency: 625.783µs
+bot-pack-opener-1          | 2025/09/27 01:34:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:50 SUCCESS (PINGER): Pong received, latency: 649.059µs
+bot-pack-opener-3          | 2025/09/27 01:34:50 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:34:50 SUCCESS (PINGER): Pong received, latency: 643.204µs
+bot-pack-opener-4          | 2025/09/27 01:34:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:51 SUCCESS (PINGER): Pong received, latency: 609.088µs
+bot-pack-opener-6          | 2025/09/27 01:34:51 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:51 SUCCESS (PINGER): Pong received, latency: 381.67µs
+bot-pack-opener-5          | 2025/09/27 01:34:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:52 SUCCESS (PINGER): Pong received, latency: 523.869µs
+bot-pack-opener-2          | 2025/09/27 01:34:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:52 SUCCESS (PINGER): Pong received, latency: 628.047µs
+bot-pack-opener-9          | 2025/09/27 01:34:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:52 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:52 SUCCESS (PINGER): Pong received, latency: 460.33µs
+bot-pack-opener-10         | 2025/09/27 01:34:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:34:53 SUCCESS (PINGER): Pong received, latency: 557.924µs
+bot-pack-opener-1          | 2025/09/27 01:34:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:53 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:53 SUCCESS (PINGER): Pong received, latency: 544.403µs
+bot-pack-opener-6          | 2025/09/27 01:34:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:34:54 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:34:55 SUCCESS (PINGER): Pong received, latency: 552.142µs
+bot-pack-opener-1          | 2025/09/27 01:34:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:34:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:55 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:34:55 SUCCESS (PINGER): Pong received, latency: 460.134µs
+bot-pinger-5               | 2025/09/27 01:34:56 SUCCESS (PINGER): Pong received, latency: 489.041µs
+bot-pack-opener-4          | 2025/09/27 01:34:56 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:34:56 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:34:56 SUCCESS (PINGER): Pong received, latency: 875.259µs
+bot-pack-opener-6          | 2025/09/27 01:34:56 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:34:56 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:34:56 SUCCESS (PINGER): Pong received, latency: 487.307µs
+bot-pack-opener-10         | 2025/09/27 01:34:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:34:57 SUCCESS (PINGER): Pong received, latency: 589.442µs
+bot-pack-opener-7          | 2025/09/27 01:34:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:34:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:34:57 SUCCESS (PINGER): Pong received, latency: 721.141µs
+bot-pack-opener-9          | 2025/09/27 01:34:57 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:34:57 SUCCESS (PINGER): Pong received, latency: 573.773µs
+bot-pinger-4               | 2025/09/27 01:34:58 SUCCESS (PINGER): Pong received, latency: 790.474µs
+bot-pack-opener-1          | 2025/09/27 01:34:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:34:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:34:58 SUCCESS (PINGER): Pong received, latency: 617.917µs
+bot-pack-opener-3          | 2025/09/27 01:34:58 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:34:59 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:35:00 SUCCESS (PINGER): Pong received, latency: 427.332µs
+bot-pack-opener-5          | 2025/09/27 01:35:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:35:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:35:00 SUCCESS (PINGER): Pong received, latency: 330.412µs
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.4:37392 -> paper:9:blue
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Forced play for 172.21.0.8:52244 -> rock:8:red
+jokenpo-server-mixed-test  | Room c8de8015-5097-4613-8267-002b9b7b97fa: Game Over. Reason: Player 1 met the win condition.
+bot-pack-opener-6          | 2025/09/27 01:35:00 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:35:01 SUCCESS (PINGER): Pong received, latency: 452.238µs
+bot-pack-opener-10         | 2025/09/27 01:35:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:35:01 SUCCESS (PINGER): Pong received, latency: 539.613µs
+bot-pack-opener-2          | 2025/09/27 01:35:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:35:01 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:35:01 SUCCESS (PINGER): Pong received, latency: 381.731µs
+bot-pack-opener-5          | 2025/09/27 01:35:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:35:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:35:02 SUCCESS (PINGER): Pong received, latency: 524.028µs
+bot-pack-opener-1          | 2025/09/27 01:35:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:35:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:35:02 SUCCESS (PINGER): Pong received, latency: 375.333µs
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.17:58710 -> rock:1:blue
+jokenpo-server-mixed-test  | Room 2f09da23-a8f0-47f1-a1ff-791274c878a0: Forced play for 172.21.0.20:40920 -> rock:3:green
+bot-pack-opener-3          | 2025/09/27 01:35:02 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-6               | 2025/09/27 01:35:02 SUCCESS (PINGER): Pong received, latency: 783.395µs
+bot-pinger-4               | 2025/09/27 01:35:03 SUCCESS (PINGER): Pong received, latency: 562.543µs
+bot-pack-opener-7          | 2025/09/27 01:35:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:35:03 SUCCESS (PINGER): Pong received, latency: 630.043µs
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.23:35302 -> paper:4:green
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Forced play for 172.21.0.26:34512 -> scissor:2:blue
+bot-pack-opener-6          | 2025/09/27 01:35:03 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:35:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-5          | 2025/09/27 01:35:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:35:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:35:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Round timer expired. Forcing remaining plays.
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.29:57124 -> scissor:2:blue
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Forced play for 172.21.0.32:60784 -> paper:4:green
+bot-pack-opener-3          | 2025/09/27 01:35:04 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:35:05 SUCCESS (PINGER): Pong received, latency: 544.046µs
+bot-pack-opener-4          | 2025/09/27 01:35:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:35:05 SUCCESS (PINGER): Pong received, latency: 606.228µs
+bot-pack-opener-8          | 2025/09/27 01:35:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:35:05 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:35:06 SUCCESS (PINGER): Pong received, latency: 632.237µs
+bot-pinger-2               | 2025/09/27 01:35:06 SUCCESS (PINGER): Pong received, latency: 535.133µs
+bot-pack-opener-2          | 2025/09/27 01:35:06 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-6          | 2025/09/27 01:35:06 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:35:06 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-1               | 2025/09/27 01:35:06 SUCCESS (PINGER): Pong received, latency: 352.674µs
+bot-pack-opener-5          | 2025/09/27 01:35:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:35:07 SUCCESS (PINGER): Pong received, latency: 671.905µs
+bot-pack-opener-1          | 2025/09/27 01:35:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:35:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:35:07 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:35:07 SUCCESS (PINGER): Pong received, latency: 489.706µs
+bot-pinger-6               | 2025/09/27 01:35:07 SUCCESS (PINGER): Pong received, latency: 555.889µs
+bot-pack-opener-10         | 2025/09/27 01:35:08 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:35:08 SUCCESS (PINGER): Pong received, latency: 756.63µs
+bot-pinger-9               | 2025/09/27 01:35:08 SUCCESS (PINGER): Pong received, latency: 710.594µs
+bot-pack-opener-6          | 2025/09/27 01:35:08 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:35:08 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:35:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:35:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-7          | 2025/09/27 01:35:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-2          | 2025/09/27 01:35:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:35:09 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-3               | 2025/09/27 01:35:10 SUCCESS (PINGER): Pong received, latency: 383.233µs
+bot-pack-opener-5          | 2025/09/27 01:35:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-8               | 2025/09/27 01:35:10 SUCCESS (PINGER): Pong received, latency: 458.075µs
+bot-pack-opener-6          | 2025/09/27 01:35:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-9          | 2025/09/27 01:35:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-3          | 2025/09/27 01:35:10 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-5               | 2025/09/27 01:35:11 SUCCESS (PINGER): Pong received, latency: 463.659µs
+bot-pack-opener-1          | 2025/09/27 01:35:11 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-2               | 2025/09/27 01:35:11 SUCCESS (PINGER): Pong received, latency: 536.333µs
+bot-pinger-1               | 2025/09/27 01:35:11 SUCCESS (PINGER): Pong received, latency: 584.762µs
+bot-pack-opener-10         | 2025/09/27 01:35:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-4          | 2025/09/27 01:35:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-10              | 2025/09/27 01:35:12 SUCCESS (PINGER): Pong received, latency: 616.828µs
+bot-pack-opener-7          | 2025/09/27 01:35:12 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-7               | 2025/09/27 01:35:12 SUCCESS (PINGER): Pong received, latency: 410.168µs
+bot-pinger-6               | 2025/09/27 01:35:12 SUCCESS (PINGER): Pong received, latency: 516.835µs
+bot-pack-opener-5          | 2025/09/27 01:35:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-4               | 2025/09/27 01:35:13 SUCCESS (PINGER): Pong received, latency: 577.288µs
+bot-pack-opener-2          | 2025/09/27 01:35:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-8          | 2025/09/27 01:35:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pinger-9               | 2025/09/27 01:35:13 SUCCESS (PINGER): Pong received, latency: 499.407µs
+bot-pack-opener-6          | 2025/09/27 01:35:13 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-10         | 2025/09/27 01:35:14 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+bot-pack-opener-1          | 2025/09/27 01:35:14 SUCCESS (PACK_OPENER): Sent request to buy 10 packs.
+ Container jokenpo-bot-matchmaker-6  Stopping
+ Container jokenpo-bot-pack-opener-9  Stopping
+ Container jokenpo-bot-pinger-5  Stopping
+ Container jokenpo-bot-pinger-10  Stopping
+ Container jokenpo-bot-pacjokenpo-server-mixed-test  | Player 172.21.0.32:60784 disconnected from room a294bd46-3540-4ff1-802c-f2622a44ca04.
+jokenpo-server-mixed-test  | Session for 172.21.0.32:60784 removed. Total sessions: 29
+jokenpo-server-mixed-test  | Room a294bd46-3540-4ff1-802c-f2622a44ca04: Game Over. Reason: Opponent 172.21.0.32:60784 disconnected.
+jokenpo-server-mixed-test  | Session for 172.21.0.21:47092 removed. Total sessions: 28
+jokenpo-server-mixed-test  | Session for 172.21.0.31:41448 removed. Total sessions: 27
+jokenpo-server-mixed-test  | Player 172.21.0.23:35302 disconnected from room cf30d593-a979-4e09-b633-3aaf4a1fcb20.
+jokenpo-server-mixed-test  | Session for 172.21.0.23:35302 removed. Total sessions: 26
+jokenpo-server-mixed-test  | Session for 172.21.0.10:60266 removed. Total sessions: 25
+jokenpo-server-mixed-test  | Session for 172.21.0.4:37392 removed. Total sessions: 24
+jokenpo-server-mixed-test  | Room cf30d593-a979-4e09-b633-3aaf4a1fcb20: Game Over. Reason: Opponent 172.21.0.23:35302 disconnected.
+jokenpo-server-mixed-test  | Session for 172.21.0.6:49440 removed. Total sessions: 23
+jokenpo-server-mixed-test  | Session for 172.21. Container jokenpo-bot-pack-opener-8  Stopped
+ Container jokenpo-bot-pack-opener-8  Removing
+ Container jokenpo-bot-pack-opener-8  Removed
+ Container joke[Kjokenpo-server-mixed-test exited with code 2
+bot-matchmaker-6  Removing
+ Container jokenpo-bot-matchmaker-6  Removed
+ Container jokenpo-bot-pinger-9  Stopped
+ Container jokenpo-bot-pinger-9  Removing
+ Container jokenpo-bot-pinger-9  Removed
+ Container jokenpo-bot-pack-opener-7  Stopped
+ Container jokenpo-bot-pack-opener-7  Removing
+ Container jokenpo-bot-pack-opener-7  Removed
+ Container jokenpo-bot-matchmaker-3  Stopped
+ Container jokenpo-bot-matchmaker-3  Removing
+ Container jokenpo-bot-matchmaker-3  Removed
+ Container jokenpo-bot-matchmaker-1  Stopped
+ Container jokenpo-bot-matchmaker-1  Removing
+ Container jokenpo-bot-pack-opener-10  Stopped
+ Container jokenpo-bot-pack-opener-10  Removing
+ Container jokenpo-bot-matchmaker-1  Removed
+ Container jokenpo-bot-pack-opener-2  Stopped
+ Container jokenpo-bot-pack-opener-2  Removing
+ Container jokenpo-bot-pack-opener-10  Removed
+ Container jokenpo-bot-pack-opener-2  Removed
+ Container jokenpo-bot-pinger-5  Stopped
+ Container jokenpo-bot-pinger-5  Removing
+ Container jokenpo-bot-pack-opener-9  Stopped
+ Container jokenpo-bot-pack-opener-9  Removing
+ Container jokenpo-bot-pinger-5  Removed
+ Container jokenpo-bot-pack-opener-9  Removed
+ Container jokenpo-bot-matchmaker-7  Stopped
+ Container jokenpo-bot-matchmaker-7  Removing
+ Container jokenpo-bot-pack-opener-1  Stopped
+ Container jokenpo-bot-pack-opener-1  Removing
+ Container jokenpo-bot-matchmaker-7  Removed
+ Container jokenpo-bot-pack-opener-1  Removed
+ Container jokenpo-bot-pack-opener-4  Stopped
+ Container jokenpo-bot-pack-opener-4  Removing
+ Container jokenpo-bot-pinger-4  Stopped
+ Container jokenpo-bot-pinger-4  Removing
+ Container jokenpo-bot-pack-opener-4  Removed
+ Container jokenpo-bot-pinger-4  Removed
+ Container jokenpo-bot-pinger-7  Stopped
+ Container jokenpo-bot-pinger-7  Removing
+ Container jokenpo-bot-pinger-2  Stopped
+ Container jokenpo-bot-pinger-2  Removing
+ Container jokenpo-bot-pinger-7  Removed
+ Container jokenpo-bot-pinger-2  Removed
+ Container jokenpo-bot-matchmaker-5  Stopped
+ Container jokenpo-bot-matchmaker-5  Removing
+ Container jokenpo-bot-matchmaker-5  Removed
+ Container jokenpo-bot-matchmaker-2  Stopped
+ Container jokenpo-bot-matchmaker-2  Removing
+ Container jokenpo-bot-matchmaker-9  Stopped
+ Container jokenpo-bot-matchmaker-9  Removing
+ Container jokenpo-bot-matchmaker-2  Removed
+ Container jokenpo-bot-matchmaker-9  Removed
+ Container jokenpo-bot-matchmaker-10  Stopped
+ Container jokenpo-bot-matchmaker-10  Removing
+ Container jokenpo-bot-matchmaker-10  Removed
+ Container jokenpo-bot-pinger-10  Stopped
+ Container jokenpo-bot-pinger-10  Removing
+ Container jokenpo-bot-pinger-10  Removed
+ Container jokenpo-bot-pinger-6  Stopped
+ Container jokenpo-bot-pinger-6  Removing
+ Container jokenpo-bot-pinger-6  Removed
+ Container jokenpo-bot-matchmaker-8  Stopped
+ Container jokenpo-bot-matchmaker-8  Removing
+ Container jokenpo-bot-matchmaker-8  Removed
+ Container jokenpo-bot-pack-opener-5  Stopped
+ Container jokenpo-bot-pack-opener-5  Removing
+ Container jokenpo-bot-pack-opener-5  Removed
+ Container jokenpo-bot-pack-opener-6  Stopped
+ Container jokenpo-bot-pack-opener-6  Removing
+ Container jokenpo-bot-pack-opener-6  Removed
+ Container jokenpo-bot-matchmaker-4  Stopped
+ Container jokenpo-bot-matchmaker-4  Removing
+ Container jokenpo-bot-matchmaker-4  Removed
+ Container jokenpo-bot-pack-opener-3  Stopped
+ Container jokenpo-bot-pack-opener-3  Removing
+ Container jokenpo-bot-pack-opener-3  Removed
+ Container jokenpo-bot-pinger-3  Stopped
+ Container jokenpo-bot-pinger-3  Removing
+ Container jokenpo-bot-pinger-3  Removed
+ Container jokenpo-bot-pinger-8  Stopped
+ Container jokenpo-bot-pinger-8  Removing
+ Container jokenpo-bot-pinger-8  Removed
+ Container jokenpo-bot-pinger-1  Stopped
+ Container jokenpo-bot-pinger-1  Removing
+ Container jokenpo-bot-pinger-1  Removed
+ Container jokenpo-server-mixed-test  Stopping
+ Container jokenpo-server-mixed-test  Stopped
+ Container jokenpo-server-mixed-test  Removing
+ Container jokenpo-server-mixed-test  Removed
+ Network jokenpo_default  Removing
+ Network jokenpo_default  Removed
+
+--- Métricas do Teste Misto ---
+Duração: 120 segundos
+
+[Métricas Gerais]
+Logins Bem-sucedidos (Total): 0
+Falhas de Login/Conexão (Total): 0
+
+[Métricas por Personalidade]
+Bots Compradores de Pacotes:
+  - Compras de pacotes realizadas: 406
+Bots Pingers:
+  - Pings bem-sucedidos: 250
+Bots de Matchmaking:
+  - Logins bem-sucedidos: 10
+-----------------------------------
+
+Resultados completos salvos em: mixed_test_results.log
