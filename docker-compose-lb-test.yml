@@ -1,0 +1,78 @@
+# A linha 'version' não é mais necessária nas versões recentes do Docker Compose
+services:
+  # --- 1. Infraestrutura Core ---
+
+  # Consul: O nosso "GPS" para descoberta de serviços e health checks.
+  consul:
+    image: hashicorp/consul:latest
+    container_name: consul
+    ports:
+      - "8500:8500" # UI do Consul
+    command: "agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0"
+    healthcheck:
+      # Este comando verifica se o Consul está 100% pronto e tem um líder eleito.
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  # Traefik: O nosso "Recepcionista" que atua como Load Balancer.
+  traefik:
+    image: traefik:v2.9
+    container_name: traefik
+    ports:
+      - "80:80"     # Porta de entrada para os clientes do jogo (TCP)
+      - "8081:8080" # Dashboard do Traefik (HTTP)
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.consulcatalog.endpoint.address=consul:8500"
+      - "--entrypoints.web.address=:80" # Nomeia a porta 80 como 'web'
+      - "--log.level=INFO"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - consul
+
+  # --- 2. Instâncias da Aplicação ---
+
+  # Primeira instância do servidor do jogo
+  jokenpo-monolith-1:
+    build:
+      context: . # O contexto é a raiz do projeto
+      dockerfile: ./cmd/server/Dockerfile # Caminho para o Dockerfile
+    hostname: jokenpo-monolith-1
+    depends_on:
+      consul:
+        condition: service_healthy # Espera o healthcheck do Consul passar
+    environment:
+      - HEALTH_CHECK_PORT=8000
+      - CONSUL_HTTP_ADDR=consul:8500
+    labels:
+      - "traefik.enable=true"
+      # Configuração do Roteador TCP
+      - "traefik.tcp.routers.jokenpo-tcp.entrypoints=web"
+      - "traefik.tcp.routers.jokenpo-tcp.rule=HostSNI(`*`)" # Pega todo o tráfego TCP
+      # Configuração do Serviço TCP
+      - "traefik.tcp.services.jokenpo-tcp-service.loadbalancer.server.port=8080"
+      - "traefik.tcp.routers.jokenpo-tcp.service=jokenpo-tcp-service"
+
+  # Segunda instância do servidor do jogo
+  jokenpo-monolith-2:
+    build:
+      context: .
+      dockerfile: ./cmd/server/Dockerfile
+    hostname: jokenpo-monolith-2
+    depends_on:
+      consul:
+        condition: service_healthy
+    environment:
+      - HEALTH_CHECK_PORT=8001
+      - CONSUL_HTTP_ADDR=consul:8500
+    labels:
+      # As labels são idênticas, pois ambos fazem parte do mesmo serviço
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.jokenpo-tcp.entrypoints=web"
+      - "traefik.tcp.routers.jokenpo-tcp.rule=HostSNI(`*`)"
+      - "traefik.tcp.services.jokenpo-tcp-service.loadbalancer.server.port=8080"
+      - "traefik.tcp.routers.jokenpo-tcp.service=jokenpo-tcp-service"

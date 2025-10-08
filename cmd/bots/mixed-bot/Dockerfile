@@ -1,6 +1,6 @@
 # cmd/bots/mixed-bot/Dockerfile
 
-FROM golang:1.24.3-alpine AS builder
+FROM golang:1.25.0-alpine AS builder
 WORKDIR /app
 
 # Copia e baixa as dependências primeiro para aproveitar o cache

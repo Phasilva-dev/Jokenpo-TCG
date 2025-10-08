@@ -39,7 +39,7 @@ func main() {
 
 	serverHost := os.Getenv("SERVER_ADDRESS")
 	if serverHost == "" {
-		serverHost = "localhost:8080"
+		serverHost = "localhost:80" // Conecta na porta do Traefik
 	}
 
 	u := url.URL{Scheme: "ws", Host: serverHost, Path: "/ws"}
