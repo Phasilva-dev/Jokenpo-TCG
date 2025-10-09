@@ -60,7 +60,7 @@ services:
   load-balancer-1:
     build:
       context: .
-      dockerfile: ./cmd/loadbalancer/Dockerfile
+      dockerfile: ./services/loadbalancer/cmd/Dockerfile
     hostname: load-balancer-1
     ports:
       - "9080:80"
@@ -73,7 +73,7 @@ services:
   load-balancer-2:
     build:
       context: .
-      dockerfile: ./cmd/loadbalancer/Dockerfile
+      dockerfile: ./services/loadbalancer/cmd/Dockerfile
     hostname: load-balancer-2
     ports:
       - "9081:80"

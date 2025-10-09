@@ -52,7 +52,7 @@ services:
   load-balancer-1:
     build:
       context: .
-      dockerfile: ./cmd/loadbalancer/Dockerfile
+      dockerfile: ./services/loadbalancer/cmd/Dockerfile
     ports:
       - "9080:80"
     depends_on:
@@ -66,7 +66,7 @@ services:
   load-balancer-2:
     build:
       context: .
-      dockerfile: ./cmd/loadbalancer/Dockerfile
+      dockerfile: ./services/loadbalancer/cmd/Dockerfile
     ports:
       - "9081:80"
     depends_on:
@@ -80,7 +80,7 @@ services:
   load-balancer-3:
     build:
       context: .
-      dockerfile: ./cmd/loadbalancer/Dockerfile
+      dockerfile: ./services/loadbalancer/cmd/Dockerfile
     ports:
       - "9082:80"
     depends_on:

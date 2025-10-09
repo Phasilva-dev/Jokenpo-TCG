@@ -18,7 +18,7 @@ COPY . .
 # - GOOS=linux: Garante que o binário seja compilado para o sistema operacional Linux (usado nos contêineres).
 # -o /lb: Define o nome do arquivo de saída como 'lb' e o coloca na raiz do sistema de arquivos.
 # ./cmd/loadbalancer: O caminho para o pacote 'main' do nosso LB.
-RUN CGO_ENABLED=0 GOOS=linux go build -o /lb ./cmd/loadbalancer
+RUN CGO_ENABLED=0 GOOS=linux go build -o /lb ./services/loadbalancer/cmd
 
 # --- Estágio 2: Final (A Imagem de Produção) ---
 # Usamos a imagem 'scratch', que é uma imagem completamente vazia.
