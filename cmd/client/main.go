@@ -11,59 +11,84 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+	"net/http"
 
 	"github.com/gorilla/websocket"
 )
 
-// --- Variáveis Globais para o Ping ---
 var (
 	pingStartTime time.Time
 	pingMutex     sync.Mutex
 )
-
-// --- Máquina de Estados do Cliente (Inalterada) ---
 const (
 	StateMainMenu = "MainMenu"
 	StateInQueue  = "InQueue"
 	StateInMatch  = "InMatch"
 )
-
 var clientState = StateMainMenu
 
-// --- Ponto de Entrada ---
+
 func main() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	serverHost := os.Getenv("SERVER_ADDRESS")
-	if serverHost == "" {
-		serverHost = "localhost:80" // Conecta na porta do Traefik
+	// --- INÍCIO DA LÓGICA DE FAILOVER ---
+
+	// 1. Define a lista de endereços dos Load Balancers
+	lbAddresses := []string{
+		"localhost:9080",
+		"localhost:9081",
 	}
 
-	u := url.URL{Scheme: "ws", Host: serverHost, Path: "/ws"}
-	log.Printf("Tentando conectar ao servidor WebSocket em %s", u.String())
+	// Permite que a lista seja sobrescrita por uma variável de ambiente (para flexibilidade)
+	// Ex: LB_ADDRESSES="192.168.1.10:80,192.168.1.11:80"
+	if addrsEnv := os.Getenv("LB_ADDRESSES"); addrsEnv != "" {
+		lbAddresses = strings.Split(addrsEnv, ",")
+	}
 
-	conn, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-	if err != nil {
-		log.Fatalf("Não foi possível conectar: %v", err)
+	var conn *websocket.Conn
+	var err error
+
+	// 2. Tenta conectar em cada endereço da lista até ter sucesso
+	for _, addr := range lbAddresses {
+		u := url.URL{Scheme: "ws", Host: strings.TrimSpace(addr), Path: "/ws"}
+		log.Printf("Tentando conectar ao Load Balancer em %s", u.String())
+
+		// Tenta a conexão. O 'nil' para o header é importante.
+		var resp *http.Response // Captura a resposta para depuração
+		conn, resp, err = websocket.DefaultDialer.Dial(u.String(), nil)
+		if err == nil {
+			// Conexão bem-sucedida!
+			log.Println("Conexão WebSocket bem-sucedida!")
+			break // Sai do loop
+		}
+
+		// Se a conexão falhou, loga o motivo e tenta o próximo
+		log.Printf("AVISO: Falha ao conectar a %s: %v", addr, err)
+		if resp != nil {
+			log.Printf("AVISO: Status da resposta recebida: %s", resp.Status)
+		}
+	}
+
+	// 3. Se após o loop a conexão ainda for nula, todos os LBs falharam.
+	if conn == nil {
+		log.Fatalf("Não foi possível conectar a nenhum dos Load Balancers disponíveis. Encerrando.")
 	}
 	defer conn.Close()
-	log.Println("Conexão WebSocket bem-sucedida!")
 
-	// Canal para receber o resultado do ping do PongHandler
+	// --- FIM DA LÓGICA DE FAILOVER ---
+
 	pingResultChan := make(chan time.Duration)
-
-	// --- CONFIGURANDO O PONG HANDLER ---
-	// Esta função é chamada pela biblioteca quando um PONG é recebido.
 	conn.SetPongHandler(func(appData string) error {
 		pingMutex.Lock()
 		defer pingMutex.Unlock()
 		if !pingStartTime.IsZero() {
 			latency := time.Since(pingStartTime)
-			pingResultChan <- latency   // Envia o resultado para a função doPing
-			pingStartTime = time.Time{} // Reseta o cronômetro
+			pingResultChan <- latency
+			pingStartTime = time.Time{}
 		}
 		return nil
 	})
@@ -71,7 +96,6 @@ func main() {
 	done := make(chan struct{})
 	go readLoop(conn, done)
 
-	// Inicia uma goroutine para lidar com o input do usuário
 	go func() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
@@ -80,18 +104,15 @@ func main() {
 		}
 	}()
 
-	// Espera por interrupção (Ctrl+C) ou desconexão
 	select {
 	case <-done:
 		log.Println("Desconectado do servidor.")
 	case <-interrupt:
 		log.Println("Interrupção recebida, fechando conexão.")
-		// Envia uma mensagem de fechamento limpa para o servidor
 		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	}
 }
 
-// --- Goroutine de Leitura ---
 func readLoop(conn *websocket.Conn, done chan struct{}) {
 	defer close(done)
 	for {
@@ -121,41 +142,32 @@ func readLoop(conn *websocket.Conn, done chan struct{}) {
 		}
 	}
 }
-
-// --- Lógica de Input ---
-
-// handleUserInput centraliza todo o tratamento de entrada do usuário.
 func handleUserInput(conn *websocket.Conn, scanner *bufio.Scanner, userInput string, pingResultChan chan time.Duration) {
 	if clientState == StateMainMenu && userInput == "9" {
-		// --- LÓGICA DO PING ---
 		fmt.Println("\nEnviando ping...")
 
 		pingMutex.Lock()
 		pingStartTime = time.Now()
 		pingMutex.Unlock()
 
-		// Envia a mensagem de controle de PING
 		err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(time.Second*5))
 		if err != nil {
 			log.Println("Erro ao enviar ping:", err)
 			pingMutex.Lock()
-			pingStartTime = time.Time{} // Reseta em caso de falha
+			pingStartTime = time.Time{}
 			pingMutex.Unlock()
 			return
 		}
 
-		// Espera pela resposta no canal OU por um timeout
 		select {
 		case latency := <-pingResultChan:
-			// Usamos .Nanoseconds() para obter o valor bruto em nanosegundos
 			fmt.Printf("[INFO: Pong recebido! Latência: %d ns (%v)]\n", latency.Nanoseconds(), latency)
 		case <-time.After(3 * time.Second):
 			fmt.Println("[ERRO: Timeout do ping. Nenhuma resposta do servidor.]")
 		}
-		printPrompt() // Mostra o menu novamente
+		printPrompt()
 
 	} else {
-		// Lógica normal para outras entradas
 		switch clientState {
 		case StateMainMenu:
 			handleMainMenuInput(conn, scanner, userInput)
@@ -166,7 +178,6 @@ func handleUserInput(conn *websocket.Conn, scanner *bufio.Scanner, userInput str
 		}
 	}
 }
-
 func updateClientState(newState string) {
 	switch newState {
 	case "lobby":
@@ -180,7 +191,6 @@ func updateClientState(newState string) {
 		clientState = StateMainMenu
 	}
 }
-
 func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice string) {
 	var msg network.Message
 	shouldSend := true
@@ -225,7 +235,7 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 		key := promptForString(scanner, "Digite a chave da nova carta: ")
 		payload, _ := json.Marshal(map[string]interface{}{"index": index, "key": key})
 		msg = network.Message{Type: "REPLACE_CARD_TO_DECK", Payload: payload}
-	case "9": // A lógica de ping já foi tratada, então não fazemos nada aqui.
+	case "9":
 		shouldSend = false
 	default:
 		fmt.Println("Opção inválida.")
@@ -240,7 +250,6 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 		printPrompt()
 	}
 }
-
 func handleInQueueInput(conn *websocket.Conn, choice string) {
 	if choice == "0" {
 		msg := network.Message{Type: "LEAVE_QUEUE"}
@@ -252,7 +261,6 @@ func handleInQueueInput(conn *websocket.Conn, choice string) {
 		printPrompt()
 	}
 }
-
 func handleInMatchInput(conn *websocket.Conn, choice string) {
 	index, err := strconv.Atoi(choice)
 	if err != nil {
@@ -266,8 +274,6 @@ func handleInMatchInput(conn *websocket.Conn, choice string) {
 		log.Printf("Erro ao enviar mensagem: %v", err)
 	}
 }
-
-// --- Funções de Utilidade ---
 func printServerMessage(msg *network.Message) {
 	if msg.Type == "PROMPT_INPUT" {
 		return
@@ -282,32 +288,23 @@ func printServerMessage(msg *network.Message) {
 		fmt.Printf("\n%s\n", successPayload.Message)
 
 		if successPayload.Data != nil {
-			// --- INÍCIO DA CORREÇÃO ---
-			// Verificamos se o 'Data' é uma string.
 			if strData, ok := successPayload.Data.(string); ok {
-				// Se for uma string, imprimimos diretamente.
-				// O Go interpretará os \n como quebras de linha.
 				fmt.Println(strData)
 			} else {
-				// Se for qualquer outra coisa (mapa, slice, etc.), formatamos como JSON.
 				prettyJSON, err := json.MarshalIndent(successPayload.Data, "", "  ")
 				if err == nil {
 					fmt.Println(string(prettyJSON))
 				} else {
-					// Fallback caso o MarshalIndent falhe
 					fmt.Printf("%v\n", successPayload.Data)
 				}
 			}
-			// --- FIM DA CORREÇÃO ---
 		}
 	} else if msg.Type == "RESPONSE_ERROR" && json.Unmarshal(msg.Payload, &errorPayload) == nil {
 		fmt.Printf("\nErro: %s\n", errorPayload.Error)
 	} else {
-		// Mensagens genéricas que não se encaixam no padrão
 		fmt.Printf("\nInfo (%s): %s\n", msg.Type, string(msg.Payload))
 	}
 }
-
 func printPrompt() {
 	var prompt string
 	time.Sleep(1000 * time.Millisecond)
@@ -334,13 +331,11 @@ func printPrompt() {
 	}
 	fmt.Print(prompt)
 }
-
 func promptForString(scanner *bufio.Scanner, prompt string) string {
 	fmt.Print(prompt)
 	scanner.Scan()
 	return scanner.Text()
 }
-
 func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
 	fmt.Print(prompt)
 	scanner.Scan()

@@ -1,6 +1,5 @@
-
 services:
-  # --- 1. INFRAESTRUTURA: CLUSTER CONSUL ---
+  # --- 1. INFRAESTRUTURA: CLUSTER CONSUL (PERFIL: "consul") ---
   consul-1:
     image: hashicorp/consul:latest
     hostname: consul-1
@@ -14,6 +13,7 @@ services:
       interval: 5s
       timeout: 2s
       retries: 10
+    profiles: [consul]
 
   consul-2:
     image: hashicorp/consul:latest
@@ -21,8 +21,8 @@ services:
     command: >
       agent -server -node=consul-node-2 -bootstrap-expect=3 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-3
-    depends_on:
-      - consul-1
+    depends_on: [consul-1]
+    profiles: [consul]
 
   consul-3:
     image: hashicorp/consul:latest
@@ -30,58 +30,63 @@ services:
     command: >
       agent -server -node=consul-node-3 -bootstrap-expect=3 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-2
-    depends_on:
-      - consul-1
+    depends_on: [consul-1]
+    profiles: [consul]
 
-  # --- 2. APLICAÇÃO: SERVIDORES DE JOGO ---
-  jokenpo-monolith-1:
+  # --- 2. APLICAÇÃO: SERVIDOR DE JOGO (PERFIL: "game", ESCALÁVEL) ---
+  jokenpo-monolith:
     build:
       context: .
       dockerfile: ./cmd/server/Dockerfile
-    hostname: jokenpo-monolith-1
     depends_on:
-      consul-1: { condition: service_healthy }
+      consul-1:
+        condition: service_healthy
     environment:
       - HEALTH_CHECK_PORT=8000
       - CONSUL_HTTP_ADDR=consul-1:8500
+    deploy:
+      replicas: 10   # Escalável via compose scale também
+    profiles: [game]
 
-  jokenpo-monolith-2:
-    build:
-      context: .
-      dockerfile: ./cmd/server/Dockerfile
-    hostname: jokenpo-monolith-2
-    depends_on:
-      consul-1: { condition: service_healthy }
-    environment:
-      - HEALTH_CHECK_PORT=8001
-      - CONSUL_HTTP_ADDR=consul-1:8500
-
-  # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---
+  # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS FIXOS ---
   load-balancer-1:
     build:
       context: .
       dockerfile: ./cmd/loadbalancer/Dockerfile
-    hostname: load-balancer-1
     ports:
       - "9080:80"
     depends_on:
-      consul-1: { condition: service_healthy }
+      consul-1:
+        condition: service_healthy
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-monolith
+    profiles: [lb]
 
   load-balancer-2:
     build:
       context: .
       dockerfile: ./cmd/loadbalancer/Dockerfile
-    hostname: load-balancer-2
     ports:
       - "9081:80"
     depends_on:
-      consul-1: { condition: service_healthy }
+      consul-1:
+        condition: service_healthy
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-monolith
+    profiles: [lb]
 
-
-# docker compose -f docker-compose.scale.yml --profile "*" up --build --scale load-balancer=3 --scale jokenpo-monolith=10
+  load-balancer-3:
+    build:
+      context: .
+      dockerfile: ./cmd/loadbalancer/Dockerfile
+    ports:
+      - "9082:80"
+    depends_on:
+      consul-1:
+        condition: service_healthy
+    environment:
+      - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
+      - LB_TARGET_SERVICE=jokenpo-monolith
+    profiles: [lb]
