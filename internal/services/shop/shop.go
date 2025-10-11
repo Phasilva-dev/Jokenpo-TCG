@@ -38,7 +38,7 @@ func (s *Shop) purchasePackage(quantity uint64) ([]*card.Card, error) {
 	allCards := make([]*card.Card, 0, totalCards)
 
 	for i := uint64(0); i < quantity; i++ {
-		for j := 0; j < packageSize; i++ {
+		for j := 0; j < packageSize; j++ {
 			typo := generateRandomCardTypo(s.rng)
 			value := generateRandomCardValue(s.rng)
 			color := generateRandomCardColor(s.rng)
