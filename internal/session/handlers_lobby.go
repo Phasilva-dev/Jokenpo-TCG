@@ -28,13 +28,14 @@ func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMes
 //Opção 2
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+	var err error
 	if !checkLobbyState(session) {
 		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
 
-	result, err := session.Player.PurchasePackage(h.shop)
+	result := make([]*card.Card,1)
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
 		session.Client.Send() <- message.CreatePromptInputMessage()
@@ -53,6 +54,7 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 //Opção 3
 func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
+	var err error
 	if !checkLobbyState(session) {
 		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
 		session.Client.Send() <- message.CreatePromptInputMessage()
@@ -80,14 +82,14 @@ func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload 
 	allNewCards := []*card.Card{}
 
 	for i := 0; i < amount; i++ {
-		newCards, err := session.Player.PurchasePackage(h.shop)
+		//session.Player.PurchasePackage(h.shop)
 		if err != nil {
 			session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Failed on package #%d: %v", i+1, err))
 			session.Client.Send() <- message.CreatePromptInputMessage()
 			return
 		}
 
-		allNewCards = append(allNewCards, newCards...)
+		//allNewCards = append(allNewCards, newCards...)
 	}
 
 	dataString := card.SliceOfCardsToString(allNewCards)
@@ -289,27 +291,6 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 
 }
 
-func handleLeaveQueue(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-
-	if !checkQueueState(session) {
-		session.Client.Send() <- message.CreateErrorResponse("You are not in queue")
-		session.Client.Send() <- message.CreatePromptInputMessage()
-		return
-	}
-
-		session.State = state_LOBBY
-		//
-		msg := message.CreateSuccessResponse(session.State, "Your request to leave the queue was received.", nil)
-		session.Client.Send() <- msg
-
-		h.matchmaker.LeaveQueue(session)
-		session.Client.Send() <- message.CreatePromptInputMessage()
-
-}
-
-
-
 func (h *GameHandler) registerLobbyHandlers() {
 	// --- Ações de Matchmaking ---
 	// O comando para entrar na fila de espera para uma partida.
@@ -342,6 +323,3 @@ func checkLobbyState(session *PlayerSession) bool {
 	return session.State == state_LOBBY
 }
 
-func checkQueueState(session *PlayerSession) bool {
-	return session.State == state_IN_QUEUE
-}

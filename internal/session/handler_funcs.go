@@ -2,7 +2,6 @@ package session
 
 import (
 	"fmt"
-	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
 	"jokenpo/internal/session/message"
 	"github.com/google/uuid"
@@ -14,7 +13,6 @@ func (h *GameHandler) Sessions() map[*network.Client]*PlayerSession { return h.s
 
 func (h *GameHandler) Rooms() map[string]*GameRoom { return h.rooms }
 
-func (h *GameHandler) Shop() *shop.Shop { return h.shop }
 
 func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	// Tenta preparar o primeiro jogador.

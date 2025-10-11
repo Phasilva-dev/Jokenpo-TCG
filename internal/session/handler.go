@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"jokenpo/internal/game/card"
-	"jokenpo/internal/game/shop"
 	"jokenpo/internal/network"
 	"jokenpo/internal/session/message" // Importe seu novo pacote de mensagens
 	"strings"
@@ -18,13 +17,13 @@ type GameHandler struct {
 	sessions   map[*network.Client]*PlayerSession
 	matchmaker *Matchmaker
 	rooms      map[string]*GameRoom
-	shop       *shop.Shop
 
 	roomFinished chan string
 
 	// Teremos dois roteadores, um para cada estado do jogador.
 	lobbyRouter map[string]CommandHandlerFunc
 	matchRouter map[string]CommandHandlerFunc
+	queueRouter map[string]CommandHandlerFunc
 }
 
 // NewGameHandler agora também inicializa e registra os handlers dos roteadores.
@@ -33,7 +32,6 @@ func NewGameHandler() *GameHandler {
 		sessions:    make(map[*network.Client]*PlayerSession),
 		matchmaker:  nil,
 		rooms:       make(map[string]*GameRoom),
-		shop:        shop.NewShop(),
 		lobbyRouter: make(map[string]CommandHandlerFunc),
 		matchRouter: make(map[string]CommandHandlerFunc),
 	}
@@ -41,6 +39,7 @@ func NewGameHandler() *GameHandler {
 	// Populamos os roteadores com seus respectivos comandos.
 	h.registerLobbyHandlers()
 	h.registerMatchHandlers()
+	h.registerQueueHandlers()
 	return h
 }
 
@@ -57,6 +56,7 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	const initialPacksToOpen = 4
 	var purchasedPacksResults []*card.Card // Para guardar as strings formatadas originais
 
+	/*
 	for i := 0; i < initialPacksToOpen; i++ {
 		packResult, err := session.Player.PurchasePackage(h.shop)
 		if err != nil {
@@ -66,7 +66,7 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 		
 		purchasedPacksResults = append(purchasedPacksResults, packResult...)
 	
-	}
+	}*/
 
 	// --- Lógica de Construção do Deck Inicial ---
 	deckBuildMessage := "Your first 12 cards have been added to your deck."
@@ -150,7 +150,7 @@ func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
 	case state_IN_MATCH:
 		router = h.matchRouter
 	case state_IN_QUEUE:
-		router = h.lobbyRouter
+		router = h.queueRouter
 	default:
 		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid state of player: %s", session.State))
 		return

@@ -3,9 +3,7 @@ package player
 import (
 	"fmt"
 
-	"jokenpo/internal/game/card"
 	"jokenpo/internal/game/deck"
-	"jokenpo/internal/game/shop"
 )
 
 func (p *Player) SeeDeck() (string,error) {
@@ -23,14 +21,6 @@ func (p *Player) SeeCollection() (string, error) {
 	}
 	str := p.inventory.Collection().String()
 	return str, nil
-}
-
-
-func (p *Player) PurchasePackage(shop *shop.Shop) ([]*card.Card, error){
-	if p.state != MENU {
-		return nil, fmt.Errorf("error: Player must be in MENU state to purchase a package")
-	}
-	return shop.PurchasePackage(p.rng, p.inventory.Collection())
 }
 
 func (p *Player) AddCardToDeck(key string) (string, error) {
