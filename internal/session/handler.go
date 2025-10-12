@@ -3,10 +3,12 @@ package session
 import (
 	"encoding/json"
 	"fmt"
-	"jokenpo/internal/game/card"
 	"jokenpo/internal/network"
+	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/session/message" // Importe seu novo pacote de mensagens
+	"net/http"
 	"strings"
+	"time"
 )
 
 // CommandHandlerFunc define a assinatura para todas as nossas funções que lidam com comandos.
@@ -15,6 +17,10 @@ type CommandHandlerFunc func(h *GameHandler, session *PlayerSession, payload jso
 
 type GameHandler struct {
 	sessions   map[*network.Client]*PlayerSession
+
+	httpClient *http.Client
+	serviceCache *cluster.ServiceCacheActor
+
 	matchmaker *Matchmaker
 	rooms      map[string]*GameRoom
 
@@ -30,12 +36,22 @@ type GameHandler struct {
 func NewGameHandler() *GameHandler {
 	h := &GameHandler{
 		sessions:    make(map[*network.Client]*PlayerSession),
-		matchmaker:  nil,
+		matchmaker:  nil, // será inicializado abaixo
 		rooms:       make(map[string]*GameRoom),
 		lobbyRouter: make(map[string]CommandHandlerFunc),
 		matchRouter: make(map[string]CommandHandlerFunc),
+		queueRouter: make(map[string]CommandHandlerFunc),
 	}
 	h.matchmaker = NewMatchmaker(h)
+
+	// Inicializa o cliente HTTP compartilhado para toda a comunicação com microsserviços.
+	// Usar um único cliente com um timeout é crucial para performance e estabilidade.
+	h.httpClient = &http.Client{
+		Timeout: 10 * time.Second, // Timeout de 10 segundos para evitar que uma chamada prenda a goroutine do jogador
+	}
+
+	h.serviceCache = cluster.NewServiceCacheActor(30 * time.Second)
+
 	// Populamos os roteadores com seus respectivos comandos.
 	h.registerLobbyHandlers()
 	h.registerMatchHandlers()
@@ -52,56 +68,57 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	h.sessions[c] = session
 	fmt.Printf("Session created for %s. Total sessions: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
 
-	// --- Abertura de Pacotes ---
+	// --- 2. Lógica de Compra Inicial (Chamada ao Helper) ---
 	const initialPacksToOpen = 4
-	var purchasedPacksResults []*card.Card // Para guardar as strings formatadas originais
+	initialCardKeys, err := h.purchasePacksFromShop(initialPacksToOpen)
 
-	/*
-	for i := 0; i < initialPacksToOpen; i++ {
-		packResult, err := session.Player.PurchasePackage(h.shop)
-		if err != nil {
-			fmt.Printf("ERROR giving initial pack #%d to player %s: %v\n", i+1, c.Conn().RemoteAddr(), err)
-			continue
-		}
-		
-		purchasedPacksResults = append(purchasedPacksResults, packResult...)
-	
-	}*/
+	// Tratamento de Erro CONTEXTUAL do OnConnect: Loga erro crítico e envia mensagem alternativa.
+	if err != nil {
+		fmt.Printf("CRITICAL: Failed to grant initial packs to player %s: %v\n", c.Conn().RemoteAddr(), err)
 
-	// --- Lógica de Construção do Deck Inicial ---
-	deckBuildMessage := "Your first 12 cards have been added to your deck."
+		// Envia mensagem de boas-vindas informando sobre o problema, mas permitindo a conexão.
+		welcomeMsg := "Welcome to the Jokenpo Game!\n\n" +
+			"Unfortunately, we could not grant you your initial card packs at this time as our shop is unavailable. " +
+			"Please try the 'purchase' command later."
+
+		message.SendSuccessAndPrompt(c, state_LOBBY, "Connection successful!", welcomeMsg)
+		return // Interrompe o fluxo de onboarding se a compra falhar.
+	}
+
+	// --- 3. Adiciona as Cartas Recebidas ao Deck Inicial ---
+	deckBuildMessage := fmt.Sprintf("Your first %d cards have been added to your deck.", len(initialCardKeys))
 	
-	for i, card := range purchasedPacksResults {
-		_, err := session.Player.AddCardToDeck(card.Key())
+	for i, key := range initialCardKeys {
+		// A lógica interna do Player (AddCardToDeck) permanece a mesma.
+		_, err := session.Player.AddCardToDeck(key)
 		if err != nil {
-			
-			deckBuildMessage = 
-			fmt.Sprintf("Your initial cards were so powerful they exceeded the 80 power limit!\n Not all cards could be added to your starting deck.\n You have added only %d", i)
-			break
+			deckBuildMessage = fmt.Sprintf("Your initial cards were so powerful they exceeded the 80 power limit!\n"+
+				"Not all cards could be added to your starting deck.\n"+
+				"You have added only %d cards.", i)
+			break // Para de adicionar cartas se o limite for atingido.
 		}
 	}
 
-	// --- Formatação da Mensagem Final para o Cliente ---
+	// --- 4. Formata e Envia a Mensagem Final de Boas-Vindas ---
 	var sb strings.Builder
 	sb.WriteString("Welcome to the Jokenpo Game!\n")
-	sb.WriteString(fmt.Sprintf("As a bonus, you received %d card packs:\n\n", initialPacksToOpen))
+	sb.WriteString(fmt.Sprintf("As a bonus, you received %d card packs, revealing the following cards:\n\n", initialPacksToOpen))
 	
-	// Mostra os pacotes que o jogador abriu
-	results := card.SliceOfCardsToString(purchasedPacksResults)
-	sb.WriteString(results)
+	// Lista as chaves das cartas que o jogador abriu
+	for _, key := range initialCardKeys {
+		sb.WriteString("- " + key + "\n")
+	}
 
-	// Adiciona a mensagem sobre o status da construção do deck
-	sb.WriteString("\n\n") // Duas quebras de linha para espaçamento
+	sb.WriteString("\n") // Espaçamento
 	sb.WriteString(deckBuildMessage)
 
-	// Envia a resposta final
-	welcomeMsg := message.CreateSuccessResponse(state_LOBBY,
+	// Usa o helper para enviar a mensagem de sucesso e o prompt de uma só vez.
+	message.SendSuccessAndPrompt(
+		c, // O network.Client satisfaz a interface MessageSender
+		state_LOBBY,
 		"Connection successful! Welcome!",
 		sb.String(),
 	)
-	c.Send() <- welcomeMsg
-
-	c.Send() <- message.CreatePromptInputMessage()
 }
 
 func (h *GameHandler) OnDisconnect(c *network.Client) {

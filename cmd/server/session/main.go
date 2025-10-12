@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"log"
 	"net/http" // Adicionado
-	"os"      // Adicionado
-	"strconv" // Adicionado
+	"os"       // Adicionado
+	"strconv"  // Adicionado
 
 	"jokenpo/internal/game/card"
 	"jokenpo/internal/network"
+	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/session"
 
-	consul "github.com/hashicorp/consul/api" // Adicionado
+	//consul "github.com/hashicorp/consul/api" // Adicionado
 )
 
 func main() {
@@ -46,8 +47,8 @@ func main() {
 		}
 	}()
 
-	// 2.2 - Registra este serviço no Consul
-	registerInConsul(healthPort)
+	hp, _ := strconv.Atoi(healthPort)
+	cluster.RegisterServiceInConsul("jokenpo-monolith", 8080, hp)
 
 	// --- ETAPA 3: Iniciar Servidor Principal (Inalterada) ---
 	tcpAddress := "0.0.0.0:8080"
@@ -61,6 +62,8 @@ func main() {
 	select {}
 }
 
+
+/*
 // Função para se registrar no Consul (copiada da nossa discussão anterior)
 func registerInConsul(healthPort string) {
 	config := consul.DefaultConfig()
@@ -104,4 +107,4 @@ func registerInConsul(healthPort string) {
 		log.Fatalf("Falha ao registrar serviço no Consul: %s", err)
 	}
 	log.Printf("Serviço '%s' registrado no Consul com ID: %s", serviceName, serviceID)
-}
+}*/

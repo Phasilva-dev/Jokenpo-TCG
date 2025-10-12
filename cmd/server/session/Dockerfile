@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Compila o binário do servidor. O caminho é relativo ao WORKDIR.
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -o /server ./cmd/server/session
 
 # --- Estágio 2: Final (A Imagem Final) ---
 # Usa scratch para uma imagem mínima

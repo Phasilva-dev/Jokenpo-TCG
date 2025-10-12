@@ -3,7 +3,6 @@ package session
 import (
 	"encoding/json"
 	"fmt"
-	"jokenpo/internal/game/card"
 	"jokenpo/internal/game/deck"
 	"jokenpo/internal/session/message"
 	"strings"
@@ -24,83 +23,60 @@ func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMes
 	
 }
 
-//Compra um pacote
-//Opção 2
-func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-	var err error
-	if !checkLobbyState(session) {
-		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
-		session.Client.Send() <- message.CreatePromptInputMessage()
-		return
-	}
-
-	result := make([]*card.Card,1)
-	if err != nil {
-		session.Client.Send() <- message.CreateErrorResponse(err.Error())
-		session.Client.Send() <- message.CreatePromptInputMessage()
-		return
-	}
-	var sb strings.Builder
-	sb.WriteString("The purchased cards are:\n")
-	sb.WriteString(card.SliceOfCardsToString(result))
-	session.Client.Send() <- message.CreateSuccessResponse(session.State,"Package purchased successfully!", sb.String())
-	
-    session.Client.Send() <- message.CreatePromptInputMessage()
-	
-}
-
-// Compra multiplos pacotes (payload int amount)
 //Opção 3
-func handlePurchaseMultiPackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
-	var err error
+// handlePurchasePackage processa o comando explícito do jogador para comprar pacotes.
+// (Localizado em internal/session/handler.go)
+func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+	// 1. Validação de Contexto
 	if !checkLobbyState(session) {
-		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
-		session.Client.Send() <- message.CreatePromptInputMessage()
+		message.SendErrorAndPrompt(session.Client, "You are not in lobby")
 		return
 	}
 
+	// 2. Desserializa o Input
 	var req struct {
-		Amount *int `json:"amount"`
+		Quantity uint64 `json:"quantity"`
 	}
-
-	if err := json.Unmarshal(payload, &req); err != nil || req.Amount == nil {
-		session.Client.Send() <- message.CreateErrorResponse("Invalid payload: 'amount' field is required and must be a number.")
-		session.Client.Send() <- message.CreatePromptInputMessage()
+	if err := json.Unmarshal(payload, &req); err != nil || req.Quantity == 0 {
+		message.SendErrorAndPrompt(session.Client, "Invalid payload: 'quantity' is required and must be a number")
 		return
 	}
 
-	amount := *req.Amount
-
-	if amount <= 0 || amount > 1000 {
-		session.Client.Send() <- message.CreateErrorResponse("Invalid amount: must be between 1 and 1000.")
-		session.Client.Send() <- message.CreatePromptInputMessage()
+	// 3. Lógica de Compra (Chamada ao Helper)
+	cardKeys, err := h.purchasePacksFromShop(req.Quantity)
+	if err != nil {
+		// O helper retornou um erro (timeout, serviço offline, erro de negócio)
+		// Aqui, tratamos o erro de forma contextual: informamos o jogador e pedimos um novo comando.
+		message.SendErrorAndPrompt(session.Client, "Purchase failed: %v", err)
 		return
 	}
 
-	allNewCards := []*card.Card{}
-
-	for i := 0; i < amount; i++ {
-		//session.Player.PurchasePackage(h.shop)
-		if err != nil {
-			session.Client.Send() <- message.CreateErrorResponse(fmt.Sprintf("Failed on package #%d: %v", i+1, err))
-			session.Client.Send() <- message.CreatePromptInputMessage()
+	// 4. Lógica de Negócio do Broker (Atualizar o Estado do Jogador)
+	addedCards := []string{}
+	for _, key := range cardKeys {
+		if err := session.Player.Inventory().Collection().AddCard(key, 1); err != nil {
+			// Se falhar a adição (ex: limite de coleção), é um erro do broker.
+			message.SendErrorAndPrompt(session.Client, "Failed to add card '%s' to your collection: %v", key, err)
 			return
 		}
-
-		//allNewCards = append(allNewCards, newCards...)
+		addedCards = append(addedCards, key)
 	}
 
-	dataString := card.SliceOfCardsToString(allNewCards)
+	// 5. Formatação e Resposta de Sucesso
+	var sb strings.Builder
+	sb.WriteString("The purchased cards are:\n")
+	for _, key := range addedCards {
+		sb.WriteString("- " + key + "\n")
+	}
 
-	successMessage := fmt.Sprintf("Successfully purchased %d packages!", amount)
-
-	session.Client.Send() <- message.CreateSuccessResponse(session.State, successMessage, dataString)
-
-	session.Client.Send() <- message.CreatePromptInputMessage()
-
+	message.SendSuccessAndPrompt(
+		session.Client,
+		session.State,
+		"Package purchased successfully!",
+		sb.String(),
+	)
 }
+
 
 //Opção 4
 func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
@@ -298,10 +274,8 @@ func (h *GameHandler) registerLobbyHandlers() {
 	h.lobbyRouter["LEAVE_QUEUE"] = handleLeaveQueue
 
 	// --- Ações da Loja ---
-	// O comando para comprar um único pacote de cartas.
+	// O comando para comprar pacotes de cartas.
 	h.lobbyRouter["PURCHASE_PACKAGE"] = handlePurchasePackage
-	// O comando para comprar múltiplos pacotes de uma vez.
-	h.lobbyRouter["PURCHASE_MULTI_PACKAGE"] = handlePurchaseMultiPackage
 
 	// --- Ações de Visualização (Read-Only) ---
 	// O comando para ver a coleção completa de cartas do jogador.
