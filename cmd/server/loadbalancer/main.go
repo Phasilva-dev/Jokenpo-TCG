@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"strings" // Importado para lidar com a lista de endereços
+	"strings"
 	"sync"
 	"sync/atomic"
 	"syscall"
@@ -18,13 +18,30 @@ import (
 	consul "github.com/hashicorp/consul/api"
 )
 
-// BackendsStore e Backend structs permanecem inalterados.
+// ============================================================================
+// Constantes de Configuração Padrão (Sugestão Atendida)
+// ============================================================================
+// Estes são os valores padrão usados se as variáveis de ambiente não forem definidas.
+// Mude aqui para alterar os padrões para o seu ambiente de desenvolvimento.
+const (
+	defaultListenAddr    = ":80"
+	defaultConsulAddr    = "localhost:8500" // IP padrão definido como localhost
+	defaultShutdownTimeout = 5 * time.Second
+)
+
+
+// ============================================================================
+// Estruturas do Load Balancer (Inalteradas)
+// ============================================================================
+
+// BackendsStore armazena os backends disponíveis.
 type BackendsStore struct {
 	backends []*Backend
 	mu       sync.RWMutex
 	current  uint64
 }
 
+// Backend representa um servidor de backend com seu proxy reverso.
 type Backend struct {
 	URL          *url.URL
 	ReverseProxy *httputil.ReverseProxy
@@ -46,8 +63,13 @@ func (s *BackendsStore) GetNext() *Backend {
 	return s.backends[nextIndex%uint64(len(s.backends))]
 }
 
-// watchConsulServices agora recebe o nome do serviço a ser monitorado.
+
+// ============================================================================
+// Lógica de Integração com o Consul (Inalterada)
+// ============================================================================
+
 func watchConsulServices(store *BackendsStore, consulClient *consul.Client, serviceName string) {
+	// ... (código desta função permanece exatamente o mesmo) ...
 	var waitIndex uint64 = 0
 
 	for {
@@ -83,20 +105,18 @@ func watchConsulServices(store *BackendsStore, consulClient *consul.Client, serv
 	}
 }
 
-// createConsulClient tenta conectar a uma lista de agentes do Consul.
 func createConsulClient(addrs string) (*consul.Client, error) {
+	// ... (código desta função permanece exatamente o mesmo) ...
 	if addrs == "" {
-		addrs = "consul-1:8500" // Padrão se nada for fornecido
+		addrs = defaultConsulAddr
 	}
 	
-	// Tenta cada endereço na lista até ter sucesso
 	for _, addr := range strings.Split(addrs, ",") {
 		config := consul.DefaultConfig()
 		config.Address = strings.TrimSpace(addr)
 		
 		client, err := consul.NewClient(config)
 		if err == nil {
-			// Testa a conexão para garantir que o agente está acessível
 			if _, err := client.Status().Leader(); err == nil {
 				log.Printf("Conectado com sucesso ao agente Consul em %s", config.Address)
 				return client, nil
@@ -109,40 +129,104 @@ func createConsulClient(addrs string) (*consul.Client, error) {
 }
 
 
-func main() {
-	// --- Configuração via Variáveis de Ambiente ---
-	consulAddrs := os.Getenv("CONSUL_ADDRS") // Ex: "consul-1:8500,consul-2:8500"
+// ============================================================================
+// Lógica de Configuração (NOVO)
+// ============================================================================
+
+// Config armazena todas as configurações da aplicação.
+type Config struct {
+	ListenAddr      string
+	ConsulAddrs     string
+	TargetService   string
+	ShutdownTimeout time.Duration
+}
+
+// loadConfig carrega a configuração a partir de variáveis de ambiente,
+// usando as constantes como valores padrão.
+func loadConfig() (*Config, error) {
 	targetService := os.Getenv("LB_TARGET_SERVICE")
 	if targetService == "" {
-		log.Fatal("ERRO: A variável de ambiente LB_TARGET_SERVICE deve ser definida.")
+		return nil, fmt.Errorf("a variável de ambiente LB_TARGET_SERVICE deve ser definida")
 	}
 
-	consulClient, err := createConsulClient(consulAddrs)
-	if err != nil {
-		log.Fatalf("Falha crítica do Consul: %v", err)
+	consulAddrs := os.Getenv("CONSUL_ADDRS")
+	if consulAddrs == "" {
+		consulAddrs = defaultConsulAddr
 	}
 
-	store := &BackendsStore{}
-
-	// Inicia o monitoramento do serviço alvo
-	go watchConsulServices(store, consulClient, targetService)
-
-	// O resto do código (servidor HTTP e graceful shutdown) permanece o mesmo.
-	server := &http.Server{
-		Addr: ":80",
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			backend := store.GetNext()
-			if backend == nil {
-				http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
-				return
-			}
-			log.Printf("LB para '%s': Redirecionando [%s] para [%s]", targetService, r.RemoteAddr, backend.URL)
-			backend.ReverseProxy.ServeHTTP(w, r)
-		}),
+	listenAddr := os.Getenv("LB_LISTEN_ADDR")
+	if listenAddr == "" {
+		listenAddr = defaultListenAddr
 	}
 	
+	return &Config{
+		ListenAddr:      listenAddr,
+		ConsulAddrs:     consulAddrs,
+		TargetService:   targetService,
+		ShutdownTimeout: defaultShutdownTimeout,
+	}, nil
+}
+
+
+// ============================================================================
+// Lógica dos Handlers HTTP (NOVO)
+// ============================================================================
+
+// newLoadBalancerHandler cria o handler principal para o proxy reverso.
+func newLoadBalancerHandler(store *BackendsStore, targetService string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		backend := store.GetNext()
+		if backend == nil {
+			log.Printf("AVISO: Nenhum backend disponível para '%s'. Retornando 503.", targetService)
+			http.Error(w, "Service unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		log.Printf("LB para '%s': Redirecionando [%s] para [%s]", targetService, r.RemoteAddr, backend.URL)
+		backend.ReverseProxy.ServeHTTP(w, r)
+	}
+}
+
+
+// ============================================================================
+// Função Main (Refatorada)
+// ============================================================================
+func main() {
+	// 1. Carregar configuração
+	cfg, err := loadConfig()
+	if err != nil {
+		log.Fatalf("ERRO de configuração: %v", err)
+	}
+
+	// 2. Conectar ao Consul
+	consulClient, err := createConsulClient(cfg.ConsulAddrs)
+	if err != nil {
+		log.Fatalf("Falha crítica ao conectar ao Consul: %v", err)
+	}
+
+	// 3. Inicializar o armazenamento de backends e o watcher do Consul
+	store := &BackendsStore{}
+	go watchConsulServices(store, consulClient, cfg.TargetService)
+
+	// 4. Configurar o roteador HTTP com os handlers
+	mux := http.NewServeMux()
+	
+	// Endpoint de Health Check para o próprio load balancer
+	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "OK")
+	})
+
+	// Handler principal do Load Balancer para todo o resto do tráfego
+	mux.HandleFunc("/", newLoadBalancerHandler(store, cfg.TargetService))
+
+	server := &http.Server{
+		Addr:    cfg.ListenAddr,
+		Handler: mux,
+	}
+
+	// 5. Iniciar o servidor e gerenciar o desligamento gracioso (graceful shutdown)
 	go func() {
-		log.Printf("Load Balancer para o serviço '%s' iniciado na porta :80", targetService)
+		log.Printf("Load Balancer para o serviço '%s' iniciado em '%s'", cfg.TargetService, cfg.ListenAddr)
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
 			log.Fatalf("Erro ao iniciar o servidor: %v", err)
 		}
@@ -153,7 +237,7 @@ func main() {
 	<-quit
 	log.Println("Desligando o servidor...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
 	
 	if err := server.Shutdown(ctx); err != nil {

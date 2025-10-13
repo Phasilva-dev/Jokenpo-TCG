@@ -46,13 +46,11 @@ type LeaderElector struct {
 	isLeader atomic.Int32
 }
 
-// NewLeaderElector cria um novo eleitor para um serviço específico.
-func NewLeaderElector(serviceName string) (*LeaderElector, error) {
+// MODIFICADO: NewLeaderElector agora recebe o endereço do Consul como parâmetro.
+func NewLeaderElector(serviceName string, consulAddr string) (*LeaderElector, error) {
 	config := consul.DefaultConfig()
-	config.Address = os.Getenv("CONSUL_HTTP_ADDR")
-	if config.Address == "" {
-		config.Address = "consul:8500"
-	}
+	// A função não adivinha mais o endereço, ela usa o que foi fornecido.
+	config.Address = consulAddr
 
 	client, err := consul.NewClient(config)
 	if err != nil {

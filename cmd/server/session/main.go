@@ -4,55 +4,113 @@ import (
 	"fmt"
 	"jokenpo/internal/game/card"
 	"jokenpo/internal/network"
-	// --- MUDANÇA ---
-	// O pacote de cluster agora é usado para registro e health check
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/session"
 	"log"
-	"net/http" // Necessário para o novo handler
+	"net/http"
+	"os"
+	"strconv"
 )
 
+// ============================================================================
+// Constantes de Configuração Padrão
+// ============================================================================
 const (
-	// --- MUDANÇA ---
-	// Definimos o nome do serviço como uma constante para evitar erros de digitação.
-	serviceName = "jokenpo-session"
-	// A porta principal onde o serviço de WebSocket e o health check irão rodar.
-	servicePort = 8080
+	defaultServiceName = "jokenpo-session"
+	defaultServicePort = 8080
+	defaultHealthPort  = 8080 // Por padrão, a mesma porta do serviço
+	defaultConsulAddr  = "consul-1:8500"
 )
 
+// ============================================================================
+// Lógica de Configuração
+// ============================================================================
+
+// Config armazena todas as configurações da aplicação.
+type Config struct {
+	ServiceName string
+	ServicePort int
+	HealthPort  int
+	ConsulAddr  string
+}
+
+// loadConfig carrega a configuração a partir de variáveis de ambiente.
+func loadConfig() (*Config, error) {
+	serviceName := os.Getenv("SESSION_SERVICE_NAME")
+	if serviceName == "" {
+		serviceName = defaultServiceName
+	}
+
+	consulAddr := os.Getenv("CONSUL_HTTP_ADDR")
+	if consulAddr == "" {
+		consulAddr = defaultConsulAddr
+	}
+
+	servicePortStr := os.Getenv("SESSION_SERVICE_PORT")
+	if servicePortStr == "" {
+		servicePortStr = fmt.Sprintf("%d", defaultServicePort)
+	}
+	servicePort, err := strconv.Atoi(servicePortStr)
+	if err != nil {
+		return nil, fmt.Errorf("formato de SESSION_SERVICE_PORT inválido: %w", err)
+	}
+
+	healthPortStr := os.Getenv("HEALTH_CHECK_PORT")
+	if healthPortStr == "" {
+		healthPortStr = fmt.Sprintf("%d", defaultHealthPort)
+	}
+	healthPort, err := strconv.Atoi(healthPortStr)
+	if err != nil {
+		return nil, fmt.Errorf("formato de HEALTH_CHECK_PORT inválido: %w", err)
+	}
+
+	return &Config{
+		ServiceName: serviceName,
+		ServicePort: servicePort,
+		HealthPort:  healthPort,
+		ConsulAddr:  consulAddr,
+	}, nil
+}
+
+// ============================================================================
+// Função Main (Refatorada)
+// ============================================================================
 func main() {
-	// --- ETAPA 1: Lógica do Jogo (Inalterada) ---
+	// 1. CARREGA A CONFIGURAÇÃO
+	cfg, err := loadConfig()
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao carregar configuração: %v", err)
+	}
+	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, Consul=%s",
+		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddr)
+
+	// 2. INICIA A LÓGICA DO JOGO
 	if err := card.InitGlobalCatalog(); err != nil {
 		log.Fatalf("Falha fatal ao inicializar o catálogo de cartas: %v", err)
 	}
-	log.Println("Catálogo de cartas inicializado com sucesso.")
+	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
-	gameHandler := session.NewGameHandler()
+	gameHandler := session.NewGameHandler(cfg.ConsulAddr)
 	go gameHandler.Matchmaker().Run()
-	log.Println("Matchmaker iniciado.")
+	log.Println("[Main] Matchmaker iniciado.")
 
 	server := network.NewServer(gameHandler)
-	log.Println("Servidor de rede criado.")
+	log.Println("[Main] Servidor de rede criado.")
 
-	// --- ETAPA 2: CONFIGURAÇÃO DO CLUSTER E HEALTH CHECK (Atualizada) ---
+	// 3. CONFIGURA O CLUSTER E O HEALTH CHECK
+	http.HandleFunc("/health", cluster.NewBasicHealthHandler())
+	log.Printf("[Main] Health Check handler registrado em :%d/health", cfg.ServicePort)
 
-	// 2.1 - Adiciona o handler de Health Check ao servidor HTTP principal.
-	// O network.Server usa o http.DefaultServeMux por baixo dos panos,
-	// então podemos registrar rotas nele antes de iniciá-lo.
-	// O health check agora roda na mesma porta do serviço principal (8080).
-	http.HandleFunc("/health", cluster.NewBasicHealthHandler()) // Usa o helper genérico
-	log.Printf("Health Check handler registrado em :%d/health", servicePort)
+	log.Printf("[Main] Registrando serviço '%s' no Consul...", cfg.ServiceName)
+	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddr)
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)
+	}
 
-	// 2.2 - Registra o serviço no Consul com o nome correto.
-	// A porta de serviço e a porta de health check são agora a mesma.
-	log.Printf("Registrando serviço '%s' no Consul...", serviceName)
-	cluster.RegisterServiceInConsul(serviceName, servicePort, servicePort)
+	// 4. INICIA O SERVIDOR PRINCIPAL
+	address := fmt.Sprintf("0.0.0.0:%d", cfg.ServicePort)
+	log.Printf("[Main] Servidor principal (WebSocket & HTTP) iniciado em %s.", address)
 
-	// --- ETAPA 3: Iniciar Servidor Principal (Inalterada) ---
-	address := fmt.Sprintf("0.0.0.0:%d", servicePort)
-	log.Printf("Servidor principal (WebSocket & HTTP) iniciado em %s.", address)
-
-	// A chamada server.Listen é bloqueante e agora servirá tanto o /ws quanto o /health.
 	if err := server.Listen(address); err != nil {
 		log.Fatalf("Falha fatal ao iniciar o servidor de rede: %v", err)
 	}

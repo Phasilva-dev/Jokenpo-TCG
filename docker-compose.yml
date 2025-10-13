@@ -2,6 +2,7 @@
 
 services:
   # --- 1. INFRAESTRUTURA: CLUSTER CONSUL ---
+  # Nenhuma mudança aqui.
   consul-1:
     image: hashicorp/consul:latest
     hostname: consul-1
@@ -39,12 +40,16 @@ services:
     build:
       context: .
       dockerfile: ./cmd/server/session/Dockerfile
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    # --- MUDANÇA: A diretiva 'hostname' foi removida. ---
+    # O código Go agora usa os.Hostname(), que pegará o nome único gerado pelo Docker Compose.
     depends_on:
       consul-1:
         condition: service_healthy
+    # --- MUDANÇA: Variáveis de ambiente explícitas para o serviço ---
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500
+      - SESSION_SERVICE_PORT=8080
+      - HEALTH_CHECK_PORT=8080
     deploy:
       replicas: 3
     profiles: [game]
@@ -53,14 +58,17 @@ services:
     build:
       context: .
       dockerfile: ./cmd/server/shop/Dockerfile
-    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    # --- MUDANÇA: A diretiva 'hostname' foi removida. ---
     depends_on:
       consul-1:
         condition: service_healthy
+    # --- MUDANÇA: Variáveis de ambiente explícitas para o serviço ---
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500
+      - SHOP_SERVICE_PORT=8081
+      - HEALTH_CHECK_PORT=8081
     deploy:
-      replicas: 2
+      replicas: 3 # Alterado para 3 para consistência, mas pode ser o número que você desejar.
     profiles: [game]
 
   # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---
@@ -72,9 +80,11 @@ services:
     depends_on:
       consul-1:
         condition: service_healthy
+    # --- MUDANÇA: Variável de ambiente explícita para a porta de escuta do LB ---
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
+      - LB_LISTEN_ADDR=:80
     profiles: [lb]
 
   load-balancer-2:
@@ -88,6 +98,7 @@ services:
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
+      - LB_LISTEN_ADDR=:80
     profiles: [lb]
 
   load-balancer-3:
@@ -101,4 +112,5 @@ services:
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
+      - LB_LISTEN_ADDR=:80
     profiles: [lb]

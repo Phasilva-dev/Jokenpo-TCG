@@ -33,7 +33,7 @@ type GameHandler struct {
 }
 
 // NewGameHandler agora também inicializa e registra os handlers dos roteadores.
-func NewGameHandler() *GameHandler {
+func NewGameHandler(consulAddr string) *GameHandler {
 	h := &GameHandler{
 		sessions:    make(map[*network.Client]*PlayerSession),
 		matchmaker:  nil, // será inicializado abaixo
@@ -50,7 +50,7 @@ func NewGameHandler() *GameHandler {
 		Timeout: 10 * time.Second, // Timeout de 10 segundos para evitar que uma chamada prenda a goroutine do jogador
 	}
 
-	h.serviceCache = cluster.NewServiceCacheActor(30 * time.Second)
+	h.serviceCache = cluster.NewServiceCacheActor(30 * time.Second, consulAddr)
 
 	// Populamos os roteadores com seus respectivos comandos.
 	h.registerLobbyHandlers()

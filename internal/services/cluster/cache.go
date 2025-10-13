@@ -16,54 +16,47 @@ type discoveryRequest struct {
 	reply       chan<- string // Canal de mão única para enviar a resposta
 }
 
-// ServiceCacheActor é a nossa implementação de cache usando o padrão Ator.
+// ServiceCacheActor agora armazena o endereço do Consul.
 type ServiceCacheActor struct {
-	// Estado privado do ator (só a goroutine 'run' pode acessar)
-	entries map[string]serviceCacheEntry
-	ttl     time.Duration
+	// Estado privado
+	entries    map[string]serviceCacheEntry
+	ttl        time.Duration
+	consulAddr string // MODIFICADO: Adicionado campo para o endereço do Consul
 
-	// O "mailbox" do ator, onde ele recebe os pedidos.
+	// Mailbox
 	requestCh chan discoveryRequest
 }
 
-// NewServiceCacheActor cria, inicializa e inicia o ator do cache.
-func NewServiceCacheActor(ttl time.Duration) *ServiceCacheActor {
+// MODIFICADO: NewServiceCacheActor agora recebe o endereço do Consul.
+func NewServiceCacheActor(ttl time.Duration, consulAddr string) *ServiceCacheActor {
 	sc := &ServiceCacheActor{
-		entries:   make(map[string]serviceCacheEntry),
-		ttl:       ttl,
-		requestCh: make(chan discoveryRequest),
+		entries:    make(map[string]serviceCacheEntry),
+		ttl:        ttl,
+		requestCh:  make(chan discoveryRequest),
+		consulAddr: consulAddr, // Armazena o endereço
 	}
-	// Inicia a goroutine do ator para que ela comece a ouvir por pedidos.
 	go sc.run()
 	return sc
 }
 
-// run é o loop principal do ator. Ele roda em sua própria goroutine e é o
-// único que tem permissão para acessar o mapa 'entries'. Isso elimina
-// completamente a necessidade de mutexes.
+// run agora usa o endereço do Consul armazenado.
 func (sc *ServiceCacheActor) run() {
-	// O ator processa um pedido de cada vez, do início ao fim.
 	for req := range sc.requestCh {
-		// 1. Verifica se existe uma entrada válida no cache.
 		entry, found := sc.entries[req.serviceName]
 		if found && time.Now().Before(entry.expiration) {
-			// CACHE HIT: Envia o endereço do cache de volta para quem pediu.
 			req.reply <- entry.address
-			continue // Pula para o próximo pedido na fila.
+			continue
 		}
 
-		// CACHE MISS: Se não encontrou ou expirou, busca um novo endereço.
-		address := DiscoverService(req.serviceName) // Fala com o Consul
+		// MODIFICADO: Passa o endereço do Consul para a função de descoberta.
+		address := DiscoverService(req.serviceName, sc.consulAddr)
 
-		// Se a descoberta foi bem-sucedida, atualiza o estado interno (o cache).
 		if address != "" {
 			sc.entries[req.serviceName] = serviceCacheEntry{
 				address:    address,
 				expiration: time.Now().Add(sc.ttl),
 			}
 		}
-
-		// Envia a resposta (o novo endereço ou uma string vazia) de volta.
 		req.reply <- address
 	}
 }
