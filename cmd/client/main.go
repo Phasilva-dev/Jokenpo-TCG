@@ -41,6 +41,7 @@ func main() {
 	lbAddresses := []string{
 		"localhost:9080",
 		"localhost:9081",
+		"localhost:9082",
 	}
 
 	// Permite que a lista seja sobrescrita por uma variável de ambiente (para flexibilidade)

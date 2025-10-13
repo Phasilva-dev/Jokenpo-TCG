@@ -1,10 +1,11 @@
+# Arquivo: docker-compose.scale.yml
+
 services:
-  # --- 1. INFRAESTRUTURA: CLUSTER CONSUL (PERFIL: "consul") ---
+  # --- 1. INFRAESTRUTURA: CLUSTER CONSUL ---
   consul-1:
     image: hashicorp/consul:latest
     hostname: consul-1
-    ports:
-      - "8500:8500"
+    ports: ["8500:8500"]
     command: >
       agent -server -ui -node=consul-node-1 -bootstrap-expect=3 -client=0.0.0.0
       -retry-join=consul-2 -retry-join=consul-3
@@ -13,7 +14,7 @@ services:
       interval: 5s
       timeout: 2s
       retries: 10
-    profiles: [consul]
+    profiles: [infra]
 
   consul-2:
     image: hashicorp/consul:latest
@@ -22,7 +23,7 @@ services:
       agent -server -node=consul-node-2 -bootstrap-expect=3 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-3
     depends_on: [consul-1]
-    profiles: [consul]
+    profiles: [infra]
 
   consul-3:
     image: hashicorp/consul:latest
@@ -31,62 +32,73 @@ services:
       agent -server -node=consul-node-3 -bootstrap-expect=3 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-2
     depends_on: [consul-1]
-    profiles: [consul]
+    profiles: [infra]
 
-  # --- 2. APLICAÇÃO: SERVIDOR DE JOGO (PERFIL: "game", ESCALÁVEL) ---
-  jokenpo-monolith:
+  # --- 2. APLICAÇÃO: SERVIÇOS ESCALÁVEIS ---
+  jokenpo-session:
     build:
       context: .
-      dockerfile: ./cmd/server/Dockerfile
+      dockerfile: ./cmd/server/session/Dockerfile
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
-      - HEALTH_CHECK_PORT=8000
       - CONSUL_HTTP_ADDR=consul-1:8500
     deploy:
-      replicas: 10   # Escalável via compose scale também
+      replicas: 3
     profiles: [game]
 
-  # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS FIXOS ---
+  shop-service:
+    build:
+      context: .
+      dockerfile: ./cmd/server/shop/Dockerfile
+    hostname: "{{.Service.Name}}-{{.Task.Slot}}"
+    depends_on:
+      consul-1:
+        condition: service_healthy
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500
+    deploy:
+      replicas: 3
+    profiles: [game]
+
+  # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---
   load-balancer-1:
     build:
       context: .
-      dockerfile: ./services/loadbalancer/cmd/Dockerfile
-    ports:
-      - "9080:80"
+      dockerfile: ./cmd/server/loadbalancer/Dockerfile
+    ports: ["9080:80"]
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
-      - LB_TARGET_SERVICE=jokenpo-monolith
+      - LB_TARGET_SERVICE=jokenpo-session
     profiles: [lb]
 
   load-balancer-2:
     build:
       context: .
-      dockerfile: ./services/loadbalancer/cmd/Dockerfile
-    ports:
-      - "9081:80"
+      dockerfile: ./cmd/server/loadbalancer/Dockerfile
+    ports: ["9081:80"]
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
-      - LB_TARGET_SERVICE=jokenpo-monolith
+      - LB_TARGET_SERVICE=jokenpo-session
     profiles: [lb]
 
   load-balancer-3:
     build:
       context: .
-      dockerfile: ./services/loadbalancer/cmd/Dockerfile
-    ports:
-      - "9082:80"
+      dockerfile: ./cmd/server/loadbalancer/Dockerfile
+    ports: ["9082:80"]
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
       - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
-      - LB_TARGET_SERVICE=jokenpo-monolith
+      - LB_TARGET_SERVICE=jokenpo-session
     profiles: [lb]

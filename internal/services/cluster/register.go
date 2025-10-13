@@ -1,9 +1,9 @@
 package cluster
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"fmt"
 
 	consul "github.com/hashicorp/consul/api"
 )
@@ -20,17 +20,37 @@ func RegisterServiceInConsul(serviceName string, servicePort int, healthPort int
 		log.Fatalf("Erro ao criar cliente Consul: %s", err)
 	}
 
-	serviceID := fmt.Sprintf("%s-%s", serviceName, os.Getenv("HOSTNAME"))
+	// O hostname ainda é perfeito para criar um ID de serviço único.
+	hostname := os.Getenv("HOSTNAME")
+	if hostname == "" {
+		// Fallback caso a variável de ambiente não esteja setada
+		hostname, _ = os.Hostname()
+	}
+	serviceID := fmt.Sprintf("%s-%s", serviceName, hostname)
 
 	registration := &consul.AgentServiceRegistration{
-		ID:      serviceID,
-		Name:    serviceName,
-		Port:    servicePort,
-		Address: os.Getenv("HOSTNAME"),
+		ID:   serviceID,
+		Name: serviceName,
+		Port: servicePort,
+
+		// --- MUDANÇA PRINCIPAL ---
+		// Comente ou remova a linha 'Address'. O agente do Consul irá
+		// usar automaticamente o endereço IP do contêiner que está fazendo o registro.
+		// Address: os.Getenv("HOSTNAME"),
+
 		Check: &consul.AgentServiceCheck{
-			HTTP:     fmt.Sprintf("http://%s:%d/health", os.Getenv("HOSTNAME"), healthPort),
+			// --- MUDANÇA SECUNDÁRIA ---
+			// A URL do check ainda precisa de um host. Como o Docker Compose garante que
+			// o hostname do contêiner é resolvível por DNS dentro da rede, usar o
+			// hostname aqui é a abordagem correta e mais legível.
+			HTTP: fmt.Sprintf("http://%s:%d/health", hostname, healthPort),
+
+			// Aumenta o timeout para dar mais margem em ambientes de dev
+			Timeout: "5s",
 			Interval: "10s",
-			Timeout:  "1s",
+			// Boa prática: desregistra automaticamente o serviço se ele ficar
+			// em estado crítico por mais de 1 minuto.
+			DeregisterCriticalServiceAfter: "1m",
 		},
 	}
 

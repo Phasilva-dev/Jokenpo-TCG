@@ -3,8 +3,7 @@ package cluster
 import (
 	"fmt"
 	"log"
-	"math/rand"
-	"time"
+	"math/rand/v2"
 
 	consul "github.com/hashicorp/consul/api"
 )
@@ -26,8 +25,7 @@ func DiscoverService(serviceName string) string {
 		log.Fatalf("Nenhum serviço disponível para '%s'", serviceName)
 	}
 
-	rand.Seed(time.Now().UnixNano())
-	s := services[rand.Intn(len(services))]
+	s := services[rand.IntN(len(services))] // Use rand.IntN
 
 	return s.Service.Address + ":" + fmt.Sprint(s.Service.Port)
 }
