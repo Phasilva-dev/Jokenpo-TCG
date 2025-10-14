@@ -68,7 +68,7 @@ services:
       - SHOP_SERVICE_PORT=8081
       - HEALTH_CHECK_PORT=8081
     deploy:
-      replicas: 3 # Alterado para 3 para consistência, mas pode ser o número que você desejar.
+      replicas: 3
     profiles: [game]
 
   # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---

@@ -207,7 +207,7 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 			shouldSend = false
 		} else {
 			payload, _ := json.Marshal(map[string]int{"amount": amount})
-			msg = network.Message{Type: "PURCHASE_MULTI_PACKAGE", Payload: payload}
+			msg = network.Message{Type: "PURCHASE_PACKAGE", Payload: payload}
 		}
 	case "4":
 		msg.Type = "VIEW_COLLECTION"
@@ -314,7 +314,7 @@ func printPrompt() {
 		prompt = `
 --- Jokenpo Card Game (Lobby) ---
 1. Buscar Partida
-2. Comprar Pacote
+2. Trocar Carta
 3. Comprar Múltiplos Pacotes
 4. Ver Coleção
 5. Ver Deck
