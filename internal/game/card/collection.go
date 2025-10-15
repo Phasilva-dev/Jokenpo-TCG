@@ -43,23 +43,62 @@ func (pc *PlayerCollection) GetInstance(key string) (*CardInstance, error) {
 	return instance, nil
 }
 
+// AddCard adiciona 'num' cópias de uma carta (identificada pela sua chave) à coleção.
 func (pc *PlayerCollection) AddCard(key string, num uint) error {
-	//key == typo string, value uint8, color string
+	// 1. Validação de Input
+	if num == 0 {
+		return nil // Adicionar zero não faz nada, não é um erro.
+	}
 
+	// 2. Lógica de Adição
 	ci, ok := pc.collection[key]
 	if ok {
+		// Se a carta já existe, apenas incrementa a contagem.
 		ci.count += num
 	} else {
+		// Se não existe, busca a carta no catálogo global.
 		card, err := GetCard(key)
 		if err != nil {
-			return err
+			return err // Retorna o erro se a carta não for válida.
 		}
-		// se não existe, cria nova CardInstance
+		// Cria uma nova CardInstance na coleção.
 		pc.collection[key] = &CardInstance{
 			card:  card,
 			count: num,
 		}
 	}
+	return nil
+}
+
+// RemoveCard subtrai 'num' cópias de uma carta da coleção.
+// Se a contagem chegar a zero, a carta é removida completamente da coleção.
+func (pc *PlayerCollection) RemoveCard(key string, num uint) error {
+	// 1. Validação de Input
+	if num == 0 {
+		return nil // Remover zero não faz nada.
+	}
+
+	// 2. Verifica se o jogador possui a carta.
+	instance, ok := pc.collection[key]
+	if !ok {
+		// Retorna um erro claro se o jogador não tiver a carta.
+		return fmt.Errorf("cannot remove card '%s': not found in collection", key)
+	}
+
+	// 3. Verifica se o jogador tem cópias suficientes para remover.
+	if instance.count < num {
+		return fmt.Errorf("cannot remove %d copies of '%s': player only has %d", num, key, instance.count)
+	}
+
+	// 4. Lógica de Remoção
+	instance.count -= num
+
+	// 5. Limpeza: Se a contagem de cartas chegar a zero, remove a entrada do mapa.
+	// Isso evita que a coleção fique cheia de cartas com contagem "x0".
+	if instance.count == 0 {
+		delete(pc.collection, key)
+	}
+
 	return nil
 }
 

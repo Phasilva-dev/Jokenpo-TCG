@@ -72,6 +72,10 @@ func NewShopService() *ShopService {
 
 // run é o loop principal do ator, que agora lida com todos os tipos de mensagem.
 func (s *ShopService) run() {
+	err := card.InitGlobalCatalog()
+	if err != nil {
+		log.Fatalf("Error ao iniciar o catalogo: %s", err)
+	}
 	for msg := range s.requestCh {
 		switch req := msg.(type) {
 		case purchaseRequest:

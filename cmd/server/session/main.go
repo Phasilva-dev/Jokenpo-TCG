@@ -90,7 +90,10 @@ func main() {
 	}
 	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
-	gameHandler := session.NewGameHandler(cfg.ConsulAddr)
+	gameHandler, err := session.NewGameHandler(cfg.ConsulAddr)
+	if err != nil {
+		log.Fatalf("Initial Catalog failure: %s",err)
+	}
 	go gameHandler.Matchmaker().Run()
 	log.Println("[Main] Matchmaker iniciado.")
 

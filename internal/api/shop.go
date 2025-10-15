@@ -2,7 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"jokenpo/internal/services/cluster" // <-- 1. IMPORTA o pacote genérico de cluster
+	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/shop"
 	"log"
 	"net/http"
@@ -18,59 +18,62 @@ type PurchaseResponse struct {
 	Error string   `json:"error,omitempty"`
 }
 
-// --- MUDANÇA ---
-// A função agora aceita um 'elector' para gerenciar a lógica de liderança.
+// CreateShopHandler cria o handler HTTP para o ShopService.
+// Ele garante que apenas o líder processe as requisições e que o estado
+// seja persistido antes de confirmar a operação para o cliente.
 func CreateShopHandler(shopService *shop.ShopService, elector *cluster.LeaderElector) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// --- MUDANÇA ---
 		// 1. VERIFICAÇÃO DE LIDERANÇA
-		// Antes de qualquer outra coisa, verifica se este nó é o líder.
-		// Esta é a "porta de entrada" para a lógica de escrita.
+		// Garante que apenas o nó líder possa processar operações de escrita.
 		if !elector.IsLeader() {
-			// Retorna um erro HTTP 503 (Service Unavailable). Isso sinaliza ao cliente
-			// que o serviço está temporariamente indisponível (neste caso, porque é um seguidor).
-			// Balanceadores de carga podem usar este status para tentar outro nó.
 			http.Error(w, `{"error": "This node is not the leader and cannot process write operations"}`, http.StatusServiceUnavailable)
 			return
 		}
 
-		// 2. Decodifica o JSON vindo do Broker
+		// 2. DECODIFICA O REQUEST
 		var req PurchaseRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, `{"error": "Invalid payload"}`, http.StatusBadRequest)
 			return
 		}
 
-		// 3. Chama a lógica de negócio real
-		// O método Purchase() do shopService agora também tem uma verificação interna,
-		// o que nos dá segurança em camadas.
+		// 3. EXECUTA A LÓGICA DE NEGÓCIO (EM MEMÓRIA)
+		// A compra é processada e o estado do ator é atualizado em memória.
 		cards, err := shopService.Purchase(req.Quantity)
 		if err != nil {
+			// Se a lógica de negócio falhar (ex: limite de compras), o erro é retornado
+			// imediatamente. Nenhuma persistência é necessária.
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(PurchaseResponse{Error: err.Error()})
 			return
 		}
 
-		// --- MUDANÇA ---
-		// 4. PERSISTÊNCIA DE ESTADO
-		// Após a compra ser bem-sucedida, o líder DEVE persistir o novo estado.
-		// Isso é CRÍTICO para a consistência em caso de falha.
+		// 4. PERSISTE O ESTADO (WRITE-AHEAD)
+		// ANTES de responder ao cliente, tentamos salvar o novo estado de forma durável no Consul.
+		// Esta é a etapa que garante a consistência.
 		if err := elector.PersistState(shopService); err != nil {
-			// Este é um erro grave. A compra aconteceu, mas o estado não foi salvo,
-			// criando uma inconsistência se o líder falhar agora.
-			// Em produção, isso dispararia um alerta de alta prioridade.
-			log.Printf("CRITICAL: Purchase successful but failed to persist state to Consul: %v", err)
-			// Apesar do erro de persistência, a operação do ponto de vista do
-			// cliente foi um sucesso, então ainda retornamos 200 OK.
-		}
+			// Cenário crítico: o estado mudou em memória, mas não foi salvo.
+			// A transação DEVE ser considerada falha do ponto de vista do cliente.
+			// Não podemos enviar as cartas, pois isso criaria uma inconsistência.
+			log.Printf("CRITICAL: State changed in memory but failed to persist to Consul: %v. Transaction will NOT be confirmed.", err)
 
-		// 5. Converte o resultado para o DTO de resposta
+			// Em um sistema mais avançado, aqui seria o local para uma lógica de "rollback"
+			// para reverter a mudança em memória.
+
+			http.Error(w, `{"error": "Internal server error: failed to confirm transaction state"}`, http.StatusInternalServerError)
+			return // NÃO enviamos a resposta de sucesso.
+		}
+		
+		// 5. RESPONDE AO CLIENTE COM SUCESSO
+		// Apenas depois que o estado foi salvo com segurança, nós confirmamos
+		// a operação para o cliente e enviamos os dados. Se o servidor travar aqui,
+		// o cliente receberá um erro de rede e a transação será considerada falha por ele,
+		// o que leva ao cenário do "pacote fantasma" (risco aceitável e mínimo).
 		cardKeys := make([]string, len(cards))
 		for i, c := range cards {
 			cardKeys[i] = string(c.Key())
 		}
 
-		// 6. Envia a resposta de sucesso de volta para o Broker
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(PurchaseResponse{Cards: cardKeys})

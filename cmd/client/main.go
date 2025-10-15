@@ -206,7 +206,7 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 			fmt.Println(err)
 			shouldSend = false
 		} else {
-			payload, _ := json.Marshal(map[string]int{"amount": amount})
+			payload, _ := json.Marshal(map[string]int{"quantity": amount})
 			msg = network.Message{Type: "PURCHASE_PACKAGE", Payload: payload}
 		}
 	case "4":

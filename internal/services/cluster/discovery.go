@@ -81,15 +81,14 @@ func discoverSpecific(client *consul.Client, serviceName string, nodeID string) 
 
 	for _, service := range services {
 		// Compara o nodeID procurado com o nome do nó que o Consul conhece.
-		if service.Node.Address == nodeID {
-			// O Consul registra o hostname do nó como o 'Address' do serviço.
+		if service.Service.Address == nodeID {
 			addr := service.Service.Address
 			port := service.Service.Port
 
-			// Fallback: Se o endereço do serviço estiver vazio por algum motivo, usa o IP do nó.
+			/*// Fallback: Se o endereço do serviço estiver vazio por algum motivo, usa o IP do nó.
 			if addr == "" {
 				addr = service.Node.Address
-			}
+			}*/
 
 			foundAddr := fmt.Sprintf("%s:%d", addr, port)
 			log.Printf("INFO: Endereço do nó específico '%s' encontrado: %s", nodeID, foundAddr)

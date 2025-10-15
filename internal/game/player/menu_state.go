@@ -61,3 +61,17 @@ func (p *Player) StartPlay() (error) {
 	p.state = PLAY
 	return nil
 }
+
+func (p *Player) AddCardToCollection(key string, num int) error {
+	if p.state != MENU {
+		return fmt.Errorf("error: Player must be in MENU state to start a play")
+	}
+	return p.inventory.Collection().AddCard(key, uint(num))
+}
+
+func (p *Player) RemoveCardToCollection(key string, num int) error {
+	if p.state != MENU {
+		return fmt.Errorf("error: Player must be in MENU state to start a play")
+	}
+	return p.inventory.Collection().RemoveCard(key, uint(num))
+}
