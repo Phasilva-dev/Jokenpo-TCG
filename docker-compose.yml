@@ -51,7 +51,7 @@ services:
       - SESSION_SERVICE_PORT=8080
       - HEALTH_CHECK_PORT=8080
     deploy:
-      replicas: 3
+      replicas: 2
     profiles: [game]
 
   shop-service:
@@ -68,7 +68,7 @@ services:
       - SHOP_SERVICE_PORT=8081
       - HEALTH_CHECK_PORT=8081
     deploy:
-      replicas: 3
+      replicas: 2
     profiles: [game]
 
   # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---

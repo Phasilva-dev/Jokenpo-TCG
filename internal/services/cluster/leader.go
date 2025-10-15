@@ -47,9 +47,10 @@ type LeaderElector struct {
 }
 
 // MODIFICADO: NewLeaderElector agora recebe o endereço do Consul como parâmetro.
+// NewLeaderElector cria um novo eleitor para um serviço específico.
 func NewLeaderElector(serviceName string, consulAddr string) (*LeaderElector, error) {
+	// 1. Configura e cria o cliente Consul (sem mudanças).
 	config := consul.DefaultConfig()
-	// A função não adivinha mais o endereço, ela usa o que foi fornecido.
 	config.Address = consulAddr
 
 	client, err := consul.NewClient(config)
@@ -57,18 +58,27 @@ func NewLeaderElector(serviceName string, consulAddr string) (*LeaderElector, er
 		return nil, fmt.Errorf("failed to create consul client: %w", err)
 	}
 
+	// 2. Obtém o hostname do contêiner (sem mudanças).
+	// Este hostname (ex: "shop-service-1") é o identificador que o Consul usará.
 	nodeID, err := os.Hostname()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get hostname: %w", err)
 	}
 
+	// 3. Cria a struct LeaderElector.
 	elector := &LeaderElector{
 		client:      client,
-		nodeID:      fmt.Sprintf("%s-%d", nodeID, os.Getpid()),
+		// --- MUDANÇA CRÍTICA AQUI ---
+		// O nodeID deve ser exatamente o hostname, sem acréscimos como o PID.
+		// Isso garante que a busca pelo líder no discovery.go funcione, pois
+		// ele irá comparar este valor com o nome do nó que o Consul conhece.
+		nodeID:      nodeID,
 		serviceName: serviceName,
 		leaderKey:   fmt.Sprintf(leaderKeyPrefix, serviceName),
 		stateKey:    fmt.Sprintf(stateKeyPrefix, serviceName),
 	}
+	
+	// 4. Inicializa o estado como seguidor (sem mudanças).
 	elector.isLeader.Store(0)
 	return elector, nil
 }
