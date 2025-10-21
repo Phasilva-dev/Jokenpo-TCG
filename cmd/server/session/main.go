@@ -90,27 +90,40 @@ func main() {
 	}
 	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
+	// Passa o endereço do consul para o GameHandler, para que ele possa
+	// criar seus clientes de serviço (como o ServiceCacheActor).
 	gameHandler, err := session.NewGameHandler(cfg.ConsulAddr)
 	if err != nil {
-		log.Fatalf("Initial Catalog failure: %s",err)
+		log.Fatalf("Falha ao criar o GameHandler: %v", err)
 	}
-	go gameHandler.Matchmaker().Run()
-	log.Println("[Main] Matchmaker iniciado.")
+	log.Println("[Main] GameHandler criado.")
 
 	server := network.NewServer(gameHandler)
 	log.Println("[Main] Servidor de rede criado.")
 
-	// 3. CONFIGURA O CLUSTER E O HEALTH CHECK
+	// 3. CONFIGURA O CLUSTER E TODOS OS HANDLERS HTTP
+	
+	// Registra o health check para o Consul.
 	http.HandleFunc("/health", cluster.NewBasicHealthHandler())
-	log.Printf("[Main] Health Check handler registrado em :%d/health", cfg.ServicePort)
+	
+	// --- MUDANÇA CRÍTICA AQUI ---
+	// Registra os endpoints que o QueueService (e futuros serviços) irá chamar.
+	// O GameHandler precisa ter os métodos handleMatchFound e handleTradeFound.
+	http.HandleFunc("/match-found", gameHandler.CallbackMatchFound)
+	http.HandleFunc("/trade-found", gameHandler.CallbackTradeFound)
+	
+	log.Printf("[Main] Handlers de Health Check e Callback registrados.")
 
+	// 4. REGISTRA O SERVIÇO NO CONSUL
 	log.Printf("[Main] Registrando serviço '%s' no Consul...", cfg.ServiceName)
 	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddr)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)
 	}
 
-	// 4. INICIA O SERVIDOR PRINCIPAL
+	// 5. INICIA O SERVIDOR PRINCIPAL
+	// A chamada server.Listen é bloqueante e agora servirá as conexões WebSocket (/ws),
+	// o health check (/health) e os endpoints de callback (/match-found, /trade-found).
 	address := fmt.Sprintf("0.0.0.0:%d", cfg.ServicePort)
 	log.Printf("[Main] Servidor principal (WebSocket & HTTP) iniciado em %s.", address)
 

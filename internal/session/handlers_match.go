@@ -1,5 +1,5 @@
 package session
-
+/*
 import (
 	"encoding/json"
 	"jokenpo/internal/session/message"
@@ -38,3 +38,4 @@ func (h *GameHandler) registerMatchHandlers() {
 
 	// Se no futuro você adicionar mais ações de partida (ex: "USE_SKILL"),
 }
+*/

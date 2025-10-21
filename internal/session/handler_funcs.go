@@ -1,19 +1,28 @@
 package session
 
+
 import (
-	"fmt"
+	//"fmt"
 	"jokenpo/internal/network"
-	"jokenpo/internal/session/message"
-	"github.com/google/uuid"
+	//"jokenpo/internal/session/message"
+	//"github.com/google/uuid"
 )
 
-func (h *GameHandler) Matchmaker() *Matchmaker { return h.matchmaker }
+// findSessionByID é um helper para encontrar uma sessão pelo seu UUID.
+func (h *GameHandler) findSessionByID(sessionID string) *PlayerSession {
+	// Como o mapa de sessões usa `*network.Client` como chave, precisamos iterar.
+	// Para performance em larga escala, um segundo mapa `map[string]*PlayerSession` seria melhor.
+	for _, session := range h.sessionsByID {
+		if session.ID == sessionID {
+			return session
+		}
+	}
+	return nil
+}
 
-func (h *GameHandler) Sessions() map[*network.Client]*PlayerSession { return h.sessions }
-
-func (h *GameHandler) Rooms() map[string]*GameRoom { return h.rooms }
-
-
+func (h *GameHandler) SessionsByClient() map[*network.Client]*PlayerSession { return h.sessionsByClient }
+func (h *GameHandler) SessionsByID() map[string]*PlayerSession { return h.sessionsByID }
+/*
 func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	// Tenta preparar o primeiro jogador.
 	if err := p1.Player.StartPlay(); err != nil {
@@ -57,7 +66,4 @@ func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 
 	fmt.Printf("Game room created successfully for %s and %s.\n", p1.Client.Conn().RemoteAddr(), p2.Client.Conn().RemoteAddr())
 }
-
-
-
-
+*/

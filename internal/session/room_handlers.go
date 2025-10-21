@@ -259,7 +259,7 @@ func (gr *GameRoom) handleGameOver(winner *PlayerSession, reason string) {
 		p.Player.EndPlay()
 		
 		// 2. Remove a referência para esta sala, limpando o estado do jogador.
-		p.CurrentRoom = nil
+		p.CurrentGame = nil
 		msg := message.CreateSuccessResponse(p.State, lobbyMessage, nil)
 		// 3. Notifica o cliente que ele está de volta ao lobby.
 		p.Client.Send() <- msg

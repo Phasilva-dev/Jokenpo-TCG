@@ -1,5 +1,5 @@
 package session
-
+/*
 import (
 	"fmt"
 	"jokenpo/internal/session/message"
@@ -28,11 +28,11 @@ func (h *GameHandler) handleRoomCreationError(failedPlayer, innocentPlayer *Play
 	
 	innocentPlayer.Player.EndPlay()
 	innocentPlayer.Player.StartPlay()
-	innocentPlayer.State = state_IN_QUEUE
+	innocentPlayer.State = state_IN_MATCH_QUEUE
 	h.matchmaker.EnqueuePlayer(innocentPlayer)
 	innocentPlayer.Client.Send() <- message.CreatePromptInputMessage()
 
 	fmt.Printf("Failed to create room. Player (%s) failed: %v. Player (%s) was re-queued.\n",
 		failedPlayer.Client.Conn().RemoteAddr(), err, innocentPlayer.Client.Conn().RemoteAddr())
 }
-
+*/

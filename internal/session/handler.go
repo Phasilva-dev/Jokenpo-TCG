@@ -18,46 +18,44 @@ import (
 type CommandHandlerFunc func(h *GameHandler, session *PlayerSession, payload json.RawMessage)
 
 type GameHandler struct {
-	sessions   map[*network.Client]*PlayerSession
+	sessionsByClient map[*network.Client]*PlayerSession // Para lookups a partir da conexão
+	sessionsByID     map[string]*PlayerSession        // Para lookups a partir do UUID (callbacks)
 
 	httpClient *http.Client
 	serviceCache *cluster.ServiceCacheActor
 
-	matchmaker *Matchmaker
-	rooms      map[string]*GameRoom
-
-	roomFinished chan string
+	//matchmaker *Matchmaker
+	//rooms      map[string]*GameRoom
+	//roomFinished chan string
 
 	// Teremos dois roteadores, um para cada estado do jogador.
 	lobbyRouter map[string]CommandHandlerFunc
 	matchRouter map[string]CommandHandlerFunc
-	queueRouter map[string]CommandHandlerFunc
+	matchQueueRouter map[string]CommandHandlerFunc
+	tradeQueueRouter map[string]CommandHandlerFunc
 }
 
 // NewGameHandler agora também inicializa e registra os handlers dos roteadores.
 func NewGameHandler(consulAddr string) (*GameHandler, error) {
 	h := &GameHandler{
-		sessions:    make(map[*network.Client]*PlayerSession),
-		matchmaker:  nil, // será inicializado abaixo
-		rooms:       make(map[string]*GameRoom),
-		lobbyRouter: make(map[string]CommandHandlerFunc),
-		matchRouter: make(map[string]CommandHandlerFunc),
-		queueRouter: make(map[string]CommandHandlerFunc),
+		sessionsByClient: make(map[*network.Client]*PlayerSession),
+		sessionsByID:     make(map[string]*PlayerSession), // Inicializa o novo mapa
+		lobbyRouter:      make(map[string]CommandHandlerFunc),
+		matchRouter:      make(map[string]CommandHandlerFunc),
+		matchQueueRouter: make(map[string]CommandHandlerFunc),
+		tradeQueueRouter: make(map[string]CommandHandlerFunc),
 	}
-	h.matchmaker = NewMatchmaker(h)
 
-	// Inicializa o cliente HTTP compartilhado para toda a comunicação com microsserviços.
-	// Usar um único cliente com um timeout é crucial para performance e estabilidade.
 	h.httpClient = &http.Client{
-		Timeout: 10 * time.Second, // Timeout de 10 segundos para evitar que uma chamada prenda a goroutine do jogador
+		Timeout: 10 * time.Second,
 	}
-
 	h.serviceCache = cluster.NewServiceCacheActor(30 * time.Second, consulAddr)
 
-	// Populamos os roteadores com seus respectivos comandos.
 	h.registerLobbyHandlers()
-	h.registerMatchHandlers()
 	h.registerQueueHandlers()
+	// h.registerMatchHandlers() // Ainda a ser implementado
+
+	// A inicialização do catálogo deve ficar no main.go, não aqui.
 	err := card.InitGlobalCatalog()
 	if err != nil {
 		return nil, err
@@ -70,8 +68,12 @@ func NewGameHandler(consulAddr string) (*GameHandler, error) {
 func (h *GameHandler) OnConnect(c *network.Client) {
 	// 1. Cria a sessão do jogador
 	session := NewPlayerSession(c)
-	h.sessions[c] = session
-	log.Printf("Session created for %s. Total sessions: %d", c.Conn().RemoteAddr(), len(h.sessions))
+	
+	// Adiciona a sessão a ambos os mapas
+	h.sessionsByClient[c] = session
+	h.sessionsByID[session.ID] = session
+
+	log.Printf("Session created for %s. Total sessions: %d", c.Conn().RemoteAddr(), len(h.sessionsByClient))
 
 	// --- 2. Lógica de Compra Inicial ---
 	const initialPacksToOpen = 4
@@ -149,64 +151,54 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 }
 
 func (h *GameHandler) OnDisconnect(c *network.Client) {
-	// 1. Encontra a sessão do cliente que desconectou.
-	session, ok := h.sessions[c]
+	session, ok := h.sessionsByClient[c]
 	if !ok {
-		// Se não havia sessão, não há nada para limpar.
 		return
 	}
 
-	// 2. LÓGICA DE LIMPEZA CENTRAL: Verifica o estado do jogador.
-	// Esta é a correção para o bug.
-	switch session.State {
-	case state_IN_QUEUE:
-		// Se o jogador estava na fila, avisa o Matchmaker para removê-lo.
-		// Isso previne que o Matchmaker tente enviar mensagens para um canal fechado.
-		fmt.Printf("Player %s disconnected while in queue. Removing from matchmaking.\n", c.Conn().RemoteAddr())
-		h.matchmaker.LeaveQueue(session)
-
-	case state_IN_MATCH:
-		// Se o jogador estava em uma partida, avisa a GameRoom.
-		// A GameRoom então lidará com a lógica de fim de jogo por desconexão.
-		if session.CurrentRoom != nil {
-			fmt.Printf("Player %s disconnected from room %s.\n", c.Conn().RemoteAddr(), session.CurrentRoom.ID)
-			session.CurrentRoom.unregister <- session
-		}
+	// Notifica o QueueService se o jogador estava em uma fila.
+	if session.State == state_IN_MATCH_QUEUE {
+		log.Printf("Player %s disconnected while in match queue. Notifying Queue Service.", session.ID)
+		h.leaveMatchQueue(session) // Chama o helper de API para sair
+	} else if session.State == state_IN_TRADE_QUEUE {
+		log.Printf("Player %s disconnected while in trade queue. Notifying Queue Service.", session.ID)
+		h.leaveTradeQueue(session) // Chama o helper de API para sair
 	}
 
-	// 3. Após notificar os outros sistemas, remove a sessão do mapa principal.
-	delete(h.sessions, c)
-	fmt.Printf("Session for %s removed. Total sessions: %d\n", c.Conn().RemoteAddr(), len(h.sessions))
+	// Remove a sessão de ambos os mapas
+	delete(h.sessionsByClient, c)
+	delete(h.sessionsByID, session.ID)
+
+	log.Printf("Session %s for %s removed. Total sessions: %d", session.ID, c.Conn().RemoteAddr(), len(h.sessionsByClient))
 }
 
-// OnMessage agora é um despachante limpo e simples.
 func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
-	session, ok := h.sessions[c]
+
+	session, ok := h.sessionsByClient[c]
 	if !ok {
-		return // Ignora mensagens de clientes sem sessão.
+		return
 	}
 
 	var router map[string]CommandHandlerFunc
-	// 1. Seleciona o roteador apropriado baseado no estado do jogador.
 	switch session.State {
 	case state_LOBBY:
 		router = h.lobbyRouter
 	case state_IN_MATCH:
 		router = h.matchRouter
-	case state_IN_QUEUE:
-		router = h.queueRouter
+	case state_IN_MATCH_QUEUE:
+		router = h.matchQueueRouter
+	case state_IN_TRADE_QUEUE:
+		router = h.tradeQueueRouter
 	default:
-		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Invalid state of player: %s", session.State))
+		message.SendErrorAndPrompt(c, "Invalid player state: %s", session.State)
 		return
 	}
 
-	// 2. Procura pelo handler do comando no roteador selecionado.
 	handler, found := router[msg.Type]
 	if !found {
-		c.Send() <- message.CreateErrorResponse(fmt.Sprintf("Unknown or invalid command for actual state of player: %s", msg.Type))
+		message.SendErrorAndPrompt(c, "Unknown or invalid command for your current state ('%s'): %s", session.State, msg.Type)
 		return
 	}
-
-	// 3. Executa o handler encontrado.
+	
 	handler(h, session, msg.Payload)
 }

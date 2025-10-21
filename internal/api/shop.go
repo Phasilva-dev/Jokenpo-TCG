@@ -1,3 +1,5 @@
+//START OF FILE jokenpo/internal/api/shop.go
+
 package api
 
 import (
@@ -79,3 +81,5 @@ func CreateShopHandler(shopService *shop.ShopService, elector *cluster.LeaderEle
 		json.NewEncoder(w).Encode(PurchaseResponse{Cards: cardKeys})
 	}
 }
+
+//END OF FILE jokenpo/internal/api/shop.go

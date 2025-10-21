@@ -1,3 +1,5 @@
+//START OF FILE jokenpo/internal/session/handlers_lobby.go
+
 package session
 
 import (
@@ -10,17 +12,75 @@ import (
 
 //Opção 1
 func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-
+	// 1. Validação de Estado
 	if !checkLobbyState(session) {
-		session.Client.Send() <- message.CreateErrorResponse("You are not in lobby")
-		session.Client.Send() <- message.CreatePromptInputMessage()
+		message.SendErrorAndPrompt(session.Client, "You are not in the lobby.")
 		return
 	}
 
-	h.matchmaker.EnqueuePlayer(session)
-	session.State = state_IN_QUEUE
-	session.Client.Send() <- message.CreatePromptInputMessage()
+	// 2. Chamada ao Serviço Externo
+	err := h.enterMatchQueue(session)
+	if err != nil {
+		message.SendErrorAndPrompt(session.Client, "Failed to join match queue: %v", err)
+		return
+	}
+
+	// 3. Atualização de Estado Local
+	session.State = state_IN_MATCH_QUEUE
 	
+	// 4. Resposta ao Cliente
+	message.SendSuccessAndPrompt(session.Client, session.State, "You have been added...", nil)
+}
+
+// handleTradeCard processa o comando do jogador para entrar na fila de troca às cegas.
+func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+	// 1. Validação de Contexto: Só pode trocar se estiver no lobby.
+	if !checkLobbyState(session) {
+		message.SendErrorAndPrompt(session.Client, "You must be in the lobby to trade a card.")
+		return
+	}
+
+	// 2. Desserializa o Input: Precisamos saber qual carta o jogador quer oferecer.
+	var req struct {
+		CardKey string `json:"cardKey"`
+	}
+	if err := json.Unmarshal(payload, &req); err != nil || req.CardKey == "" {
+		message.SendErrorAndPrompt(session.Client, "Invalid payload: 'cardKey' is required.")
+		return
+	}
+
+	// 3. Validação de Negócio: O jogador realmente possui a carta que quer trocar?
+	// (Esta é uma verificação importante para evitar trapaças).
+	if err := session.Player.Inventory().HasCardInCollection(req.CardKey, 1); err != nil {
+		message.SendErrorAndPrompt(session.Client, "Cannot trade card: %v", err)
+		return
+	}
+
+	// 4. Lógica de Troca (Chamada ao Helper)
+	// Removemos a carta da coleção do jogador ANTES de entrar na fila.
+	// Se a entrada na fila falhar, precisaremos adicioná-la de volta (rollback).
+	if err := session.Player.Inventory().Collection().RemoveCard(req.CardKey, 1); err != nil {
+		message.SendErrorAndPrompt(session.Client, "An internal error occurred while preparing the trade: %v", err)
+		return
+	}
+
+	err := h.enterTradeQueue(session, req.CardKey)
+	if err != nil {
+		// ROLLBACK: A chamada ao QueueService falhou. Devolvemos a carta ao jogador.
+		session.Player.Inventory().Collection().AddCard(req.CardKey, 1)
+		message.SendErrorAndPrompt(session.Client, "Failed to join trade queue: %v", err)
+		return
+	}
+
+	// 5. Atualização de Estado e Resposta de Sucesso
+	session.State = state_IN_TRADE_QUEUE // Novo estado
+	
+	message.SendSuccessAndPrompt(
+		session.Client,
+		session.State,
+		fmt.Sprintf("You have entered the Wonder Trade queue, offering your '%s'.", req.CardKey),
+		"Waiting for another player to trade with...",
+	)
 }
 
 //Opção 3
@@ -271,7 +331,7 @@ func (h *GameHandler) registerLobbyHandlers() {
 	// --- Ações de Matchmaking ---
 	// O comando para entrar na fila de espera para uma partida.
 	h.lobbyRouter["FIND_MATCH"] = handleFindMatch
-	h.lobbyRouter["LEAVE_QUEUE"] = handleLeaveQueue
+	h.lobbyRouter["TRADE_CARD"] = handleTradeCard
 
 	// --- Ações da Loja ---
 	// O comando para comprar pacotes de cartas.
@@ -297,3 +357,4 @@ func checkLobbyState(session *PlayerSession) bool {
 	return session.State == state_LOBBY
 }
 
+//END OF FILE jokenpo/internal/session/handlers_lobby.go

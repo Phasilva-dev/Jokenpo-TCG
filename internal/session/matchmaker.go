@@ -81,7 +81,7 @@ func (m *Matchmaker) Run() {
 				fmt.Printf("Match found! %s vs %s. in queue now: %d\n", player1.Client.Conn().RemoteAddr(), player2.Client.Conn().RemoteAddr(), len(m.queue))
 				
 				// Delega a criação da sala de jogo para o GameHandler.
-				m.gameHandler.CreateNewRoom(player1, player2)
+				//m.gameHandler.CreateNewRoom(player1, player2)
 			} else {
 				m.broadcastQueue()
 			}

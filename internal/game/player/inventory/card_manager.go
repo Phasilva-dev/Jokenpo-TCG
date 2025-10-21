@@ -100,6 +100,37 @@ func (i *Inventory) ReplaceCardInDeck(indexToRemove int, keyOfCardToAdd string) 
 	return string, nil
 }
 
+// HasCardInCollection verifica se o jogador possui pelo menos 'num' cópias de uma
+// carta específica em sua coleção. Retorna um erro se a carta não for encontrada
+// ou se a quantidade for insuficiente.
+func (i *Inventory) HasCardInCollection(cardKey string, num uint) error {
+	// 1. Primeiro, verifica se o número de cartas solicitado é válido.
+	// Não faz sentido verificar por zero ou menos cartas.
+	if num == 0 {
+		return fmt.Errorf("invalid quantity: must check for at least 1 card")
+	}
+
+	// 2. Tenta obter a instância da carta da coleção do inventário.
+	// A função GetInstance já retorna um erro claro se a carta não existir.
+	instance, err := i.collection.GetInstance(cardKey)
+	if err != nil {
+		// Se GetInstance retornou um erro (ex: "player does not have card '...'"),
+		// nós simplesmente repassamos esse erro.
+		return err
+	}
+
+	// 3. A carta existe na coleção. Agora, verifica se a quantidade é suficiente.
+	if instance.Count() < num {
+		// Se a contagem na instância for menor que a quantidade necessária,
+		// retorna um erro específico informando a discrepância.
+		return fmt.Errorf("insufficient copies of card '%s': required %d, but player only has %d", cardKey, num, instance.Count())
+	}
+
+	// 4. Se todas as verificações passaram, significa que o jogador tem a carta
+	// na quantidade necessária. Retorna 'nil' para indicar sucesso.
+	return nil
+}
+
 // --- Rule 1: Deck Size Validation ---
 // validateDeckSize checks if the number of cards in a deck exceeds the maximum limit.
 func validateDeckSize(deck []*card.Card) error {
