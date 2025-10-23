@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/card/catalog.go
 package card
 
 import (
@@ -31,3 +32,5 @@ func GetCard(key string) (*Card, error) {
 	}
 	return nil, fmt.Errorf("card not found: %s", key)
 }
+
+//END OF FILE jokenpo/internal/game/card/catalog.go

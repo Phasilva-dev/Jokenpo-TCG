@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/handler_utils.go
 package session
 /*
 import (
@@ -36,3 +37,4 @@ func (h *GameHandler) handleRoomCreationError(failedPlayer, innocentPlayer *Play
 		failedPlayer.Client.Conn().RemoteAddr(), err, innocentPlayer.Client.Conn().RemoteAddr())
 }
 */
+//END OF FILE jokenpo/internal/session/handler_utils.go

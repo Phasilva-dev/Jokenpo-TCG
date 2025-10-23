@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/card/card.go
 package card
 
 import (
@@ -44,5 +45,4 @@ func (c *Card) String() string {
 	return CardKey(c.typo,c.value,c.color)
 }
 
-
-
+//END OF FILE jokenpo/internal/game/card/card.go

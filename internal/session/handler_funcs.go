@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/handler_funcs.go
 package session
 
 
@@ -67,3 +68,4 @@ func (h *GameHandler) CreateNewRoom(p1, p2 *PlayerSession) {
 	fmt.Printf("Game room created successfully for %s and %s.\n", p1.Client.Conn().RemoteAddr(), p2.Client.Conn().RemoteAddr())
 }
 */
+//END OF FILE jokenpo/internal/session/handler_funcs.go

@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/handler_match.go
 package session
 /*
 import (
@@ -39,3 +40,5 @@ func (h *GameHandler) registerMatchHandlers() {
 	// Se no futuro você adicionar mais ações de partida (ex: "USE_SKILL"),
 }
 */
+
+//END OF FILE jokenpo/internal/session/handler_match.go

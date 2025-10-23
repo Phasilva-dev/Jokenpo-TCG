@@ -1,4 +1,7 @@
+//START OF FILE jokenpo/internal/session/room_handlers.go
 package session
+/*
+
 
 import (
 	"fmt"
@@ -323,3 +326,5 @@ func (gr *GameRoom) handleTimeout() {
 	// Após forçar as jogadas, a rodada está pronta para ser resolvida.
 	// O loop Run() chamará resolveRound() na sequência.
 }
+*/
+//END OF FILE jokenpo/internal/session/room_handlers.go

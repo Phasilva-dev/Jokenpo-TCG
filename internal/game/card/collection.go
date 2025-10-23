@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/card/collection.go
 package card
 
 import (
@@ -148,4 +149,4 @@ func (pc *PlayerCollection) String() string {
 }
 
 
-
+//END OF FILE jokenpo/internal/game/card/collection.go

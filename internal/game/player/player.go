@@ -1,9 +1,9 @@
+//STATE OF FILE jokenpo/internal/game/player/player.go
 package player
 
 import (
 	"fmt"
 	"jokenpo/internal/game/player/inventory"
-	"math/rand/v2"
 )
 
 const PLAY = "playing"
@@ -14,17 +14,13 @@ var possibleStates = []string{PLAY, MENU}
 type Player struct {
 	inventory *inventory.Inventory
 	state string
-	rng *rand.Rand
 }
 
-func NewPlayer(seed uint64) *Player {
-	// PCG é um gerador rápido e de boa qualidade para jogos.
-	rngSource := rand.NewPCG(seed, 1) 
+func NewPlayer() *Player {
 
 	return &Player{
 		inventory: inventory.NewInventory(),
 		state:     "menu",
-		rng:       rand.New(rngSource), // Cria a instância do Rand a partir da fonte
 	}
 }
 
@@ -42,5 +38,4 @@ func (p *Player) ChangeState(newState string) error {
 	return fmt.Errorf("invalid state: %s", newState)
 }
 
-
-
+//END OF FILE jokenpo/internal/game/player/player.go

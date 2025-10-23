@@ -1,4 +1,4 @@
-// card/rules.go
+//START OF FILE jokenpo/internal/game/card/rule.go
 package card
 
 // Constantes para representar o resultado da comparação de cartas.
@@ -57,3 +57,5 @@ func Compare(card1, card2 *Card) int {
 	// Se os tipos são iguais e os valores também, é um empate.
 	return Tie
 }
+
+//END OF FILE jokenpo/internal/game/card/rule.go

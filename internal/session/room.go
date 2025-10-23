@@ -1,5 +1,6 @@
+//START OF FILE jokenpo/internal/session/room.go
 package session
-
+/*
 import (
 	"fmt"
 	"jokenpo/internal/game/card"
@@ -115,3 +116,5 @@ func (gr *GameRoom) Run() {
 	}
 	
 }
+*/
+//END OF FILE jokenpo/internal/session/room.go

@@ -1,6 +1,8 @@
+// START OF FILE jokenpo/internal/game/deck.go
 package deck
 
 import (
+	"encoding/json"
 	"fmt"
 	"jokenpo/internal/game/card"
 	"math/rand/v2"
@@ -48,6 +50,9 @@ func (d *Deck) GetZone(zoneName string) (*card.Pile, error) {
 	return pile, nil
 }
 
+func (d *Deck) Shuffle(zone string,r *rand.Rand) {
+	d.zones[zone].Shuffle(r)
+}
 
 
 // Move uma carta do topo do deck para a mão
@@ -262,3 +267,50 @@ func (d *Deck) ZoneString(zoneName string) (string, error) {
 	sb.WriteString("--------------------\n")
 	return sb.String(), nil
 }
+
+// ToJSON serializa o deck (apenas a zona "deck") para uma lista de chaves de cartas.
+// Esta função será chamada pelo jokenpo-session antes de enviar para o GameRoomService.
+func (d *Deck) ToJSON() ([]byte, error) {
+	deckZone, err := d.GetCardsInZone(DECK)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cria um slice de strings para armazenar as chaves das cartas.
+	cardKeys := make([]string, len(deckZone))
+	for i, c := range deckZone {
+		cardKeys[i] = c.Key()
+	}
+
+	// Serializa o slice de strings para JSON.
+	return json.Marshal(cardKeys)
+}
+
+// NewDeckFromJSON cria um novo Deck a partir de um JSON contendo uma lista de chaves de cartas.
+// Esta função será chamada pelo GameRoomService ao receber a requisição.
+func NewDeckFromJSON(jsonData []byte) (*Deck, error) {
+	var cardKeys []string
+	// Desserializa o JSON para um slice de strings.
+	if err := json.Unmarshal(jsonData, &cardKeys); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal deck json: %w", err)
+	}
+
+	// Cria um novo deck vazio.
+	newDeck := NewDeck()
+
+	// Itera sobre as chaves e adiciona cada carta ao novo deck.
+	for _, key := range cardKeys {
+		// Busca a carta no catálogo global.
+		c, err := card.GetCard(key)
+		if err != nil {
+			// Se uma chave for inválida, a criação do deck falha.
+			return nil, fmt.Errorf("failed to build deck, invalid card key found: %w", err)
+		}
+		// Adiciona a carta à zona "deck" do novo deck.
+		newDeck.AddCardToZone(DECK, c)
+	}
+
+	return newDeck, nil
+}
+
+//END OF FILE jokenpo/internal/game/deck.go

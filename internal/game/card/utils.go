@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/card/utils.go
 package card
 
 import (
@@ -69,3 +70,5 @@ func SliceOfCardsToString(cards []*Card) string {
 	}
 	return strings.TrimSuffix(sb.String(), "\n")
 }
+
+//END OF FILE jokenpo/internal/game/card/utils.go

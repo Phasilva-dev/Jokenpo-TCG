@@ -1,6 +1,6 @@
 //START OF FILE jokenpo/internal/session/handler_queue.go
 package session
-
+//Talvez falte coisas
 import (
 	"encoding/json"
 	"jokenpo/internal/session/message"

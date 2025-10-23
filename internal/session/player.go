@@ -1,9 +1,9 @@
+//START OF FILE jokenpo/internal/session/player.go
 package session
 
 import (
 	"jokenpo/internal/game/player"
 	"jokenpo/internal/network"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -28,12 +28,11 @@ type PlayerSession struct {
 
 // NewPlayerSession cria e inicializa uma nova sessão de jogador.
 func NewPlayerSession(client *network.Client) *PlayerSession {
-	seed := uint64(time.Now().UnixNano())
 
 	return &PlayerSession{
 		ID: uuid.NewString(),
 		Client: client,
-		Player: player.NewPlayer(seed),
+		Player: player.NewPlayer(),
 		State:  state_LOBBY, // Todo jogador começa no lobby.
 		CurrentGame: nil,
 	}
@@ -45,3 +44,4 @@ type CurrentGameInfo struct {
 	ServiceAddr string `json:"serviceAddr"` // O endereço de rede (host:port) do GameRoomService onde a sala está.
 }
 
+//END OF FILE jokenpo/internal/session/player.go

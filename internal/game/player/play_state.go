@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"jokenpo/internal/game/card"
 	"jokenpo/internal/game/deck"
+	"math/rand/v2"
 )
 
 
@@ -40,11 +41,11 @@ func (p *Player) PlayCardFromHand(index int) (*card.Card, error) {
 	return card, nil
 }
 
-func (p *Player) PlayRandomCardFromHand() (*card.Card, error) {
+func (p *Player) PlayRandomCardFromHand(r *rand.Rand) (*card.Card, error) {
 	if p.state != PLAY {
 		return nil, fmt.Errorf("error: Player must be in PLAY state to play a random card to hand")
 	}
-	card, err := p.Inventory().GameDeck().PlayRandomCardFromHand(p.rng)
+	card, err := p.Inventory().GameDeck().PlayRandomCardFromHand(r)
 	if err != nil {
 		return nil, err
 	}

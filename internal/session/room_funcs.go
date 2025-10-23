@@ -1,4 +1,7 @@
+//START OF FILE jokenpo/internal/session/room_funcs.go
 package session
+/*
+
 
 import (
 	"fmt"
@@ -114,3 +117,5 @@ func (gr *GameRoom) closeRoom() {
 	// 2. Notifica o GameHandler que esta sala terminou, enviando seu ID.
 	gr.finished <- gr.ID
 }
+*/
+//END OF FILE jokenpo/internal/session/room_funcs.go

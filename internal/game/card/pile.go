@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/card/pile.go
 package card
 
 import (
@@ -109,3 +110,4 @@ func (p *Pile) String() string {
 	return sb.String()
 }
 
+//END OF FILE jokenpo/internal/game/card/pile.go
