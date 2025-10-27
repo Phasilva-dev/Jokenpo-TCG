@@ -3,7 +3,6 @@ package session
 import (
 	"encoding/json"
 	"fmt"
-	"jokenpo/internal/game/card"
 	"jokenpo/internal/network"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/session/message" // Importe seu novo pacote de mensagens
@@ -53,13 +52,13 @@ func NewGameHandler(consulAddr string) (*GameHandler, error) {
 
 	h.registerLobbyHandlers()
 	h.registerQueueHandlers()
-	// h.registerMatchHandlers() // Ainda a ser implementado
+	h.registerMatchHandlers()
 
 	// A inicialização do catálogo deve ficar no main.go, não aqui.
-	err := card.InitGlobalCatalog()
-	if err != nil {
-		return nil, err
-	}
+	//err := card.InitGlobalCatalog()
+	//if err != nil {
+	//	return nil, err
+	//}
 	return h, nil
 }
 

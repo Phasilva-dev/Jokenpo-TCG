@@ -1,4 +1,4 @@
-//START OF FILE jokenpo/internal/api/shop.go
+//START OF FILE jokenpo/internal/services/api/shop.go
 
 package api
 
@@ -82,4 +82,4 @@ func CreateShopHandler(shopService *shop.ShopService, elector *cluster.LeaderEle
 	}
 }
 
-//END OF FILE jokenpo/internal/api/shop.go
+//END OF FILE jokenpo/internal/services/api/shop.go

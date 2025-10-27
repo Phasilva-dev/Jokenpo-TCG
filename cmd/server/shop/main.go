@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"jokenpo/internal/api"
+	"jokenpo/internal/services/api"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/shop"
 	"log"

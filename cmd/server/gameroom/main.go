@@ -1,60 +1,112 @@
 //START OF FILE jokenpo/cmd/server/gameroom/main.go
 package main
-/*
+
 import (
 	"fmt"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/gameroom"
+	"jokenpo/internal/services/api"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
+// ============================================================================
+// Constantes de Configuração Padrão
+// ============================================================================
 const (
-	serviceName = "jokenpo-gameroom"
-	servicePort = 8083 // Porta dedicada para este serviço
+	defaultServiceName = "jokenpo-gameroom"
+	defaultServicePort = 8083
+	defaultHealthPort  = 8083
+	// --- MUDANÇA: O padrão agora é uma lista de endereços ---
+	defaultConsulAddr = "consul-1:8500,consul-2:8500,consul-3:8500"
 )
 
+// ============================================================================
+// Estrutura de Configuração
+// ============================================================================
+type Config struct {
+	ServiceName string
+	ServicePort int
+	HealthPort  int
+	ConsulAddrs string // Renomeado para 'Addrs' para indicar que é uma lista
+}
+
+// loadConfig carrega a configuração a partir de variáveis de ambiente.
+func loadConfig() (*Config, error) {
+	serviceName := os.Getenv("GAMEROOM_SERVICE_NAME")
+	if serviceName == "" {
+		serviceName = defaultServiceName
+	}
+
+	// Lê a lista de endereços do Consul.
+	consulAddrs := os.Getenv("CONSUL_HTTP_ADDR")
+	if consulAddrs == "" {
+		consulAddrs = defaultConsulAddr
+	}
+
+	servicePortStr := os.Getenv("GAMEROOM_SERVICE_PORT")
+	if servicePortStr == "" {
+		servicePortStr = fmt.Sprintf("%d", defaultServicePort)
+	}
+	servicePort, err := strconv.Atoi(servicePortStr)
+	if err != nil {
+		return nil, fmt.Errorf("formato de GAMEROOM_SERVICE_PORT inválido: %w", err)
+	}
+
+	healthPortStr := os.Getenv("HEALTH_CHECK_PORT")
+	if healthPortStr == "" {
+		healthPortStr = fmt.Sprintf("%d", defaultHealthPort)
+	}
+	healthPort, err := strconv.Atoi(healthPortStr)
+	if err != nil {
+		return nil, fmt.Errorf("formato de HEALTH_CHECK_PORT inválido: %w", err)
+	}
+
+	return &Config{
+		ServiceName: serviceName,
+		ServicePort: servicePort,
+		HealthPort:  healthPort,
+		ConsulAddrs: consulAddrs, // Usa o campo renomeado
+	}, nil
+}
+
+// ============================================================================
+// Função Main
+// ============================================================================
 func main() {
-	log.Println("Starting Jokenpo GameRoom Service instance...")
+	log.Println("Iniciando instância do serviço Jokenpo GameRoom...")
 
-	// 1. Carrega a configuração (endereço do Consul)
-	consulAddr := os.Getenv("CONSUL_HTTP_ADDR")
-	if consulAddr == "" {
-		consulAddr = "consul-1:8500" // Padrão para Docker
+	cfg, err := loadConfig()
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao carregar configuração: %v", err)
 	}
-	// O endereço que este serviço anunciará para os outros.
-	advertiseAddr := os.Getenv("ADVERTISE_ADDR")
-	if advertiseAddr == "" {
-		hostname, _ := os.Hostname()
-		advertiseAddr = hostname
-	}
+	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, ConsulAddrs=%s",
+		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 
-	// 2. Cria o RoomManager, que irá criar e supervisionar as salas.
 	roomManager := gameroom.NewRoomManager()
-	go roomManager.Run() // Inicia a goroutine do ator RoomManager
-	log.Println("[Main] RoomManager actor created and started.")
+	go roomManager.Run()
+	log.Println("[Main] RoomManager actor criado e iniciado.")
 
-	// 3. Configura os handlers da API HTTP
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", cluster.NewBasicHealthHandler())
-	// Passa o endereço de anúncio para que a API possa retorná-lo.
-	api.RegisterHandlers(mux, roomManager, advertiseAddr, servicePort)
-	log.Println("[Main] HTTP handlers registered for /rooms and /health.")
+	
+	api.RegisterHandlers(mux, roomManager, cfg.ServicePort)
+	log.Println("[Main] Handlers HTTP registrados para /rooms e /health.")
 
-	// 4. Registra o serviço no Consul
-	log.Println("[Main] Registering service with Consul...")
-	err := cluster.RegisterServiceInConsul(serviceName, servicePort, servicePort, consulAddr)
+	log.Println("[Main] Registrando serviço no Consul...")
+	// --- MUDANÇA: Passa a lista de endereços para a função de registro ---
+	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)
 	}
 
-	// 5. Inicia o servidor HTTP
-	listenAddress := fmt.Sprintf(":%d", servicePort)
-	log.Printf("[Main] GameRoom service HTTP server starting on %s.", listenAddress)
+	listenAddress := fmt.Sprintf(":%d", cfg.ServicePort)
+	log.Printf("[Main] Servidor HTTP do serviço GameRoom iniciando em %s.", listenAddress)
+
 	if err := http.ListenAndServe(listenAddress, mux); err != nil {
 		log.Fatalf("Fatal: Falha ao iniciar servidor HTTP: %v", err)
 	}
 }
-*/
 //END OF FILE jokenpo/cmd/server/gameroom/main.go

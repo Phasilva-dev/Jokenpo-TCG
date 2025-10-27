@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/services/cluster/health.go
 package cluster
 
 import (
@@ -77,3 +78,4 @@ func (h *HealthAggregator) Handler() http.HandlerFunc {
 		json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
 	}
 }
+//END OF FILE jokenpo/internal/services/cluster/health.go

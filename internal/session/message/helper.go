@@ -35,6 +35,6 @@ func SendSuccessAndPrompt(sender MessageSender, state, message string, data any)
 	sender.Send() <- CreatePromptInputMessage()
 }
 
-func SendPrompt(sender MessageSender) { //, state, message string, data any
+func SendPromptInput(sender MessageSender) { //, state, message string, data any
 	sender.Send() <- CreatePromptInputMessage()
 }

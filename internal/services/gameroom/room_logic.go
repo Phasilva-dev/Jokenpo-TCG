@@ -137,7 +137,7 @@ func (gr *GameRoom) resolveRound() {
 
 	// Verifica se ambas as cartas foram jogadas antes de comparar
 	if p1Card == nil || p2Card == nil {
-		log.Printf("[GameRoom %s] ERROR: resolveRound called but not all cards have been played.", gr.ID)
+		gr.handleGameOver("", "Failed to resolve round: one or more players did not play a card.")
 		return
 	}
 

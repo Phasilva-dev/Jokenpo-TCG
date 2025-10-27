@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/services/cluster/cache.go
 package cluster
 
 import (
@@ -91,3 +92,4 @@ func (sc *ServiceCacheActor) Discover(serviceName string, opts DiscoveryOptions)
 	// Bloqueia e espera pela resposta do ator.
 	return <-replyCh
 }
+//END OF FILE jokenpo/internal/services/cluster/cache.go

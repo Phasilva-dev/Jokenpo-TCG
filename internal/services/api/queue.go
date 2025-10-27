@@ -1,4 +1,4 @@
-//START OF FILE jokenpo/internal/api/queue.go
+//START OF FILE jokenpo/internal/services/api/queue.go
 package api
 
 import (
@@ -14,8 +14,9 @@ import (
 
 // EnqueueMatchRequest define o payload para entrar na fila de partida.
 type EnqueueMatchRequest struct {
-	PlayerID    string `json:"playerId"`
-	CallbackURL string `json:"callbackUrl"`
+	PlayerID    string   `json:"playerId"`
+	CallbackURL string   `json:"callbackUrl"`
+	Deck        []string `json:"deck"` // <-- ADICIONE ESTE CAMPO
 }
 
 // EnqueueTradeRequest define o payload para entrar na fila de troca às cegas.
@@ -126,4 +127,4 @@ func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMas
 	}
 }
 
-//END OF FILE jokenpo/internal/api/queue.go
+//END OF FILE jokenpo/internal/services/api/queue.go

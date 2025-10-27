@@ -11,28 +11,42 @@ import (
 )
 
 //Opção 1
+//Interage com o MicroServiço queue
 func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-	// 1. Validação de Estado
 	if !checkLobbyState(session) {
 		message.SendErrorAndPrompt(session.Client, "You are not in the lobby.")
 		return
 	}
 
-	// 2. Chamada ao Serviço Externo
-	err := h.enterMatchQueue(session)
+	// --- MUDANÇA: Obtém o deck do jogador antes de chamar o helper ---
+	// Usa a função ToJSON que já existe no seu deck.go para obter o deck como []byte.
+	deckJSON, err := session.Player.Inventory().GameDeck().ToJSON()
+	if err != nil {
+		message.SendErrorAndPrompt(session.Client, "Failed to prepare your deck for matchmaking: %v", err)
+		return
+	}
+	// Converte o JSON []byte para um []string que o nosso DTO espera.
+	var deckKeys []string
+	if err := json.Unmarshal(deckJSON, &deckKeys); err != nil {
+		message.SendErrorAndPrompt(session.Client, "Failed to process your deck for matchmaking: %v", err)
+		return
+	}
+
+	// Chama o helper atualizado, passando o deck.
+	err = h.enterMatchQueue(session, deckKeys)
 	if err != nil {
 		message.SendErrorAndPrompt(session.Client, "Failed to join match queue: %v", err)
 		return
 	}
 
-	// 3. Atualização de Estado Local
 	session.State = state_IN_MATCH_QUEUE
 	
-	// 4. Resposta ao Cliente
-	message.SendSuccessAndPrompt(session.Client, session.State, "You have been added...", nil)
+	message.SendSuccessAndPrompt(session.Client, session.State, "You have been added to the matchmaking queue. Searching for an opponent...", nil)
 }
 
+//Opção 2
 // handleTradeCard processa o comando do jogador para entrar na fila de troca às cegas.
+//Interage com o MicroServiço queue
 func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	// 1. Validação de Contexto: Só pode trocar se estiver no lobby.
 	if !checkLobbyState(session) {
@@ -85,7 +99,7 @@ func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMes
 
 //Opção 3
 // handlePurchasePackage processa o comando explícito do jogador para comprar pacotes.
-// (Localizado em internal/session/handler.go)
+// Interage com o shop service
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	// 1. Validação de Contexto
 	if !checkLobbyState(session) {
