@@ -1,4 +1,4 @@
-//START OF FILE jokenpo/internal/session/api_callbacks.go
+//START OF FILE jokenpo/internal/session/api_callbacks_queue.go
 package session
 
 import (
@@ -140,4 +140,4 @@ func (h *GameHandler) CallbackTradeFound(w http.ResponseWriter, r *http.Request)
 
 
 
-//END OF FILE jokenpo/internal/session/api_callbacks.go
+//END OF FILE jokenpo/internal/session/api_callbacks_queue.go

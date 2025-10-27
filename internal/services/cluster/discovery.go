@@ -32,14 +32,17 @@ func Discover(serviceName string, consulAddrs string, opts DiscoveryOptions) str
 	// O resto da função permanece o mesmo.
 	switch opts.Mode {
 	case ModeLeader:
+		log.Printf("AVISO: Nó Lider '%s' foi encontrado...", serviceName)
 		return discoverLeader(client, serviceName)
 	case ModeSpecific:
 		if opts.SpecificID == "" {
 			log.Printf("ERRO: ModeSpecific requer um SpecificID.")
 			return ""
 		}
+		log.Printf("AVISO: Nó especifico '%s' com ID %s foi encontrado...", serviceName, opts.SpecificID)
 		return discoverSpecific(client, serviceName, opts.SpecificID)
 	default:
+		log.Printf("AVISO: Nó qualquer saudavel '%s' foi encontrado...", serviceName)
 		return discoverAnyHealthy(client, serviceName)
 	}
 }

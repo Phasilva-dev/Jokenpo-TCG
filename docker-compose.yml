@@ -2,7 +2,6 @@
 
 services:
   # --- 1. INFRAESTRUTURA: CLUSTER CONSUL ---
-  # (Nenhuma mudança aqui)
   consul-1:
     image: hashicorp/consul:latest
     hostname: consul-1
@@ -44,11 +43,11 @@ services:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_HTTP_ADDR=consul-1:8500
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SESSION_SERVICE_PORT=8080
       - HEALTH_CHECK_PORT=8080
     deploy:
-      replicas: 2 # Você tinha 2 aqui, ajustei para 3 para consistência
+      replicas: 2
     profiles: [game]
 
   shop-service:
@@ -59,33 +58,47 @@ services:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_HTTP_ADDR=consul-1:8500
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SHOP_SERVICE_PORT=8081
       - HEALTH_CHECK_PORT=8081
     deploy:
-      replicas: 2 # Você tinha 2 aqui, ajustei para 3 para consistência
+      replicas: 2
     profiles: [game]
 
-  # --- NOVO SERVIÇO ADICIONADO ---
   jokenpo-queue:
     build:
       context: .
-      dockerfile: ./cmd/server/queue/Dockerfile # Aponta para o novo Dockerfile
+      dockerfile: ./cmd/server/queue/Dockerfile
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_HTTP_ADDR=consul-1:8500
-      - QUEUE_SERVICE_PORT=8082 # Usa a porta definida no main.go
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - QUEUE_SERVICE_PORT=8082
       - HEALTH_CHECK_PORT=8082
     deploy:
-      # Teremos 3 réplicas para garantir a alta disponibilidade.
-      # Apenas uma será o líder, as outras ficarão em standby.
       replicas: 2
     profiles: [game]
 
+  # --- NOVO SERVIÇO ADICIONADO ---
+  jokenpo-gameroom:
+    build:
+      context: .
+      dockerfile: ./cmd/server/gameroom/Dockerfile # Aponta para o novo Dockerfile
+    depends_on:
+      consul-1:
+        condition: service_healthy
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - GAMEROOM_SERVICE_PORT=8083 # Usa a porta definida no main.go
+      - HEALTH_CHECK_PORT=8083
+    deploy:
+      # Este serviço não tem eleição de líder, então podemos escalá-lo
+      # para distribuir a carga de criação de salas.
+      replicas: 3
+    profiles: [game]
+
   # --- 3. CAMADA DE ENTRADA: LOAD BALANCERS ---
-  # (Nenhuma mudança aqui, os LBs continuam apontando para o jokenpo-session)
   load-balancer-1:
     build:
       context: .
@@ -95,7 +108,7 @@ services:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
     profiles: [lb]
@@ -104,12 +117,12 @@ services:
     build:
       context: .
       dockerfile: ./cmd/server/loadbalancer/Dockerfile
-    ports: ["9181:80"]
+    ports: ["9181:80"] # Porta externa corrigida
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
     profiles: [lb]
@@ -118,12 +131,12 @@ services:
     build:
       context: .
       dockerfile: ./cmd/server/loadbalancer/Dockerfile
-    ports: ["9282:80"]
+    ports: ["9282:80"] # Porta externa corrigida
     depends_on:
       consul-1:
         condition: service_healthy
     environment:
-      - CONSUL_ADDRS=consul-1:8500,consul-2:8500,consul-3:8500
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
     profiles: [lb]

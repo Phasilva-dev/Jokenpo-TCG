@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/api_callbacks_match.go
 package session
 
 import (
@@ -42,3 +43,5 @@ func (h *GameHandler) CallbackGameEvent(w http.ResponseWriter, r *http.Request) 
 
 	w.WriteHeader(http.StatusOK)
 }
+
+//END OF FILE jokenpo/internal/session/api_callbacks_match.go
