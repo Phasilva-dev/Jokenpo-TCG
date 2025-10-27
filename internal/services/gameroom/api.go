@@ -4,6 +4,7 @@ package gameroom
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -37,10 +38,14 @@ type PlayCardRequest struct {
 
 // RegisterHandlers configura todas as rotas da API para o GameRoomService.
 func RegisterHandlers(mux *http.ServeMux, roomManager *RoomManager, port int) {
-	advertiseAddr := os.Getenv("ADVERTISE_ADDR")
+	// --- MUDANÇA CRUCIAL ---
+	// Lê o endereço anunciado da mesma variável de ambiente que o registro do Consul.
+	advertiseAddr := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
 	if advertiseAddr == "" {
-		hostname, _ := os.Hostname()
-		advertiseAddr = hostname
+		// Se a variável não estiver definida, o serviço não pode funcionar corretamente.
+		// Logamos um erro crítico. A criação de sala retornará um endereço inválido.
+		log.Printf("CRITICAL: SERVICE_ADVERTISED_HOSTNAME environment variable is not set!")
+		advertiseAddr = "address-not-configured" // Garante que o problema seja visível
 	}
 	
 	// Handler para criar novas salas.

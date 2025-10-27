@@ -23,10 +23,7 @@ type GameHandler struct {
 
 	httpClient *http.Client
 	serviceCache *cluster.ServiceCacheActor
-
-	//matchmaker *Matchmaker
-	//rooms      map[string]*GameRoom
-	//roomFinished chan string
+	advertisedHostname string
 
 	// Teremos dois roteadores, um para cada estado do jogador.
 	lobbyRouter map[string]CommandHandlerFunc
@@ -36,10 +33,11 @@ type GameHandler struct {
 }
 
 // NewGameHandler agora também inicializa e registra os handlers dos roteadores.
-func NewGameHandler(consulAddr string) (*GameHandler, error) {
+func NewGameHandler(consulAddr, advertisedHostname string) (*GameHandler, error) {
 	h := &GameHandler{
 		sessionsByClient: make(map[*network.Client]*PlayerSession),
-		sessionsByID:     make(map[string]*PlayerSession), // Inicializa o novo mapa
+		sessionsByID:     make(map[string]*PlayerSession),
+		advertisedHostname: advertisedHostname,
 		lobbyRouter:      make(map[string]CommandHandlerFunc),
 		matchRouter:      make(map[string]CommandHandlerFunc),
 		matchQueueRouter: make(map[string]CommandHandlerFunc),
@@ -55,11 +53,6 @@ func NewGameHandler(consulAddr string) (*GameHandler, error) {
 	h.registerQueueHandlers()
 	h.registerMatchHandlers()
 
-	// A inicialização do catálogo deve ficar no main.go, não aqui.
-	//err := card.InitGlobalCatalog()
-	//if err != nil {
-	//	return nil, err
-	//}
 	return h, nil
 }
 
