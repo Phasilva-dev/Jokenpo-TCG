@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/network/server.go
 package network
 
 import (
@@ -77,3 +78,5 @@ func (s *Server) Listen(address string) error {
 
 	return nil
 }
+
+//END OF FILE jokenpo/internal/network/server.go

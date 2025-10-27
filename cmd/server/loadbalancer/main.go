@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/cmd/server/loadbalancer/main.go
 package main
 
 import (
@@ -192,3 +193,5 @@ func main() {
 	}
 	log.Println("Servidor desligado com sucesso.")
 }
+
+//END OF FILE jokenpo/cmd/server/loadbalancer/main.go

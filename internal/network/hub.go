@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/network/hub.go
 package network
 
 import (
@@ -75,3 +76,5 @@ func (h *Hub) Run() {
 	}
 
 }
+
+//END OF FILE jokenpo/internal/network/hub.go

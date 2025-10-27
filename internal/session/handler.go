@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/handler.go
 package session
 
 import (
@@ -201,3 +202,5 @@ func (h *GameHandler) OnMessage(c *network.Client, msg network.Message) {
 	
 	handler(h, session, msg.Payload)
 }
+
+//END OF FILE jokenpo/internal/session/handler.go

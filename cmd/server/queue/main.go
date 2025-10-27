@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"jokenpo/internal/services/api" // Seu pacote de API, que contém RegisterQueueHandlers
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/queue"
 	"log"
@@ -116,7 +115,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", cluster.NewBasicHealthHandler())
-	api.RegisterQueueHandlers(mux, queueMaster, elector)
+	queue.RegisterQueueHandlers(mux, queueMaster, elector)
 	log.Println("[Main] Handlers HTTP registrados para /queue/* e /health.")
 
 	log.Println("[Main] Registrando serviço no Consul...")

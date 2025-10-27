@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/services/shop/shop.go
 package shop
 
 import (
@@ -77,3 +78,4 @@ func (s *Shop) purchasePackage(quantity uint64) ([]*card.Card, error) {
 	s.state.PackageCount += quantity
 	return allCards, nil
 }
+//END OF FILE jokenpo/internal/services/shop/shop.go

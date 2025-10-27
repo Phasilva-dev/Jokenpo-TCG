@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/gameroom"
-	"jokenpo/internal/services/api"
 	"log"
 	"net/http"
 	"os"
@@ -92,7 +91,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", cluster.NewBasicHealthHandler())
 	
-	api.RegisterHandlers(mux, roomManager, cfg.ServicePort)
+	gameroom.RegisterHandlers(mux, roomManager, cfg.ServicePort)
 	log.Println("[Main] Handlers HTTP registrados para /rooms e /health.")
 
 	log.Println("[Main] Registrando serviço no Consul...")

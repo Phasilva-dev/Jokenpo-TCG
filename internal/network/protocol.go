@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/network/protocol.go
 package network
 
 import (
@@ -80,3 +81,5 @@ func ReadMessage(conn net.Conn) (*Message, error) {
 
 	return &msg, nil
 }
+
+//END OF FILE jokenpo/internal/network/protocol.go

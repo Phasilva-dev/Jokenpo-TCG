@@ -1,11 +1,10 @@
-//START OF FILE jokenpo/internal/services/api/shop.go
+//START OF FILE jokenpo/internal/services/shop/api.go
 
-package api
+package shop
 
 import (
 	"encoding/json"
 	"jokenpo/internal/services/cluster"
-	"jokenpo/internal/services/shop"
 	"log"
 	"net/http"
 )
@@ -23,7 +22,7 @@ type PurchaseResponse struct {
 // CreateShopHandler cria o handler HTTP para o ShopService.
 // Ele garante que apenas o líder processe as requisições e que o estado
 // seja persistido antes de confirmar a operação para o cliente.
-func CreateShopHandler(shopService *shop.ShopService, elector *cluster.LeaderElector) http.HandlerFunc {
+func CreateShopHandler(shopService *ShopService, elector *cluster.LeaderElector) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// 1. VERIFICAÇÃO DE LIDERANÇA
 		// Garante que apenas o nó líder possa processar operações de escrita.
@@ -82,4 +81,4 @@ func CreateShopHandler(shopService *shop.ShopService, elector *cluster.LeaderEle
 	}
 }
 
-//END OF FILE jokenpo/internal/services/api/shop.go
+//END OF FILE jokenpo/internal/services/shop/api.go

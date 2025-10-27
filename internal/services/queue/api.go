@@ -1,10 +1,9 @@
-//START OF FILE jokenpo/internal/services/api/queue.go
-package api
+//START OF FILE jokenpo/internal/services/queue/api.go
+package queue
 
 import (
 	"encoding/json"
 	"jokenpo/internal/services/cluster"
-	"jokenpo/internal/services/queue" // Importa o seu pacote queue
 	"net/http"
 )
 
@@ -36,7 +35,7 @@ type DequeueRequest struct {
 // ============================================================================
 
 // RegisterQueueHandlers configura todas as rotas da API de matchmaking no mux fornecido.
-func RegisterQueueHandlers(mux *http.ServeMux, queueMaster *queue.QueueMaster, elector *cluster.LeaderElector) {
+func RegisterQueueHandlers(mux *http.ServeMux, queueMaster *QueueMaster, elector *cluster.LeaderElector) {
 	// Cria um "middleware" que envolve nossos handlers para verificar a liderança.
 	leaderOnly := leaderOnlyMiddleware(elector)
 
@@ -71,7 +70,7 @@ func leaderOnlyMiddleware(elector *cluster.LeaderElector) func(http.Handler) htt
 // ============================================================================
 
 // handleMatchQueue lida com requisições para a fila de partida (POST para entrar, DELETE para sair).
-func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMaster) {
+func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 	switch r.Method {
 	case http.MethodPost: // Entrar na fila
 		var req EnqueueMatchRequest
@@ -79,7 +78,7 @@ func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMas
 			http.Error(w, `{"error": "Invalid payload for entering match queue"}`, http.StatusBadRequest)
 			return
 		}
-		player := &queue.PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL}
+		player := &PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL}
 		qm.EnqueueMatch(player)
 		w.WriteHeader(http.StatusAccepted) // 202 Accepted: O pedido foi aceito para processamento futuro.
 
@@ -98,7 +97,7 @@ func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMas
 }
 
 // handleTradeQueue lida com requisições para a fila de troca.
-func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMaster) {
+func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 	switch r.Method {
 	case http.MethodPost: // Entrar na fila
 		var req EnqueueTradeRequest
@@ -106,8 +105,8 @@ func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMas
 			http.Error(w, `{"error": "Invalid payload for entering trade queue"}`, http.StatusBadRequest)
 			return
 		}
-		trade := &queue.TradeInfo{
-			PlayerInfo: queue.PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL},
+		trade := &TradeInfo{
+			PlayerInfo: PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL},
 			OfferCard:  req.OfferCard,
 		}
 		qm.EnqueueTrade(trade)
@@ -127,4 +126,4 @@ func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *queue.QueueMas
 	}
 }
 
-//END OF FILE jokenpo/internal/services/api/queue.go
+//END OF FILE jokenpo/internal/services/queue/api.go

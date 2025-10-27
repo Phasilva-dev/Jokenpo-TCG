@@ -1,8 +1,8 @@
+//START OF FILE jokenpo/cmd/server/shop/main.go
 package main
 
 import (
 	"fmt"
-	"jokenpo/internal/services/api"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/shop"
 	"log"
@@ -107,7 +107,7 @@ func main() {
 	log.Println("[Main] Campanha pela liderança iniciada em background.")
 
 	// 5. CONFIGURA OS HANDLERS DA API HTTP
-	shopHandler := api.CreateShopHandler(shopService, elector)
+	shopHandler := shop.CreateShopHandler(shopService, elector)
 	http.HandleFunc("/health", cluster.NewBasicHealthHandler())
 	http.HandleFunc("/Purchase", shopHandler)
 	log.Println("[Main] Handlers HTTP registrados.")
@@ -129,3 +129,5 @@ func main() {
 		log.Fatalf("Fatal: Falha ao iniciar servidor HTTP: %v", err)
 	}
 }
+
+//END OF FILE jokenpo/cmd/server/shop/main.go

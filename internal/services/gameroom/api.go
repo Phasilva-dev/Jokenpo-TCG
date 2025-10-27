@@ -1,10 +1,9 @@
-// START OF FILE jokenpo/internal/services/api/game.go
-package api
+// START OF FILE jokenpo/internal/services/gameroom/api.go
+package gameroom
 
 import (
 	"encoding/json"
 	"fmt"
-	"jokenpo/internal/services/gameroom"
 	"net/http"
 	"os"
 	"strings"
@@ -17,7 +16,7 @@ import (
 // CreateRoomRequest é o DTO que o cliente (jokenpo-session) envia para criar uma sala.
 // Note que usamos a struct InitialPlayerInfo.
 type CreateRoomRequest struct {
-	PlayerInfos []*gameroom.InitialPlayerInfo `json:"playerInfos"`
+	PlayerInfos []*InitialPlayerInfo `json:"playerInfos"`
 }
 
 // CreateRoomResponse é o DTO que este serviço retorna após criar a sala.
@@ -37,7 +36,7 @@ type PlayCardRequest struct {
 // ============================================================================
 
 // RegisterHandlers configura todas as rotas da API para o GameRoomService.
-func RegisterHandlers(mux *http.ServeMux, roomManager *gameroom.RoomManager, port int) {
+func RegisterHandlers(mux *http.ServeMux, roomManager *RoomManager, port int) {
 	advertiseAddr := os.Getenv("ADVERTISE_ADDR")
 	if advertiseAddr == "" {
 		hostname, _ := os.Hostname()
@@ -56,7 +55,7 @@ func RegisterHandlers(mux *http.ServeMux, roomManager *gameroom.RoomManager, por
 // ============================================================================
 
 // handleCreateRoom lida com a requisição POST /rooms.
-func handleCreateRoom(rm *gameroom.RoomManager, advertiseAddr string, port int) http.HandlerFunc {
+func handleCreateRoom(rm *RoomManager, advertiseAddr string, port int) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
@@ -89,7 +88,7 @@ func handleCreateRoom(rm *gameroom.RoomManager, advertiseAddr string, port int) 
 }
 
 // handleRoomAction é um roteador para ações em salas existentes.
-func handleRoomAction(rm *gameroom.RoomManager) http.HandlerFunc {
+func handleRoomAction(rm *RoomManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extrai o RoomID e a Ação da URL. Ex: /rooms/uuid-123/play -> ["uuid-123", "play"]
 		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/rooms/"), "/")
@@ -128,7 +127,7 @@ func handleRoomAction(rm *gameroom.RoomManager) http.HandlerFunc {
 }
 
 // handlePlayCardAction decodifica o pedido de jogada e o encaminha para a goroutine da sala.
-func handlePlayCardAction(w http.ResponseWriter, r *http.Request, room *gameroom.GameRoom) {
+func handlePlayCardAction(w http.ResponseWriter, r *http.Request, room *GameRoom) {
 	var req PlayCardRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, `{"error": "Invalid payload for play action"}`, http.StatusBadRequest)
@@ -136,7 +135,7 @@ func handlePlayCardAction(w http.ResponseWriter, r *http.Request, room *gameroom
 	}
 
 	// Cria a mensagem para a goroutine da sala
-	action := gameroom.PlayCardAction{
+	action := PlayCardAction{
 		PlayerID:  req.PlayerID,
 		CardIndex: req.CardIndex,
 	}
@@ -147,4 +146,4 @@ func handlePlayCardAction(w http.ResponseWriter, r *http.Request, room *gameroom
 	w.WriteHeader(http.StatusAccepted) // 202 Accepted: a jogada foi recebida.
 }
 
-//END OF FILE jokenpo/internal/services/api/game.go
+//END OF FILE jokenpo/internal/services/gameroom/api.go

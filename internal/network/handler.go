@@ -1,4 +1,4 @@
-// network/handler.go
+//START OF FILE jokenpo/internal/network/handler.go
 package network
 
 // EventHandler é a interface que conecta a lógica da rede com a lógica do jogo.
@@ -14,3 +14,5 @@ type EventHandler interface {
 	// Basicamente um handler para qualquer solicitação
 	OnMessage(c *Client, msg Message)
 }
+
+//END OF FILE jokenpo/internal/network/handler.go

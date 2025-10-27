@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/services/shop/service.go
 package shop
 
 import (
@@ -149,3 +150,5 @@ func (s *ShopService) OnBecomeFollower() {
 	log.Println("[ShopService] This instance is now acting as a follower. DISABLING purchase logic.")
 	s.isLeader.Store(false)
 }
+
+//END OF FILE jokenpo/internal/services/shop/service.go

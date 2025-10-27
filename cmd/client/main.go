@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/cmd/client/main.go
 package main
 
 import (
@@ -398,3 +399,5 @@ func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
 	}
 	return num, nil
 }
+
+//END OF FILE jokenpo/cmd/client/main.go

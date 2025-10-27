@@ -85,6 +85,22 @@ func discoverAnyHealthy(client *consul.Client, serviceName string) string {
 		return ""
 	}
 	s := services[rand.IntN(len(services))]
+	addr := s.Service.Address
+	if addr == "" {
+		addr = s.Node.Address
+	}
+	return fmt.Sprintf("%s:%d", addr, s.Service.Port)
+}
+
+/*
+Desconsidere esse código
+func discoverAnyHealthy(client *consul.Client, serviceName string) string {
+	services, _, err := client.Health().Service(serviceName, "", true, nil)
+	if err != nil || len(services) == 0 {
+		log.Printf("AVISO: Nenhum serviço saudável para '%s'", serviceName)
+		return ""
+	}
+	s := services[rand.IntN(len(services))]
 	
 	// --- MUDANÇA: Padroniza a lógica de endereço ---
 	// A fonte da verdade é o endereço que o serviço registrou.
@@ -95,19 +111,6 @@ func discoverAnyHealthy(client *consul.Client, serviceName string) string {
 	}
 
 	return fmt.Sprintf("%s:%d", addr, s.Service.Port)
-}
-/*
-func discoverAnyHealthy(client *consul.Client, serviceName string) string {
-	services, _, err := client.Health().Service(serviceName, "", true, nil)
-	if err != nil || len(services) == 0 {
-		log.Printf("AVISO: Nenhum serviço saudável para '%s'", serviceName)
-		return ""
-	}
-	s := services[rand.IntN(len(services))]
-	addr := s.Service.Address
-	if addr == "" {
-		addr = s.Node.Address
-	}
-	return fmt.Sprintf("%s:%d", addr, s.Service.Port)
 }*/
+
 //END OF FILE jokenpo/internal/cluster/discovery.go

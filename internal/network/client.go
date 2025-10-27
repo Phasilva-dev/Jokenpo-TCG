@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/network/client.go
 package network
 
 import (
@@ -128,3 +129,4 @@ func (c *Client) writeLoop() {
 		}
 	}
 }
+//END OF FILE jokenpo/internal/network/client.go

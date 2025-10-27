@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/services/shop/random.go
 package shop
 
 import (
@@ -61,3 +62,4 @@ func generateRandomCardValue(r *rand.Rand) uint8 {
 	return valueDistribution[len(valueDistribution)-1].Value
 }
 
+//END OF FILE jokenpo/internal/services/shop/random.go
