@@ -93,6 +93,12 @@ func handleCreateRoom(rm *RoomManager, advertiseAddr string, port int) http.Hand
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated) // 201 Created
 		json.NewEncoder(w).Encode(resp)
+
+		log.Printf("[handleCreateRoom] Response sent for room %s. Now sending start signal.", room.ID)
+
+		// --- CORREÇÃO FINAL ---
+		// SÓ DEPOIS de responder, nós damos o sinal para a goroutine do jogo começar.
+		room.StartGame()
 	}
 }
 

@@ -39,16 +39,16 @@ func (gr *GameRoom) startGame() {
 		return
 	}
 
-	log.Printf("[GameRoom %s] Match started, timer of 15s activated.", gr.ID)
+	log.Printf("[GameRoom %s] Match started, timer of 5s activated.", gr.ID)
 
 	// --- MODIFICAÇÃO ---
 	// Notifica os jogadores via callback HTTP que o jogo começou.
 	gr.broadcastEvent("GAME_START", map[string]string{
-		"message": "The match has started! You have 15 seconds to play your card.",
+		"message": "The match has started! You have 5 seconds to play your card.",
 	})
 
 	gr.setGameState(phase_WAITING_FOR_PLAYS)
-	gr.roundTimer = time.NewTimer(15 * time.Second)
+	gr.roundTimer = time.NewTimer(5 * time.Second)
 }
 
 // startNewRound compra uma nova carta para cada jogador e inicia a próxima rodada.
@@ -72,11 +72,11 @@ func (gr *GameRoom) startNewRound() {
 	// --- MODIFICAÇÃO ---
 	// Notifica os jogadores via callback HTTP.
 	gr.broadcastEvent("NEW_ROUND", map[string]string{
-		"message": "A new round has started! You have 15 seconds to play your card.",
+		"message": "A new round has started! You have 5 seconds to play your card.",
 	})
 
 	gr.setGameState(phase_WAITING_FOR_PLAYS)
-	gr.roundTimer = time.NewTimer(15 * time.Second)
+	gr.roundTimer = time.NewTimer(5 * time.Second)
 }
 
 // HandlePlayCard processa a jogada de um jogador.

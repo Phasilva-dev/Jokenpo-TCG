@@ -62,7 +62,45 @@ func (rm *RoomManager) GetRoom(roomID string) *GameRoom {
 	return <-reply
 }
 
-// Run inicia o loop principal do ator RoomManager.
+// --- Nova Função Helper ---
+// handleMessage processa uma única mensagem do canal.
+// O defer aqui garante que, se um pânico ocorrer, ele será capturado
+// e a função retornará, permitindo que o loop principal continue.
+func (rm *RoomManager) handleMessage(msg interface{}) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("CRITICAL: Recovered from panic in RoomManager: %v", r)
+		}
+	}()
+
+	switch req := msg.(type) {
+	case createRoomRequest:
+		roomID := uuid.NewString()
+		room, err := NewGameRoom(roomID, req.PlayerInfos, rm.httpClient)
+		log.Printf("[DEBUG] Created Room") // Mantive seu log
+		if err != nil {
+			log.Printf("ERROR: Failed to create new game room: %v", err)
+			req.reply <- nil
+			return // Retorna de handleMessage
+		}
+		rm.rooms[roomID] = room
+		go room.Run()
+		req.reply <- room
+
+	case getRoomRequest:
+		req.reply <- rm.rooms[req.roomID]
+
+	case cleanupFinishedRooms:
+		for id, room := range rm.rooms {
+			if room.IsFinished() {
+				delete(rm.rooms, id)
+				log.Printf("[RoomManager] Cleaned up finished room %s", id)
+			}
+		}
+	}
+}
+
+// --- Função Run Simplificada ---
 func (rm *RoomManager) Run() {
 	log.Println("[RoomManager] Actor started.")
 	cleanupTicker := time.NewTicker(1 * time.Minute)
@@ -71,36 +109,12 @@ func (rm *RoomManager) Run() {
 	for {
 		select {
 		case msg := <-rm.requestCh:
-			switch req := msg.(type) {
-			case createRoomRequest:
-				roomID := uuid.NewString()
-				room, err := NewGameRoom(roomID, req.PlayerInfos, rm.httpClient)
-				log.Printf("[DEBUG] Created Room")
-				if err != nil {
-					log.Printf("ERROR: Failed to create new game room: %v", err)
-					req.reply <- nil
-					continue
-				}
-				rm.rooms[roomID] = room
-				go room.Run()
-				req.reply <- room
-
-			case getRoomRequest:
-				// Acessa o mapa de forma segura e retorna a sala.
-				req.reply <- rm.rooms[req.roomID]
-
-			case cleanupFinishedRooms:
-				for id, room := range rm.rooms {
-					if room.IsFinished() {
-						delete(rm.rooms, id)
-						log.Printf("[RoomManager] Cleaned up finished room %s", id)
-					}
-				}
-			}
+			// Processa a mensagem de forma segura
+			rm.handleMessage(msg)
 
 		case <-cleanupTicker.C:
-			// Envia uma mensagem para si mesmo para executar a limpeza de forma segura.
-			rm.requestCh <- cleanupFinishedRooms{}
+			// Processa a limpeza de forma segura
+			rm.handleMessage(cleanupFinishedRooms{})
 		}
 	}
 }

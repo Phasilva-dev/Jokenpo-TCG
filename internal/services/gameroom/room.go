@@ -38,6 +38,7 @@ type GameRoom struct {
 	rng         *rand.Rand
 	incoming    chan interface{}
 	quit        chan struct{}
+	start       chan struct{}
 	httpClient  *http.Client
 	gameState   atomic.Value // Usamos atomic.Value para gameState ser thread-safe
 	playedCards map[string]*card.Card
@@ -51,9 +52,11 @@ func NewGameRoom(id string, initialPlayerInfos []*InitialPlayerInfo, client *htt
 		rng:         rand.New(rand.NewPCG(uint64(time.Now().UnixNano()), 1)),
 		incoming:    make(chan interface{}),
 		quit:        make(chan struct{}),
+		start:       make(chan struct{}),
 		httpClient:  client,
 		playedCards: make(map[string]*card.Card),
 	}
+	log.Printf("GameRoom de ID %s foi criado",gr.ID)
 	gr.gameState.Store(phase_ROOM_START)
 
 	for i, info := range initialPlayerInfos {
@@ -76,7 +79,17 @@ func NewGameRoom(id string, initialPlayerInfos []*InitialPlayerInfo, client *htt
 	return gr, nil
 }
 
+func (gr *GameRoom) StartGame() {
+	close(gr.start)
+}
+
 func (gr *GameRoom) Run() {
+	log.Printf("[GameRoom %s] Goroutine starting, WAITING FOR START SIGNAL.", gr.ID)
+	
+    // --- LÓGICA DE SINCRONIZAÇÃO ---
+	// A goroutine vai bloquear aqui até que o canal 'start' seja fechado.
+	<-gr.start
+	log.Printf("[GameRoom %s] Start signal received, commencing game.", gr.ID)
 	log.Printf("[GameRoom %s] Goroutine starting for players: %v", gr.ID, gr.getPlayerIDs())
 	defer func() {
 		if gr.roundTimer != nil {
@@ -86,6 +99,7 @@ func (gr *GameRoom) Run() {
 		log.Printf("[GameRoom %s] Goroutine stopped.", gr.ID)
 	}()
 
+	log.Printf("[DEBUG] SALA COM %s ID ESTA RODANDO", gr.ID)
 	gr.startGame()
 
 	for {
@@ -113,10 +127,19 @@ func (gr *GameRoom) Run() {
 // ForwardAction envia uma ação para o canal da sala de forma segura.
 func (gr *GameRoom) ForwardAction(action interface{}) {
 	if gr.IsFinished() {
-		return // Não aceita mais ações se o jogo acabou.
+		log.Printf("[GameRoom %s] WARN: Action received after game over. Ignoring.", gr.ID)
+		return
 	}
-	// O envio pode bloquear se o canal estiver cheio, o que é o comportamento desejado.
-	gr.incoming <- action
+
+	// Usa um select com default para evitar bloqueio.
+	select {
+	case gr.incoming <- action:
+		// Ação enviada com sucesso.
+	default:
+		// Se o canal 'incoming' estiver cheio (porque a sala está ocupada
+		// processando o fim de uma rodada), esta ação é descartada.
+		log.Printf("[GameRoom %s] WARN: Incoming action channel is busy. Action discarded (likely a late play).", gr.ID)
+	}
 }
 
 // IsFinished verifica se o jogo terminou. É seguro para ser chamado de outras goroutines.
