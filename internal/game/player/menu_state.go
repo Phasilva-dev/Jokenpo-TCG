@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/player/menu_state.go
 package player
 
 import (
@@ -75,3 +76,4 @@ func (p *Player) RemoveCardToCollection(key string, num int) error {
 	}
 	return p.inventory.Collection().RemoveCard(key, uint(num))
 }
+//END OF FILE jokenpo/internal/game/player/menu_state.go

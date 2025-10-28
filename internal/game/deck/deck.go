@@ -35,6 +35,10 @@ func NewDeck() *Deck {
 	}
 }
 
+func (d *Deck) DeckSize() int {
+	return d.zones[DECK].Size()
+}
+
 // GetZone returns a pointer to the pile of cards of a specific zone.
 // This is used for direct manipulation of a zone, such as removing a card by index
 // or shuffling.

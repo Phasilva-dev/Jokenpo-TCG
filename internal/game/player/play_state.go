@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/player/play_state.go
 package player
 
 import (
@@ -96,3 +97,4 @@ func (p *Player) CardsInWinPile() (int, error) {
     }
     return len(winPile), nil
 }
+//END OF FILE jokenpo/internal/game/player/play_state.go

@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/player/inventory/inventory.go
 package inventory
 
 import (
@@ -48,3 +49,4 @@ func (i *Inventory) String() string {
 	sb.WriteString("=====================================\n")
 	return sb.String()
 }
+//END OF FILE jokenpo/internal/game/player/inventory/inventory.go

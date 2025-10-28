@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/game/player/inventory/card_manager.go
 package inventory
 
 import (
@@ -196,3 +197,4 @@ func validateDeckState(hypotheticalDeck []*card.Card, collection *card.PlayerCol
 	}
 	return nil // All validations passed
 }
+//END OF FILE jokenpo/internal/game/player/inventory/card_manager.go
