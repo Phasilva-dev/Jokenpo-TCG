@@ -79,12 +79,15 @@ func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 			http.Error(w, `{"error": "Invalid payload for entering match queue"}`, http.StatusBadRequest)
 			return
 		}
+		// Extrai o callback do query param da URL da requisição.
+		matchCallback := r.URL.Query().Get("callback")
 
 		log.Printf("[DEBUG] Queue received EnqueueMatchRequest for Player %s with deck size: %d", req.PlayerID, len(req.Deck))
 
 		player := &PlayerInfo{
 			ID:          req.PlayerID,
 			CallbackURL: req.CallbackURL,
+			MatchCallbackURL: matchCallback,
 			Deck:        req.Deck,
 		}
 		qm.EnqueueMatch(player)

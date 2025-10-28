@@ -269,11 +269,11 @@ func (gr *GameRoom) drawCardsAndNotify(playerID string, numToDraw int) bool {
 		handKeys[i] = c.Key()
 	}
 	
-	// Envia a mão atualizada para o jogador via callback.
+	log.Printf("[GameRoom %s] Player %s hand updated (cards: %d). drawSuccessful=%t", gr.ID, playerID, len(handKeys), drawSuccessful)
 	gr.sendCallbackToPlayer(playerID, "UPDATE_HAND", map[string]interface{}{
-		"message":  warningMessage,
-		"hand":     handKeys,
-	})
+	"message": warningMessage,
+	"hand":    handKeys,
+})
 
 	return drawSuccessful
 }

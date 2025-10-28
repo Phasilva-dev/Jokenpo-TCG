@@ -75,6 +75,7 @@ func (rm *RoomManager) Run() {
 			case createRoomRequest:
 				roomID := uuid.NewString()
 				room, err := NewGameRoom(roomID, req.PlayerInfos, rm.httpClient)
+				log.Printf("[DEBUG] Created Room")
 				if err != nil {
 					log.Printf("ERROR: Failed to create new game room: %v", err)
 					req.reply <- nil

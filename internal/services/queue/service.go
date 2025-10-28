@@ -19,6 +19,7 @@ import (
 type PlayerInfo struct {
 	ID          string   `json:"playerId"`
 	CallbackURL string   `json:"callbackUrl"`
+	MatchCallbackURL string 
 	Deck        []string `json:"deck"`
 }
 
@@ -186,8 +187,8 @@ func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 		RoomID:      roomResp.RoomID,
 		ServiceAddr: roomResp.ServiceAddr,
 	}
-	go m.sendCallback(p1.CallbackURL, matchCreatedPayload)
-	go m.sendCallback(p2.CallbackURL, matchCreatedPayload)
+	go m.sendCallback(p1.MatchCallbackURL, matchCreatedPayload)
+	go m.sendCallback(p2.MatchCallbackURL, matchCreatedPayload)
 }
 
 // --- Funções Helper ---
@@ -197,8 +198,8 @@ func (m *QueueMaster) notifyMatchFailed(p1, p2 *PlayerInfo, reason string) {
 		PlayerIDs: []string{p1.ID, p2.ID},
 		Reason:    reason,
 	}
-	go m.sendCallback(p1.CallbackURL, failPayload)
-	go m.sendCallback(p2.CallbackURL, failPayload)
+	go m.sendCallback(p1.MatchCallbackURL, failPayload)
+	go m.sendCallback(p2.MatchCallbackURL, failPayload)
 }
 
 func removePlayerFromMatchQueue(queue []*PlayerInfo, playerID string) []*PlayerInfo {

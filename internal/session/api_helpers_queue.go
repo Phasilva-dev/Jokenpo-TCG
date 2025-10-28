@@ -47,13 +47,14 @@ func (h *GameHandler) enterMatchQueue(session *PlayerSession, deckKeys []string)
 		return fmt.Errorf("the matchmaking service is currently unavailable")
 	}
 
-	hostname, _ := os.Hostname()
-	callbackURL := fmt.Sprintf("http://%s:%d/match-found", hostname, 8080)
+	//hostname, _ := os.Hostname()
+	//callbackURL := fmt.Sprintf("http://%s:%d/game-event", hostname, 8080)
+	gameEventCallbackURL := fmt.Sprintf("http://%s:%d/game-event", h.advertisedHostname, 8080)
 
 	// --- MUDANÇA: O payload agora inclui o deck ---
 	payload := EnqueueMatchRequest{
 		PlayerID:    session.ID,
-		CallbackURL: callbackURL,
+		CallbackURL: gameEventCallbackURL,
 		Deck:        deckKeys,
 	}
 	body, err := json.Marshal(payload)
@@ -61,7 +62,11 @@ func (h *GameHandler) enterMatchQueue(session *PlayerSession, deckKeys []string)
 		return fmt.Errorf("failed to create request payload: %w", err)
 	}
 
-	queueURL := fmt.Sprintf("http://%s/queue/match", queueServiceAddr)
+	matchFoundCallbackURL := fmt.Sprintf("http://%s:%d/match-found", h.advertisedHostname, 8080)
+	
+	// Construímos a URL para o serviço da fila e passamos o callback como um query parameter.
+	queueURL := fmt.Sprintf("http://%s/queue/match?callback=%s", queueServiceAddr, matchFoundCallbackURL)
+
 	resp, err := h.httpClient.Post(queueURL, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return fmt.Errorf("failed to contact matchmaking service: %w", err)

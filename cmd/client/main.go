@@ -133,11 +133,16 @@ func readLoop(conn *websocket.Conn, done chan struct{}) {
 			break
 		}
 
-		if msg.Type == "RESPONSE_SUCCESS" {
-			var payload struct{ State string `json:"state"` }
-			json.Unmarshal(msg.Payload, &payload)
-			if payload.State != "" {
-				updateClientState(payload.State)
+		// --- MUDANÇA AQUI ---
+		// Tenta decodificar o estado de QUALQUER mensagem, não importa o tipo.
+		var payloadWithState struct {
+			State string `json:"state"`
+		}
+
+		// Tentamos o unmarshal, mas ignoramos o erro se o campo não existir.
+		if json.Unmarshal(msg.Payload, &payloadWithState) == nil {
+			if payloadWithState.State != "" {
+				updateClientState(payloadWithState.State)
 			}
 		}
 

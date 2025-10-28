@@ -1,8 +1,9 @@
-//START OF FILE jokenpo/internal/services/gameroom/room.go
+// START OF FILE jokenpo/internal/services/gameroom/room.go
 package gameroom
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"jokenpo/internal/game/card"
@@ -10,6 +11,7 @@ import (
 	"log"
 	"math/rand/v2"
 	"net/http"
+	"net/url"
 	"sync/atomic"
 	"time"
 )
@@ -54,7 +56,7 @@ func NewGameRoom(id string, initialPlayerInfos []*InitialPlayerInfo, client *htt
 	}
 	gr.gameState.Store(phase_ROOM_START)
 
-	for _, info := range initialPlayerInfos {
+	for i, info := range initialPlayerInfos {
 		
 		gameDeck := deck.NewDeck()
 		for _, cardKey := range info.Deck {
@@ -69,6 +71,7 @@ func NewGameRoom(id string, initialPlayerInfos []*InitialPlayerInfo, client *htt
 			CallbackURL: info.CallbackURL,
 			GameDeck: gameDeck,
 		}
+		log.Printf("[DEBUG] Player %d, ID: (%s) deck size: %d",i , info.ID, gameDeck.DeckSize())
 	}
 	return gr, nil
 }
@@ -79,7 +82,7 @@ func (gr *GameRoom) Run() {
 		if gr.roundTimer != nil {
 			gr.roundTimer.Stop()
 		}
-		gr.setGameState(phase_GAME_OVER) // Garante que IsFinished() retorne true
+		gr.setGameState(phase_GAME_OVER)
 		log.Printf("[GameRoom %s] Goroutine stopped.", gr.ID)
 	}()
 
@@ -130,29 +133,88 @@ func (gr *GameRoom) setGameState(state string) {
 	gr.gameState.Store(state)
 }
 
-// --- Funções de Callback (sem mudanças) ---
 func (gr *GameRoom) broadcastEvent(eventType string, data interface{}) {
+	log.Printf("[GameRoom %s] Broadcasting event '%s' to %d players.", gr.ID, eventType, len(gr.players))
 	for _, pInfo := range gr.players {
-		gr.sendCallbackToPlayer(pInfo.ID, eventType, data)
+		// Executa cada envio em sua própria goroutine para não bloquear o loop principal do jogo.
+		go func(player *PlayerGameInfo) {
+			if err := gr.sendCallbackToPlayer(player.ID, eventType, data); err != nil {
+				log.Printf("[GameRoom %s] ERROR: Failed to send event '%s' to player %s after all retries: %v", gr.ID, eventType, player.ID, err)
+			}
+		}(pInfo)
 	}
 }
-func (gr *GameRoom) sendCallbackToPlayer(playerID string, eventType string, data interface{}) {
-	pInfo := gr.players[playerID]
-	if pInfo == nil { return }
-	eventPayload := map[string]interface{}{"eventType": eventType, "playerId": playerID, "roomId": gr.ID, "data": data}
-	jsonData, _ := json.Marshal(eventPayload)
-	go func(url string, payload []byte) {
-		resp, err := gr.httpClient.Post(url, "application/json", bytes.NewBuffer(payload))
+
+// sendCallbackToPlayer foi reescrita para ser robusta, com timeouts, retentativas e logs detalhados.
+func (gr *GameRoom) sendCallbackToPlayer(playerID string, eventType string, data interface{}) error {
+	pInfo, ok := gr.players[playerID]
+	if !ok {
+		return fmt.Errorf("player %s not found in room", playerID)
+	}
+
+	if pInfo.CallbackURL == "" {
+		return fmt.Errorf("player %s has an empty callback URL", playerID)
+	}
+	log.Printf("O CALLBACK DO PLAYER %s É %s", pInfo.ID, pInfo.CallbackURL)
+
+	// Validação básica para garantir que a URL pode ser parseada.
+	if _, err := url.ParseRequestURI(pInfo.CallbackURL); err != nil {
+		return fmt.Errorf("invalid callback URL for player %s: %w", playerID, err)
+	}
+
+	eventPayload := map[string]interface{}{
+		"eventType": eventType,
+		"playerId":  playerID,
+		"roomId":    gr.ID,
+		"data":      data,
+	}
+	jsonData, err := json.Marshal(eventPayload)
+	if err != nil {
+		return fmt.Errorf("failed to marshal payload for event %s: %w", eventType, err)
+	}
+
+	// Lógica de retentativa com backoff exponencial (espera um pouco mais a cada falha).
+	var lastErr error
+	backoff := 200 * time.Millisecond // Espera inicial
+
+	for attempt := 1; attempt <= 3; attempt++ {
+		// Usamos um contexto com timeout para cada tentativa individual.
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodPost, pInfo.CallbackURL, bytes.NewBuffer(jsonData))
 		if err != nil {
-			log.Printf("[GameRoom %s] ERROR: Failed to send callback to %s: %v", gr.ID, url, err)
-			return
+			// Este é um erro de programação, não de rede. Falha imediatamente.
+			return fmt.Errorf("failed to create HTTP request: %w", err)
 		}
-		defer resp.Body.Close()
-		if resp.StatusCode >= 300 {
-			log.Printf("[GameRoom %s] WARN: Callback to %s returned non-success status: %s", gr.ID, url, resp.Status)
+		req.Header.Set("Content-Type", "application/json")
+
+		log.Printf("[GameRoom %s] Sending event '%s' to player %s at %s (Attempt %d/3)...", gr.ID, eventType, playerID, pInfo.CallbackURL, attempt)
+		resp, err := gr.httpClient.Do(req)
+
+		if err != nil {
+			lastErr = err
+			log.Printf("[GameRoom %s] WARN: Attempt %d to send '%s' to player %s failed: %v", gr.ID, attempt, eventType, playerID, err)
+		} else {
+			resp.Body.Close() // Importante fechar o corpo da resposta.
+			if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+				log.Printf("[GameRoom %s] SUCCESS: Event '%s' delivered to player %s.", gr.ID, eventType, playerID)
+				return nil // Sucesso!
+			}
+			lastErr = fmt.Errorf("received non-success status code: %s", resp.Status)
+			log.Printf("[GameRoom %s] WARN: Attempt %d to send '%s' to player %s received status: %s", gr.ID, attempt, eventType, playerID, resp.Status)
 		}
-	}(pInfo.CallbackURL, jsonData)
+
+		// Se não for a última tentativa, espera antes de tentar novamente.
+		if attempt < 3 {
+			time.Sleep(backoff)
+			backoff *= 2 // Dobra o tempo de espera para a próxima tentativa.
+		}
+	}
+
+	return fmt.Errorf("failed to send callback after all retries: %w", lastErr)
 }
+
 
 // --- Funções Helper ---
 func (gr *GameRoom) getPlayerIDs() []string {

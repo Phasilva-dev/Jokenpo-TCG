@@ -70,6 +70,7 @@ func (h *GameHandler) handleMatchSuccess(w http.ResponseWriter, payload *MatchCr
 		ServiceAddr: payload.ServiceAddr,
 	}
 
+	log.Printf("Payload de MatchCreation tem exatamente %d IDs", len(payload.PlayerIDs))
 	// Itera sobre os jogadores do par. Atualiza o estado daquele(s) jogador(es)
 	// que estiver(em) nesta instância do jokenpo-session.
 	for _, playerID := range payload.PlayerIDs {
