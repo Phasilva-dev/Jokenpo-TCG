@@ -1,8 +1,9 @@
-//START OF FILE jokenpo/cmd/server/gameroom/main.go
+// START OF FILE jokenpo/cmd/server/gameroom/main.go
 package main
 
 import (
 	"fmt"
+	"jokenpo/internal/game/card"
 	"jokenpo/internal/services/cluster"
 	"jokenpo/internal/services/gameroom"
 	"log"
@@ -83,6 +84,11 @@ func main() {
 	}
 	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, ConsulAddrs=%s",
 		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
+	
+	if err := card.InitGlobalCatalog(); err != nil {
+		log.Fatalf("Falha fatal ao inicializar o catálogo de cartas: %v", err)
+	}
+	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
 	roomManager := gameroom.NewRoomManager()
 	go roomManager.Run()
