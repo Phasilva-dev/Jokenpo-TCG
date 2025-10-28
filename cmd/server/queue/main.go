@@ -11,40 +11,29 @@ import (
 	"strconv"
 )
 
-// ============================================================================
-// Constantes de Configuração Padrão
-// ============================================================================
 const (
 	defaultServiceName = "jokenpo-queue"
 	defaultServicePort = 8082
 	defaultHealthPort  = 8082
-	// --- MUDANÇA: O padrão agora é uma lista ---
-	defaultConsulAddr = "consul-1:8500,consul-2:8500,consul-3:8500"
+	defaultConsulAddr  = "consul-1:8500,consul-2:8500,consul-3:8500"
 )
 
-// ============================================================================
-// Estrutura de Configuração
-// ============================================================================
 type Config struct {
 	ServiceName string
 	ServicePort int
 	HealthPort  int
-	ConsulAddrs string // Renomeado para 'Addrs' para indicar que é uma lista
+	ConsulAddrs string
 }
 
-// loadConfig carrega a configuração a partir de variáveis de ambiente.
 func loadConfig() (*Config, error) {
 	serviceName := os.Getenv("QUEUE_SERVICE_NAME")
 	if serviceName == "" {
 		serviceName = defaultServiceName
 	}
-
-	// Lê a lista de endereços do Consul.
 	consulAddrs := os.Getenv("CONSUL_HTTP_ADDR")
 	if consulAddrs == "" {
 		consulAddrs = defaultConsulAddr
 	}
-
 	servicePortStr := os.Getenv("QUEUE_SERVICE_PORT")
 	if servicePortStr == "" {
 		servicePortStr = fmt.Sprintf("%d", defaultServicePort)
@@ -53,7 +42,6 @@ func loadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("formato de QUEUE_SERVICE_PORT inválido: %w", err)
 	}
-
 	healthPortStr := os.Getenv("HEALTH_CHECK_PORT")
 	if healthPortStr == "" {
 		healthPortStr = fmt.Sprintf("%d", defaultHealthPort)
@@ -62,23 +50,19 @@ func loadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("formato de HEALTH_CHECK_PORT inválido: %w", err)
 	}
-
 	return &Config{
 		ServiceName: serviceName,
 		ServicePort: servicePort,
 		HealthPort:  healthPort,
-		ConsulAddrs: consulAddrs, // Usa o campo renomeado
+		ConsulAddrs: consulAddrs,
 	}, nil
 }
-
-// ============================================================================
-// Lógica de Liderança (Ativo/Passivo)
-// ============================================================================
 
 type SimpleLeaderFollower struct {
 	Queue *queue.QueueMaster
 }
-func (s *SimpleLeaderFollower) GetState() interface{} { return nil }
+
+func (s *SimpleLeaderFollower) GetState() interface{}      { return nil }
 func (s *SimpleLeaderFollower) SetState(state []byte) error { return nil }
 func (s *SimpleLeaderFollower) OnBecomeLeader() {
 	log.Println("[Main] This node became the leader. Starting QueueMaster actor...")
@@ -88,9 +72,6 @@ func (s *SimpleLeaderFollower) OnBecomeFollower() {
 	log.Println("[Main] This node became a follower. QueueMaster is idle.")
 }
 
-// ============================================================================
-// Função Main
-// ============================================================================
 func main() {
 	log.Println("Iniciando instância do serviço Jokenpo Queue...")
 
@@ -101,9 +82,15 @@ func main() {
 	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, ConsulAddrs=%s",
 		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 
-	// --- MUDANÇA: Passa a lista de endereços para os construtores ---
-	queueMaster := queue.NewQueueMaster(cfg.ConsulAddrs)
-	elector, err := cluster.NewLeaderElector(cfg.ServiceName, cfg.ConsulAddrs)
+	// --- MUDANÇA: Cria o ConsulManager uma vez ---
+	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
+	}
+
+	// --- MUDANÇA: Passa o manager para os construtores ---
+	queueMaster := queue.NewQueueMaster(consulManager)
+	elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar eleitor de líder: %v", err)
 	}
@@ -118,8 +105,6 @@ func main() {
 	queue.RegisterQueueHandlers(mux, queueMaster, elector)
 	log.Println("[Main] Handlers HTTP registrados para /queue/* e /health.")
 
-	log.Println("[Main] Registrando serviço no Consul...")
-	// --- MUDANÇA: Passa a lista de endereços para a função de registro ---
 	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)

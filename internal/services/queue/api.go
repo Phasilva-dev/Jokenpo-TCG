@@ -12,21 +12,18 @@ import (
 // DTOs (Data Transfer Objects)
 // ============================================================================
 
-// EnqueueMatchRequest define o payload para entrar na fila de partida.
 type EnqueueMatchRequest struct {
 	PlayerID    string   `json:"playerId"`
-	CallbackURL string   `json:"callbackUrl"`
-	Deck        []string `json:"deck"` // <-- ADICIONE ESTE CAMPO
+	CallbackURL string   `json:"callbackUrl"` // Esta será a URL para /game-event
+	Deck        []string `json:"deck"`
 }
 
-// EnqueueTradeRequest define o payload para entrar na fila de troca às cegas.
 type EnqueueTradeRequest struct {
 	PlayerID    string `json:"playerId"`
-	CallbackURL string `json:"callbackUrl"`
+	CallbackURL string `json:"callbackUrl"` // Esta será a URL para /trade-found
 	OfferCard   string `json:"offerCard"`
 }
 
-// DequeueRequest define o payload para sair de qualquer fila.
 type DequeueRequest struct {
 	PlayerID string `json:"playerId"`
 }
@@ -35,32 +32,23 @@ type DequeueRequest struct {
 // Configuração dos Handlers
 // ============================================================================
 
-// RegisterQueueHandlers configura todas as rotas da API de matchmaking no mux fornecido.
 func RegisterQueueHandlers(mux *http.ServeMux, queueMaster *QueueMaster, elector *cluster.LeaderElector) {
-	// Cria um "middleware" que envolve nossos handlers para verificar a liderança.
 	leaderOnly := leaderOnlyMiddleware(elector)
-
-	// Registra as rotas para match e trade, protegendo-as com o middleware.
 	mux.Handle("/queue/match", leaderOnly(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleMatchQueue(w, r, queueMaster)
 	})))
-
 	mux.Handle("/queue/trade", leaderOnly(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handleTradeQueue(w, r, queueMaster)
 	})))
 }
 
-// leaderOnlyMiddleware é uma função de ordem superior (higher-order function) que
-// retorna um middleware. O middleware verifica a liderança antes de chamar o próximo handler.
 func leaderOnlyMiddleware(elector *cluster.LeaderElector) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Se este nó não for o líder, retorna um erro 503 e interrompe.
 			if !elector.IsLeader() {
 				http.Error(w, `{"error": "This node is not the leader"}`, http.StatusServiceUnavailable)
 				return
 			}
-			// Se for o líder, passa a requisição para o handler principal.
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -70,30 +58,34 @@ func leaderOnlyMiddleware(elector *cluster.LeaderElector) func(http.Handler) htt
 // Handlers Específicos das Filas
 // ============================================================================
 
-// handleMatchQueue lida com requisições para a fila de partida (POST para entrar, DELETE para sair).
 func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 	switch r.Method {
-	case http.MethodPost: // Entrar na fila
+	case http.MethodPost:
 		var req EnqueueMatchRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, `{"error": "Invalid payload for entering match queue"}`, http.StatusBadRequest)
 			return
 		}
-		// Extrai o callback do query param da URL da requisição.
-		matchCallback := r.URL.Query().Get("callback")
+		
+		// O callback para o resultado do match vem do query param da URL.
+		matchCallbackURL := r.URL.Query().Get("callback")
+		if matchCallbackURL == "" {
+			http.Error(w, `{"error": "Missing 'callback' query parameter"}`, http.StatusBadRequest)
+			return
+		}
 
-		log.Printf("[DEBUG] Queue received EnqueueMatchRequest for Player %s with deck size: %d", req.PlayerID, len(req.Deck))
+		log.Printf("[DEBUG] Queue received EnqueueMatchRequest for Player %s. GameCallback: %s, MatchCallback: %s", req.PlayerID, req.CallbackURL, matchCallbackURL)
 
 		player := &PlayerInfo{
-			ID:          req.PlayerID,
-			CallbackURL: req.CallbackURL,
-			MatchCallbackURL: matchCallback,
-			Deck:        req.Deck,
+			ID:               req.PlayerID,
+			CallbackURL:      req.CallbackURL, // A URL para /game-event que será passada ao GameRoom
+			MatchCallbackURL: matchCallbackURL,  // A URL para /match-found que o Queue usará
+			Deck:             req.Deck,
 		}
 		qm.EnqueueMatch(player)
-		w.WriteHeader(http.StatusAccepted) // 202 Accepted: O pedido foi aceito para processamento futuro.
+		w.WriteHeader(http.StatusAccepted)
 
-	case http.MethodDelete: // Sair da fila
+	case http.MethodDelete:
 		var req DequeueRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, `{"error": "Invalid payload for leaving queue"}`, http.StatusBadRequest)
@@ -103,27 +95,29 @@ func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 		w.WriteHeader(http.StatusOK)
 
 	default:
-		http.Error(w, `{"error": "Method not allowed. Use POST to enter and DELETE to leave."}`, http.StatusMethodNotAllowed)
+		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
 	}
 }
 
-// handleTradeQueue lida com requisições para a fila de troca.
 func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 	switch r.Method {
-	case http.MethodPost: // Entrar na fila
+	case http.MethodPost:
 		var req EnqueueTradeRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, `{"error": "Invalid payload for entering trade queue"}`, http.StatusBadRequest)
 			return
 		}
 		trade := &TradeInfo{
-			PlayerInfo: PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL},
-			OfferCard:  req.OfferCard,
+			PlayerInfo: PlayerInfo{
+				ID:          req.PlayerID,
+				CallbackURL: req.CallbackURL, // Para trocas, esta é a única URL necessária.
+			},
+			OfferCard: req.OfferCard,
 		}
 		qm.EnqueueTrade(trade)
 		w.WriteHeader(http.StatusAccepted)
 
-	case http.MethodDelete: // Sair da fila
+	case http.MethodDelete:
 		var req DequeueRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			http.Error(w, `{"error": "Invalid payload for leaving queue"}`, http.StatusBadRequest)
@@ -133,8 +127,7 @@ func handleTradeQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 		w.WriteHeader(http.StatusOK)
 
 	default:
-		http.Error(w, `{"error": "Method not allowed. Use POST to enter and DELETE to leave."}`, http.StatusMethodNotAllowed)
+		http.Error(w, `{"error": "Method not allowed"}`, http.StatusMethodNotAllowed)
 	}
 }
-
 //END OF FILE jokenpo/internal/services/queue/api.go

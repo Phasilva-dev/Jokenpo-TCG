@@ -4,7 +4,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"jokenpo/internal/services/cluster" // <-- ADICIONA o import do pacote cluster
+	"jokenpo/internal/services/cluster"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -19,20 +19,12 @@ import (
 	consul "github.com/hashicorp/consul/api"
 )
 
-// ============================================================================
-// Constantes de Configuração
-// ============================================================================
 const (
-	defaultListenAddr    = ":80"
-	// O padrão agora é a lista completa, para alta disponibilidade.
-	defaultConsulAddr    = "consul-1:8500,consul-2:8500,consul-3:8500"
+	defaultListenAddr      = ":80"
+	defaultConsulAddr      = "consul-1:8500,consul-2:8500,consul-3:8500"
 	defaultShutdownTimeout = 5 * time.Second
 )
 
-// ============================================================================
-// Estruturas do Load Balancer
-// ============================================================================
-// (Nenhuma mudança nesta seção)
 type BackendsStore struct {
 	backends []*Backend
 	mu       sync.RWMutex
@@ -42,6 +34,7 @@ type Backend struct {
 	URL          *url.URL
 	ReverseProxy *httputil.ReverseProxy
 }
+
 func (s *BackendsStore) Set(newBackends []*Backend) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -57,21 +50,25 @@ func (s *BackendsStore) GetNext() *Backend {
 	return s.backends[nextIndex%uint64(len(s.backends))]
 }
 
-
-// ============================================================================
-// Lógica de Integração com o Consul
-// ============================================================================
-// (Nenhuma mudança nesta seção)
-func watchConsulServices(store *BackendsStore, consulClient *consul.Client, serviceName string) {
+func watchConsulServices(store *BackendsStore, manager *cluster.ConsulManager, serviceName string) {
 	var waitIndex uint64 = 0
 	for {
-		opts := &consul.QueryOptions{WaitIndex: waitIndex}
-		services, meta, err := consulClient.Health().Service(serviceName, "", true, opts)
-		if err != nil {
-			log.Printf("ERRO ao buscar serviço '%s' do Consul: %v.", serviceName, err)
+		client := manager.GetClient()
+		if client == nil {
+			log.Printf("[Watcher] AVISO: Cliente Consul não está disponível. Tentando novamente em 5s.")
 			time.Sleep(5 * time.Second)
 			continue
 		}
+
+		opts := &consul.QueryOptions{WaitIndex: waitIndex, WaitTime: 2 * time.Minute}
+		services, meta, err := client.Health().Service(serviceName, "", true, opts)
+
+		if err != nil {
+			log.Printf("[Watcher] ERRO ao buscar serviço '%s' do Consul: %v. O manager tentará reconectar.", serviceName, err)
+			time.Sleep(5 * time.Second)
+			continue
+		}
+
 		waitIndex = meta.LastIndex
 		var newBackends []*Backend
 		for _, service := range services {
@@ -93,11 +90,6 @@ func watchConsulServices(store *BackendsStore, consulClient *consul.Client, serv
 	}
 }
 
-// --- REMOVIDO: A função createConsulClient foi movida para o pacote cluster ---
-
-// ============================================================================
-// Lógica de Configuração
-// ============================================================================
 type Config struct {
 	ListenAddr      string
 	ConsulAddrs     string
@@ -110,18 +102,14 @@ func loadConfig() (*Config, error) {
 	if targetService == "" {
 		return nil, fmt.Errorf("a variável de ambiente LB_TARGET_SERVICE deve ser definida")
 	}
-
-	// --- MUDANÇA: Usa a variável de ambiente padrão CONSUL_HTTP_ADDR ---
 	consulAddrs := os.Getenv("CONSUL_HTTP_ADDR")
 	if consulAddrs == "" {
 		consulAddrs = defaultConsulAddr
 	}
-
 	listenAddr := os.Getenv("LB_LISTEN_ADDR")
 	if listenAddr == "" {
 		listenAddr = defaultListenAddr
 	}
-	
 	return &Config{
 		ListenAddr:      listenAddr,
 		ConsulAddrs:     consulAddrs,
@@ -130,10 +118,6 @@ func loadConfig() (*Config, error) {
 	}, nil
 }
 
-// ============================================================================
-// Lógica dos Handlers HTTP
-// ============================================================================
-// (Nenhuma mudança nesta seção)
 func newLoadBalancerHandler(store *BackendsStore, targetService string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		backend := store.GetNext()
@@ -147,27 +131,24 @@ func newLoadBalancerHandler(store *BackendsStore, targetService string) http.Han
 	}
 }
 
-// ============================================================================
-// Função Main
-// ============================================================================
 func main() {
 	cfg, err := loadConfig()
 	if err != nil {
 		log.Fatalf("ERRO de configuração: %v", err)
 	}
 
-	// --- MUDANÇA: Usa a função helper centralizada do pacote cluster ---
-	consulClient, err := cluster.NewConsulClient(cfg.ConsulAddrs)
+	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
 	if err != nil {
-		log.Fatalf("Falha crítica ao conectar ao Consul: %v", err)
+		log.Fatalf("Falha crítica ao criar Consul Manager: %v", err)
 	}
 
 	store := &BackendsStore{}
-	go watchConsulServices(store, consulClient, cfg.TargetService)
+	go watchConsulServices(store, consulManager, cfg.TargetService)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK); fmt.Fprintln(w, "OK")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintln(w, "OK")
 	})
 	mux.HandleFunc("/", newLoadBalancerHandler(store, cfg.TargetService))
 
@@ -179,7 +160,7 @@ func main() {
 			log.Fatalf("Erro ao iniciar o servidor: %v", err)
 		}
 	}()
-	
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
@@ -187,7 +168,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
-	
+
 	if err := server.Shutdown(ctx); err != nil {
 		log.Fatalf("Erro no desligamento gracioso: %v", err)
 	}

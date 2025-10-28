@@ -13,9 +13,6 @@ import (
 	"strconv"
 )
 
-// ============================================================================
-// Constantes de Configuração Padrão
-// ============================================================================
 const (
 	defaultServiceName = "jokenpo-session"
 	defaultServicePort = 8080
@@ -23,31 +20,23 @@ const (
 	defaultConsulAddr  = "consul-1:8500,consul-2:8500,consul-3:8500"
 )
 
-// ============================================================================
-// Lógica de Configuração
-// ============================================================================
-
-// Config armazena todas as configurações da aplicação.
 type Config struct {
 	ServiceName        string
 	ServicePort        int
 	HealthPort         int
 	ConsulAddrs        string
-	AdvertisedHostname string // <-- CAMPO ADICIONADO
+	AdvertisedHostname string
 }
 
-// loadConfig carrega a configuração a partir de variáveis de ambiente.
 func loadConfig() (*Config, error) {
 	serviceName := os.Getenv("SESSION_SERVICE_NAME")
 	if serviceName == "" {
 		serviceName = defaultServiceName
 	}
-
 	consulAddrs := os.Getenv("CONSUL_HTTP_ADDR")
 	if consulAddrs == "" {
 		consulAddrs = defaultConsulAddr
 	}
-
 	servicePortStr := os.Getenv("SESSION_SERVICE_PORT")
 	if servicePortStr == "" {
 		servicePortStr = fmt.Sprintf("%d", defaultServicePort)
@@ -56,7 +45,6 @@ func loadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("formato de SESSION_SERVICE_PORT inválido: %w", err)
 	}
-
 	healthPortStr := os.Getenv("HEALTH_CHECK_PORT")
 	if healthPortStr == "" {
 		healthPortStr = fmt.Sprintf("%d", defaultHealthPort)
@@ -65,27 +53,19 @@ func loadConfig() (*Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("formato de HEALTH_CHECK_PORT inválido: %w", err)
 	}
-
-	// --- BLOCO ADICIONADO ---
-	// Lê o endereço que este serviço deve anunciar para os outros.
 	advertisedHostname := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
 	if advertisedHostname == "" {
 		return nil, fmt.Errorf("a variável de ambiente SERVICE_ADVERTISED_HOSTNAME deve ser definida")
 	}
-	// --- FIM DO BLOCO ---
-
 	return &Config{
 		ServiceName:        serviceName,
 		ServicePort:        servicePort,
 		HealthPort:         healthPort,
 		ConsulAddrs:        consulAddrs,
-		AdvertisedHostname: advertisedHostname, // <-- CAMPO ADICIONADO
+		AdvertisedHostname: advertisedHostname,
 	}, nil
 }
 
-// ============================================================================
-// Função Main (Refatorada)
-// ============================================================================
 func main() {
 	cfg, err := loadConfig()
 	if err != nil {
@@ -99,9 +79,14 @@ func main() {
 	}
 	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
-	// --- LINHA ALTERADA ---
-	// Passa o hostname anunciado para o GameHandler.
-	gameHandler, err := session.NewGameHandler(cfg.ConsulAddrs, cfg.AdvertisedHostname)
+	// --- MUDANÇA: Cria o ConsulManager uma vez ---
+	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
+	}
+
+	// --- MUDANÇA: Passa o manager para o GameHandler ---
+	gameHandler, err := session.NewGameHandler(consulManager, cfg.AdvertisedHostname)
 	if err != nil {
 		log.Fatalf("Falha ao criar o GameHandler: %v", err)
 	}
@@ -116,7 +101,6 @@ func main() {
 	http.HandleFunc("/game-event", gameHandler.CallbackGameEvent)
 	log.Printf("[Main] Handlers de Health Check e Callback registrados.")
 
-	log.Printf("[Main] Registrando serviço '%s' no Consul...", cfg.ServiceName)
 	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)

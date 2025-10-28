@@ -25,75 +25,77 @@ type StatefulService interface {
 }
 
 type LeaderElector struct {
-	client      *consul.Client
-	nodeID      string
-	serviceName string
-	leaderKey   string
-	stateKey    string
-	isLeader    atomic.Int32
+	consulManager *ConsulManager
+	nodeID        string
+	serviceName   string
+	leaderKey     string
+	stateKey      string
+	isLeader      atomic.Bool
 }
 
-// NewLeaderElector cria um novo eleitor, usando um cliente Consul resiliente.
-func NewLeaderElector(serviceName string, consulAddrs string) (*LeaderElector, error) {
-	// --- MUDANÇA: Usa a nova função helper para criar um cliente resiliente ---
-	client, err := NewConsulClient(consulAddrs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create consul client: %w", err)
-	}
-
-	// O resto da função permanece o mesmo.
-	nodeID, err := os.Hostname()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get hostname: %w", err)
+func NewLeaderElector(serviceName string, manager *ConsulManager) (*LeaderElector, error) {
+	hostname := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
+	if hostname == "" {
+		return nil, fmt.Errorf("SERVICE_ADVERTISED_HOSTNAME environment variable is not set")
 	}
 
 	elector := &LeaderElector{
-		client:      client,
-		nodeID:      nodeID,
-		serviceName: serviceName,
-		leaderKey:   fmt.Sprintf(leaderKeyPrefix, serviceName),
-		stateKey:    fmt.Sprintf(stateKeyPrefix, serviceName),
+		consulManager: manager,
+		nodeID:        hostname,
+		serviceName:   serviceName,
+		leaderKey:     fmt.Sprintf(leaderKeyPrefix, serviceName),
+		stateKey:      fmt.Sprintf(stateKeyPrefix, serviceName),
 	}
-	elector.isLeader.Store(0)
+	elector.isLeader.Store(false)
 	return elector, nil
 }
 
-// (O resto do arquivo leader.go - IsLeader, RunForLeadership, etc. - não precisa de mudanças)
 func (e *LeaderElector) IsLeader() bool {
-	return e.isLeader.Load() == 1
+	return e.isLeader.Load()
 }
 
 func (e *LeaderElector) RunForLeadership(service StatefulService) {
 	for {
 		log.Printf("[%s Elector] Starting new leadership campaign.", e.serviceName)
-		lockLostCh, err := e.acquireLock()
-		if err != nil {
-			log.Printf("[%s Elector] Failed to acquire lock: %v. Retrying in 10s...", e.serviceName, err)
-			service.OnBecomeFollower()
-			e.isLeader.Store(0)
+
+		client := e.consulManager.GetClient()
+		if client == nil {
+			log.Printf("[%s Elector] WARN: Consul client not available. Retrying in 10s...", e.serviceName)
 			time.Sleep(10 * time.Second)
 			continue
 		}
+
+		lockLostCh, err := e.acquireLock(client)
+		if err != nil {
+			log.Printf("[%s Elector] Failed to acquire lock: %v. Retrying in 10s...", e.serviceName, err)
+			service.OnBecomeFollower()
+			e.isLeader.Store(false)
+			time.Sleep(10 * time.Second)
+			continue
+		}
+
 		log.Printf("**************************************************")
 		log.Printf("***** This node (%s) is now the LEADER for service '%s' *****", e.nodeID, e.serviceName)
 		log.Println("**************************************************")
-		e.isLeader.Store(1)
+		e.isLeader.Store(true)
 		e.restoreState(service)
 		service.OnBecomeLeader()
+
 		<-lockLostCh
+
 		log.Printf("[%s Elector] Leadership lost. Becoming follower.", e.serviceName)
 		service.OnBecomeFollower()
-		e.isLeader.Store(0)
+		e.isLeader.Store(false)
 	}
 }
 
-func (e *LeaderElector) acquireLock() (<-chan struct{}, error) {
+func (e *LeaderElector) acquireLock(client *consul.Client) (<-chan struct{}, error) {
 	opts := &consul.LockOptions{
 		Key:        e.leaderKey,
 		Value:      []byte(e.nodeID),
 		SessionTTL: "15s",
 	}
-	lock, err := e.client.LockOpts(opts)
+	lock, err := client.LockOpts(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +103,12 @@ func (e *LeaderElector) acquireLock() (<-chan struct{}, error) {
 }
 
 func (e *LeaderElector) restoreState(service StatefulService) {
-	kvPair, _, err := e.client.KV().Get(e.stateKey, nil)
+	client := e.consulManager.GetClient()
+	if client == nil {
+		log.Printf("WARN: Cannot restore state for '%s', Consul client is nil.", e.serviceName)
+		return
+	}
+	kvPair, _, err := client.KV().Get(e.stateKey, nil)
 	if err != nil {
 		log.Printf("WARN: Could not read state for '%s': %v.", e.serviceName, err)
 		return
@@ -119,12 +126,20 @@ func (e *LeaderElector) PersistState(service StatefulService) error {
 	if !e.IsLeader() {
 		return fmt.Errorf("only leader can persist state")
 	}
+	client := e.consulManager.GetClient()
+	if client == nil {
+		return fmt.Errorf("cannot persist state for '%s', Consul client is nil", e.serviceName)
+	}
 	state := service.GetState()
 	data, err := json.Marshal(state)
-	if err != nil { return fmt.Errorf("failed to marshal state: %w", err) }
+	if err != nil {
+		return fmt.Errorf("failed to marshal state: %w", err)
+	}
 	kvPair := &consul.KVPair{Key: e.stateKey, Value: data}
-	_, err = e.client.KV().Put(kvPair, nil)
-	if err != nil { return fmt.Errorf("failed to write state to Consul: %w", err) }
+	_, err = client.KV().Put(kvPair, nil)
+	if err != nil {
+		return fmt.Errorf("failed to write state to Consul: %w", err)
+	}
 	log.Printf("[Leader] Persisted state for '%s'.", e.serviceName)
 	return nil
 }

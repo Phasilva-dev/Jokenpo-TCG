@@ -15,11 +15,10 @@ import (
 // Estruturas de Dados
 // ============================================================================
 
-// PlayerInfo agora contém o deck para passar para o GameRoomService.
 type PlayerInfo struct {
 	ID          string   `json:"playerId"`
 	CallbackURL string   `json:"callbackUrl"`
-	MatchCallbackURL string 
+	MatchCallbackURL string // Não precisa de tag JSON, é usado apenas internamente
 	Deck        []string `json:"deck"`
 }
 
@@ -59,14 +58,14 @@ type QueueMaster struct {
 	serviceCache *cluster.ServiceCacheActor
 }
 
-// NewQueueMaster agora precisa do endereço do Consul para criar seu cache.
-func NewQueueMaster(consulAddr string) *QueueMaster {
+// NewQueueMaster agora recebe o ConsulManager para resiliência.
+func NewQueueMaster(manager *cluster.ConsulManager) *QueueMaster {
 	return &QueueMaster{
 		matchQueue:   make([]*PlayerInfo, 0),
 		tradeQueue:   make([]*TradeInfo, 0),
 		requestCh:    make(chan actorMessage),
 		httpClient:   &http.Client{Timeout: 10 * time.Second},
-		serviceCache: cluster.NewServiceCacheActor(30*time.Second, consulAddr),
+		serviceCache: cluster.NewServiceCacheActor(30*time.Second, manager), // Passa o manager para o cache
 	}
 }
 
@@ -120,11 +119,14 @@ func (m *QueueMaster) DequeueTrade(playerID string)   { m.requestCh <- dequeueTr
 // ============================================================================
 
 func (m *QueueMaster) tryPairingTrades() {
-	if len(m.tradeQueue) < 2 { return }
+	if len(m.tradeQueue) < 2 {
+		return
+	}
 	trade1 := m.tradeQueue[0]
 	trade2 := m.tradeQueue[1]
 	m.tradeQueue = m.tradeQueue[2:]
 	log.Printf("[QueueMaster] TRADE FOUND! Pairing '%s' and '%s'.", trade1.ID, trade2.ID)
+	// Para trocas, a CallbackURL original (que aponta para /trade-found) ainda é usada.
 	payload1 := map[string]string{"playerId": trade1.ID, "cardSent": trade1.OfferCard, "cardReceived": trade2.OfferCard}
 	go m.sendCallback(trade1.CallbackURL, payload1)
 	payload2 := map[string]string{"playerId": trade2.ID, "cardSent": trade2.OfferCard, "cardReceived": trade1.OfferCard}
@@ -143,7 +145,6 @@ func (m *QueueMaster) tryPairingMatches() {
 }
 
 func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
-	// 1. Descobre um GameRoomService disponível.
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeAnyHealthy}
 	gameRoomServiceAddr := m.serviceCache.Discover("jokenpo-gameroom", opts)
 	if gameRoomServiceAddr == "" {
@@ -153,11 +154,10 @@ func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 		return
 	}
 
-	// 2. Envia a requisição para o GameRoomService criar a sala.
 	createReq := CreateRoomRequest{PlayerInfos: []*PlayerInfo{p1, p2}}
 	reqBody, _ := json.Marshal(createReq)
 	createURL := fmt.Sprintf("http://%s/rooms", gameRoomServiceAddr)
-	
+
 	resp, err := m.httpClient.Post(createURL, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil || resp.StatusCode != http.StatusCreated {
 		var status string
@@ -171,7 +171,6 @@ func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 	}
 	defer resp.Body.Close()
 
-	// 3. Decodifica a resposta do GameRoomService.
 	var roomResp CreateRoomResponse
 	if err := json.NewDecoder(resp.Body).Decode(&roomResp); err != nil {
 		reason := fmt.Sprintf("Failed to parse GameRoomService response: %v", err)
@@ -180,13 +179,13 @@ func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 		return
 	}
 
-	// 4. Notifica os servidores de sessão originais com as informações da sala.
 	log.Printf("[QueueMaster] Room %s created at %s. Notifying session servers.", roomResp.RoomID, roomResp.ServiceAddr)
 	matchCreatedPayload := MatchCreatedPayload{
 		PlayerIDs:   []string{p1.ID, p2.ID},
 		RoomID:      roomResp.RoomID,
 		ServiceAddr: roomResp.ServiceAddr,
 	}
+	// Usa o campo MatchCallbackURL para notificar o resultado.
 	go m.sendCallback(p1.MatchCallbackURL, matchCreatedPayload)
 	go m.sendCallback(p2.MatchCallbackURL, matchCreatedPayload)
 }
@@ -198,6 +197,7 @@ func (m *QueueMaster) notifyMatchFailed(p1, p2 *PlayerInfo, reason string) {
 		PlayerIDs: []string{p1.ID, p2.ID},
 		Reason:    reason,
 	}
+	// Usa o campo MatchCallbackURL para notificar o resultado.
 	go m.sendCallback(p1.MatchCallbackURL, failPayload)
 	go m.sendCallback(p2.MatchCallbackURL, failPayload)
 }
@@ -223,6 +223,10 @@ func removePlayerFromTradeQueue(queue []*TradeInfo, playerID string) []*TradeInf
 }
 
 func (m *QueueMaster) sendCallback(callbackURL string, payload interface{}) {
+	if callbackURL == "" {
+		log.Printf("ERROR: Attempted to send callback but URL is empty. Payload: %+v", payload)
+		return
+	}
 	data, err := json.Marshal(payload)
 	if err != nil {
 		log.Printf("ERROR: Failed to marshal callback payload for URL %s: %v", callbackURL, err)
