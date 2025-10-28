@@ -72,6 +72,10 @@ func handleCreateRoom(rm *RoomManager, advertiseAddr string, port int) http.Hand
 			http.Error(w, `{"error": "Invalid payload: requires 'playerInfos' array with 2 players"}`, http.StatusBadRequest)
 			return
 		}
+		
+		log.Printf("[DEBUG] GameRoom received CreateRoomRequest.")
+		log.Printf("[DEBUG] Player 1 (%s) deck size: %d", req.PlayerInfos[0].ID, len(req.PlayerInfos[0].Deck))
+		log.Printf("[DEBUG] Player 2 (%s) deck size: %d", req.PlayerInfos[1].ID, len(req.PlayerInfos[1].Deck))
 
 		// Chama o RoomManager para criar a sala de forma síncrona.
 		room := rm.CreateRoom(req.PlayerInfos[0], req.PlayerInfos[1])
