@@ -1,9 +1,10 @@
-//START OF FILE jokenpo/internal/services/queue/api.go
+// START OF FILE jokenpo/internal/services/queue/api.go
 package queue
 
 import (
 	"encoding/json"
 	"jokenpo/internal/services/cluster"
+	"log"
 	"net/http"
 )
 
@@ -78,7 +79,14 @@ func handleMatchQueue(w http.ResponseWriter, r *http.Request, qm *QueueMaster) {
 			http.Error(w, `{"error": "Invalid payload for entering match queue"}`, http.StatusBadRequest)
 			return
 		}
-		player := &PlayerInfo{ID: req.PlayerID, CallbackURL: req.CallbackURL}
+
+		log.Printf("[DEBUG] Queue received EnqueueMatchRequest for Player %s with deck size: %d", req.PlayerID, len(req.Deck))
+
+		player := &PlayerInfo{
+			ID:          req.PlayerID,
+			CallbackURL: req.CallbackURL,
+			Deck:        req.Deck,
+		}
 		qm.EnqueueMatch(player)
 		w.WriteHeader(http.StatusAccepted) // 202 Accepted: O pedido foi aceito para processamento futuro.
 

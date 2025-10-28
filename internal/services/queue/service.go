@@ -118,6 +118,18 @@ func (m *QueueMaster) DequeueTrade(playerID string)   { m.requestCh <- dequeueTr
 // Lógica de Pareamento e Orquestração
 // ============================================================================
 
+func (m *QueueMaster) tryPairingTrades() {
+	if len(m.tradeQueue) < 2 { return }
+	trade1 := m.tradeQueue[0]
+	trade2 := m.tradeQueue[1]
+	m.tradeQueue = m.tradeQueue[2:]
+	log.Printf("[QueueMaster] TRADE FOUND! Pairing '%s' and '%s'.", trade1.ID, trade2.ID)
+	payload1 := map[string]string{"playerId": trade1.ID, "cardSent": trade1.OfferCard, "cardReceived": trade2.OfferCard}
+	go m.sendCallback(trade1.CallbackURL, payload1)
+	payload2 := map[string]string{"playerId": trade2.ID, "cardSent": trade2.OfferCard, "cardReceived": trade1.OfferCard}
+	go m.sendCallback(trade2.CallbackURL, payload2)
+}
+
 func (m *QueueMaster) tryPairingMatches() {
 	if len(m.matchQueue) < 2 {
 		return
@@ -176,18 +188,6 @@ func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 	}
 	go m.sendCallback(p1.CallbackURL, matchCreatedPayload)
 	go m.sendCallback(p2.CallbackURL, matchCreatedPayload)
-}
-
-func (m *QueueMaster) tryPairingTrades() {
-	if len(m.tradeQueue) < 2 { return }
-	trade1 := m.tradeQueue[0]
-	trade2 := m.tradeQueue[1]
-	m.tradeQueue = m.tradeQueue[2:]
-	log.Printf("[QueueMaster] TRADE FOUND! Pairing '%s' and '%s'.", trade1.ID, trade2.ID)
-	payload1 := map[string]string{"playerId": trade1.ID, "cardSent": trade1.OfferCard, "cardReceived": trade2.OfferCard}
-	go m.sendCallback(trade1.CallbackURL, payload1)
-	payload2 := map[string]string{"playerId": trade2.ID, "cardSent": trade2.OfferCard, "cardReceived": trade1.OfferCard}
-	go m.sendCallback(trade2.CallbackURL, payload2)
 }
 
 // --- Funções Helper ---
