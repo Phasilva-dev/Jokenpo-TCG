@@ -81,7 +81,12 @@ func (h *GameHandler) handleMatchSuccess(w http.ResponseWriter, payload *MatchCr
 			
 			// Notifica o cliente (via WebSocket) que ele está em uma partida.
 			// O GameRoomService enviará as mensagens de início de jogo (compra de cartas, etc.).
-			message.SendSuccess(session.Client, session.State, "Match found! Entering game room...", gameInfo)
+			message.SendSuccessAndPrompt(
+				session.Client,
+				session.State,
+				"Match found! Entering game room...",
+				gameInfo,
+			)
 		}
 	}
 	w.WriteHeader(http.StatusOK)

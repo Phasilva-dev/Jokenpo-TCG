@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"jokenpo/internal/services/cluster"
 	"net/http"
 
 )
@@ -43,7 +42,7 @@ type PlayCardRequest struct {
 // Helpers de API para o GameHandler
 // ============================================================================
 
-// createGameRoom é um helper que encapsula a chamada para criar uma nova sala no GameRoomService.
+/*// createGameRoom é um helper que encapsula a chamada para criar uma nova sala no GameRoomService.
 func (h *GameHandler) createGameRoom(p1Session, p2Session *PlayerSession) (*CreateRoomResponse, error) {
 	// 1. Descobre qualquer instância saudável do GameRoomService.
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeAnyHealthy}
@@ -114,7 +113,7 @@ func (h *GameHandler) createGameRoom(p1Session, p2Session *PlayerSession) (*Crea
 	}
 	
 	return &createResp, nil
-}
+}*/
 
 
 // forwardPlayCardAction é um helper para encaminhar a jogada de um jogador para o GameRoomService correto.
