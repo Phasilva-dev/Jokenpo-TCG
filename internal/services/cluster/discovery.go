@@ -92,25 +92,4 @@ func discoverAnyHealthy(client *consul.Client, serviceName string) string {
 	return fmt.Sprintf("%s:%d", addr, s.Service.Port)
 }
 
-/*
-Desconsidere esse código
-func discoverAnyHealthy(client *consul.Client, serviceName string) string {
-	services, _, err := client.Health().Service(serviceName, "", true, nil)
-	if err != nil || len(services) == 0 {
-		log.Printf("AVISO: Nenhum serviço saudável para '%s'", serviceName)
-		return ""
-	}
-	s := services[rand.IntN(len(services))]
-	
-	// --- MUDANÇA: Padroniza a lógica de endereço ---
-	// A fonte da verdade é o endereço que o serviço registrou.
-	addr := s.Service.Address
-	// O fallback para Node.Address só é usado se o serviço não anunciou um endereço.
-	if addr == "" {
-		addr = s.Node.Address
-	}
-
-	return fmt.Sprintf("%s:%d", addr, s.Service.Port)
-}*/
-
 //END OF FILE jokenpo/internal/cluster/discovery.go
