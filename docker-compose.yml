@@ -1,50 +1,96 @@
+networks:
+  consul-net:
+    driver: bridge
+    attachable: true
+    name: consul-net
+
 services:
   # --- 1. INFRAESTRUTURA: CLUSTER CONSUL ---
   consul-1:
-    image: hashicorp/consul:latest
+    image: hashicorp/consul:1.22
     container_name: consul-1
     hostname: consul-1
-    ports: ["8500:8500"]
+    networks: [consul-net]
+    ports:
+      - "8500:8500"
+      - "8600:8600/udp"
+      - "8300:8300"
+      - "8301:8301"
+      - "8302:8302"
     command: >
-      agent -server -ui -node=consul-node-1 -bootstrap-expect=3 -client=0.0.0.0
-      -retry-join=consul-2 -retry-join=consul-3
+      agent -server -ui -node=consul-node-1 -bootstrap-expect=3
+      -client=0.0.0.0
+      -dns-port=8600 -recursor=8.8.8.8
+#      -advertise=172.18.0.2
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8500/v1/status/leader"]
       interval: 5s
-      timeout: 2s
+      timeout: 3s
       retries: 10
-    profiles: [infra, game] # Adicionado 'game' para subir junto
+    restart: unless-stopped
+    profiles: [infra, game]
 
   consul-2:
-    image: hashicorp/consul:latest
+    image: hashicorp/consul:1.22
     container_name: consul-2
     hostname: consul-2
+    networks: [consul-net]
+    ports:
+      - "8501:8500"
+      - "8601:8600/udp"
+      - "8303:8300"
+      - "8304:8301"
+      - "8305:8302"
     command: >
-      agent -server -node=consul-node-2 -bootstrap-expect=3 -client=0.0.0.0
+      agent -server -node=consul-node-2 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-3
-    depends_on: [consul-1]
-    profiles: [infra, game] # Adicionado 'game' para subir junto
+      -dns-port=8600 -recursor=8.8.8.8
+      -ui
+#      -advertise=172.18.0.3
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8500/v1/status/leader"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    profiles: [infra, game]
 
   consul-3:
-    image: hashicorp/consul:latest
+    image: hashicorp/consul:1.22
     container_name: consul-3
     hostname: consul-3
+    networks: [consul-net]
+    ports:
+      - "8502:8500"
+      - "8602:8600/udp"
+      - "8306:8300"
+      - "8307:8301"
+      - "8308:8302"
     command: >
-      agent -server -node=consul-node-3 -bootstrap-expect=3 -client=0.0.0.0
+      agent -server -node=consul-node-3 -client=0.0.0.0
       -retry-join=consul-1 -retry-join=consul-2
-    depends_on: [consul-1]
-    profiles: [infra, game] # Adicionado 'game' para subir junto
+      -dns-port=8600 -recursor=8.8.8.8
+      -ui
+#      -advertise=172.18.0.2
+    healthcheck:
+      test: ["CMD", "curl", "-fsSL", "http://localhost:8500/v1/status/leader"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    profiles: [infra, game]
 
   # --- 2. APLICAÇÃO: SERVIÇOS ESCALÁVEIS (Instâncias Explícitas) ---
-  
-  # --- JOKENPO SESSION ---
   jokenpo-session-1:
     build:
       context: .
       dockerfile: ./cmd/server/session/Dockerfile
     hostname: jokenpo-session-1
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-session-1
@@ -57,8 +103,11 @@ services:
       context: .
       dockerfile: ./cmd/server/session/Dockerfile
     hostname: jokenpo-session-2
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-session-2
@@ -66,14 +115,16 @@ services:
       - HEALTH_CHECK_PORT=8080
     profiles: [game]
 
-  # --- SHOP SERVICE ---
   shop-service-1:
     build:
       context: .
       dockerfile: ./cmd/server/shop/Dockerfile
     hostname: shop-service-1
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=shop-service-1
@@ -86,8 +137,11 @@ services:
       context: .
       dockerfile: ./cmd/server/shop/Dockerfile
     hostname: shop-service-2
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=shop-service-2
@@ -95,14 +149,16 @@ services:
       - HEALTH_CHECK_PORT=8081
     profiles: [game]
 
-  # --- JOKENPO QUEUE ---
   jokenpo-queue-1:
     build:
       context: .
       dockerfile: ./cmd/server/queue/Dockerfile
     hostname: jokenpo-queue-1
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-queue-1
@@ -115,8 +171,11 @@ services:
       context: .
       dockerfile: ./cmd/server/queue/Dockerfile
     hostname: jokenpo-queue-2
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-queue-2
@@ -124,14 +183,16 @@ services:
       - HEALTH_CHECK_PORT=8082
     profiles: [game]
 
-  # --- JOKENPO GAMEROOM ---
   jokenpo-gameroom-1:
     build:
       context: .
       dockerfile: ./cmd/server/gameroom/Dockerfile
     hostname: jokenpo-gameroom-1
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-gameroom-1
@@ -144,8 +205,11 @@ services:
       context: .
       dockerfile: ./cmd/server/gameroom/Dockerfile
     hostname: jokenpo-gameroom-2
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-gameroom-2
@@ -158,8 +222,11 @@ services:
       context: .
       dockerfile: ./cmd/server/gameroom/Dockerfile
     hostname: jokenpo-gameroom-3
+    networks: [consul-net]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - SERVICE_ADVERTISED_HOSTNAME=jokenpo-gameroom-3
@@ -172,37 +239,46 @@ services:
     build:
       context: .
       dockerfile: ./cmd/server/loadbalancer/Dockerfile
+    networks: [consul-net]
     ports: ["9080:80"]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
-    profiles: [game] # Adicionado 'game' para subir junto
+    profiles: [game]
 
   load-balancer-2:
     build:
       context: .
       dockerfile: ./cmd/server/loadbalancer/Dockerfile
-    ports: ["9081:80"] # Porta externa diferente
+    networks: [consul-net]
+    ports: ["9081:80"]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
-    profiles: [game] # Adicionado 'game' para subir junto
+    profiles: [game]
 
   load-balancer-3:
     build:
       context: .
       dockerfile: ./cmd/server/loadbalancer/Dockerfile
-    ports: ["9082:80"] # Porta externa diferente
+    networks: [consul-net]
+    ports: ["9082:80"]
     depends_on:
       consul-1: { condition: service_healthy }
+      consul-2: { condition: service_healthy }
+      consul-3: { condition: service_healthy }
     environment:
       - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
-    profiles: [game] # Adicionado 'game' para subir junto
+    profiles: [game]

@@ -15,14 +15,14 @@ const (
 	defaultServiceName = "jokenpo-shop"
 	defaultServicePort = 8081
 	defaultHealthPort  = 8081
-	defaultConsulAddr  = "consul-1:8500,consul-2:8500,consul-3:8500" // Atualizado para lista
+	defaultConsulAddr  = "consul-1:8500,consul-2:8500,consul-3:8500"
 )
 
 type Config struct {
 	ServiceName string
 	ServicePort int
 	HealthPort  int
-	ConsulAddrs string // Renomeado de ConsulAddr para ConsulAddrs
+	ConsulAddrs string
 }
 
 func loadConfig() (*Config, error) {
@@ -68,16 +68,36 @@ func main() {
 	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, ConsulAddrs=%s",
 		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 
-	// --- MUDANÇA: Cria o ConsulManager uma vez ---
+	// --- LÓGICA DE REGISTRO RESILIENTE ---
+	// 1. Cria o ConsulManager, que gerencia a conexão de forma contínua.
 	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
 	}
 
+	// 2. Cria o ServiceRegistrar, que sabe como registrar este serviço.
+	advertisedHost := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
+	registrar, err := cluster.NewServiceRegistrar(
+		consulManager,
+		cfg.ServiceName,
+		advertisedHost,
+		cfg.ServicePort,
+		cfg.HealthPort,
+	)
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao criar o Service Registrar: %v", err)
+	}
+
+	// 3. Conecta os dois: toda vez que o manager se reconectar, ele tentará registrar o serviço novamente.
+	consulManager.OnReconnect(registrar.Register)
+
+	// 4. CORREÇÃO: Realiza o primeiro registro manualmente na inicialização.
+	registrar.Register()
+	// --- FIM DA LÓGICA DE REGISTRO RESILIENTE ---
+
 	shopService := shop.NewShopService()
 	log.Println("[Main] Ator do ShopService criado.")
 
-	// --- MUDANÇA: Passa o manager para o eleitor de líder ---
 	elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar eleitor de líder: %v", err)
@@ -92,10 +112,8 @@ func main() {
 	http.HandleFunc("/Purchase", shopHandler)
 	log.Println("[Main] Handlers HTTP registrados.")
 
-	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
-	if err != nil {
-		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)
-	}
+	// A chamada antiga e única ao RegisterServiceInConsul foi removida.
+	// O gerenciamento agora é contínuo.
 
 	listenAddress := fmt.Sprintf(":%d", cfg.ServicePort)
 	log.Printf("[Main] Servidor HTTP do serviço Shop iniciando em %s.", listenAddress)

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"jokenpo/internal/services/cluster"
+	"log"
 	"net/http"
 	"os"
 )
@@ -42,13 +43,14 @@ type DequeueRequest struct {
 // enterMatchQueue encapsula a chamada HTTP para entrar na fila de partida.
 func (h *GameHandler) enterMatchQueue(session *PlayerSession, deckKeys []string) error {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeLeader}
+	log.Printf("[enterMatchQueue] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	queueServiceAddr := h.serviceCache.Discover("jokenpo-queue", opts)
+	log.Printf("[enterMatchQueue] queueServiceAddr retornado: '%s'", queueServiceAddr)
+	h.serviceCache.PrintEntries()
 	if queueServiceAddr == "" {
 		return fmt.Errorf("the matchmaking service is currently unavailable")
 	}
 
-	//hostname, _ := os.Hostname()
-	//callbackURL := fmt.Sprintf("http://%s:%d/game-event", hostname, 8080)
 	gameEventCallbackURL := fmt.Sprintf("http://%s:%d/game-event", h.advertisedHostname, 8080)
 
 	// --- MUDANÇA: O payload agora inclui o deck ---
@@ -84,7 +86,9 @@ func (h *GameHandler) enterMatchQueue(session *PlayerSession, deckKeys []string)
 // leaveMatchQueue encapsula a chamada HTTP para sair da fila de partida.
 func (h *GameHandler) leaveMatchQueue(session *PlayerSession) error {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeLeader}
+	log.Printf("[leaveMatchQueue] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	queueServiceAddr := h.serviceCache.Discover("jokenpo-queue", opts)
+	h.serviceCache.PrintEntries()
 	if queueServiceAddr == "" {
 		return fmt.Errorf("the matchmaking service is currently unavailable")
 	}
@@ -120,7 +124,9 @@ func (h *GameHandler) leaveMatchQueue(session *PlayerSession) error {
 // enterTradeQueue encapsula a chamada HTTP para entrar na fila de troca.
 func (h *GameHandler) enterTradeQueue(session *PlayerSession, offerCard string) error {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeLeader}
+	log.Printf("[enterTradeQueue] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	queueServiceAddr := h.serviceCache.Discover("jokenpo-queue", opts)
+	h.serviceCache.PrintEntries()
 	if queueServiceAddr == "" {
 		return fmt.Errorf("the trade service is currently unavailable")
 	}
@@ -155,7 +161,9 @@ func (h *GameHandler) enterTradeQueue(session *PlayerSession, offerCard string) 
 // leaveTradeQueue encapsula a chamada HTTP para sair da fila de troca.
 func (h *GameHandler) leaveTradeQueue(session *PlayerSession) error {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeLeader}
+	log.Printf("[leaveTradeQueue] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	queueServiceAddr := h.serviceCache.Discover("jokenpo-queue", opts)
+	h.serviceCache.PrintEntries()
 	if queueServiceAddr == "" {
 		return fmt.Errorf("the trade service is currently unavailable")
 	}

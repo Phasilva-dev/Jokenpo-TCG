@@ -1,4 +1,4 @@
-//START OF FILE jokenpo/internal/session/api_helpers_shop.go
+// START OF FILE jokenpo/internal/session/api_helpers_shop.go
 package session
 
 import (
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"jokenpo/internal/services/cluster"
+	"log"
 	"net/http"
 )
 
@@ -36,7 +37,9 @@ func (h *GameHandler) purchasePacksFromShop(quantity uint64) ([]string, error) {
 	// --- MUDANÇA ---
 	// 1. Especifica que queremos encontrar o LÍDER do cluster do shop.
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeLeader}
+	log.Printf("[purchasePacksFromShop] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	shopAddr := h.serviceCache.Discover("jokenpo-shop", opts)
+	h.serviceCache.PrintEntries()
 
 	if shopAddr == "" {
 		// A mensagem de erro agora é mais precisa e acionável.

@@ -44,7 +44,7 @@ func NewGameHandler(manager *cluster.ConsulManager, advertisedHostname string) (
 		Timeout: 10 * time.Second,
 	}
 	// O ServiceCacheActor agora é criado com o manager, garantindo resiliência.
-	h.serviceCache = cluster.NewServiceCacheActor(30*time.Second, manager)
+	h.serviceCache = cluster.NewServiceCacheActor(10*time.Second, manager)
 
 	h.registerLobbyHandlers()
 	h.registerQueueHandlers()

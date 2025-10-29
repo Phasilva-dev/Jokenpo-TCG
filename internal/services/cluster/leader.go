@@ -90,16 +90,81 @@ func (e *LeaderElector) RunForLeadership(service StatefulService) {
 }
 
 func (e *LeaderElector) acquireLock(client *consul.Client) (<-chan struct{}, error) {
+	// 1) Cria uma session explícita com TTL
+	se := &consul.SessionEntry{
+		Name:     fmt.Sprintf("%s-leader-session", e.serviceName),
+		TTL:      "15s",                          // TTL curto; renovaremos
+		Behavior: consul.SessionBehaviorRelease, // libera a chave ao expirar
+	}
+
+	sessionID, _, err := client.Session().Create(se, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
+	// 2) Cria o lock usando a session criada
 	opts := &consul.LockOptions{
-		Key:        e.leaderKey,
-		Value:      []byte(e.nodeID),
-		SessionTTL: "15s",
+		Key:     e.leaderKey,
+		Session: sessionID,
+		Value:   []byte(e.nodeID),
 	}
 	lock, err := client.LockOpts(opts)
 	if err != nil {
-		return nil, err
+		// tenta destruir a session criada em caso de erro
+		_, _ = client.Session().Destroy(sessionID, nil)
+		return nil, fmt.Errorf("failed to create lock: %w", err)
 	}
-	return lock.Lock(nil)
+
+	// 3) Tenta adquirir o lock (bloqueante até adquirir ou erro)
+	lockCh, err := lock.Lock(nil)
+	if err != nil {
+		// cleanup
+		_ = lock.Unlock()
+		_, _ = client.Session().Destroy(sessionID, nil)
+		return nil, fmt.Errorf("failed to acquire lock: %w", err)
+	}
+
+	log.Printf("[%s Elector] 🔒 Lock adquirido com sucesso (session=%s) para chave '%s'", e.serviceName, sessionID, e.leaderKey)
+
+	// 4) Goroutine que renova a sessão periodicamente enquanto o lock estiver ativo.
+	//    Se a renovação falhar, fazemos unlock e saímos — isso resultará em lockCh sendo fechado.
+	go func() {
+		ticker := time.NewTicker(5 * time.Second) // renovar bem antes de 15s
+		defer ticker.Stop()
+
+		for range ticker.C {
+			// Se lockCh estiver fechado, o lock já foi perdido -> exit
+			select {
+			case <-lockCh:
+				// lock foi perdido/fechado, destruímos a session e saimos
+				_, _ = client.Session().Destroy(sessionID, nil)
+				return
+			default:
+			}
+
+			// tenta renovar
+			renewed, _, err := client.Session().Renew(sessionID, nil)
+			if err != nil {
+				log.Printf("[%s Elector] ERRO: falha ao renovar session %s: %v — liberando lock.", e.serviceName, sessionID, err)
+				// força o unlock — Lock.Unlock pode retornar erro se já perdido
+				_ = lock.Unlock()
+				// destruir session (melhor esforço)
+				_, _ = client.Session().Destroy(sessionID, nil)
+				return
+			}
+
+			// sanity check (opcional)
+			if renewed == nil {
+				log.Printf("[%s Elector] WARN: renew returned nil for session %s — liberando lock.", e.serviceName, sessionID)
+				_ = lock.Unlock()
+				_, _ = client.Session().Destroy(sessionID, nil)
+				return
+			}
+		}
+	}()
+
+	// Retornamos o canal que será fechado quando o lock for perdido.
+	return lockCh, nil
 }
 
 func (e *LeaderElector) restoreState(service StatefulService) {

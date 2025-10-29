@@ -16,25 +16,29 @@ func NewConsulClient(addrs string) (*consul.Client, error) {
 	nodes := strings.Split(addrs, ",")
 	for _, node := range nodes {
 		node = strings.TrimSpace(node)
+		//if !strings.HasPrefix(node, "http://") && !strings.HasPrefix(node, "https://") {
+		//	node = "http://" + node
+		//}
+
 		cfg := consul.DefaultConfig()
 		cfg.Address = node
 
 		client, err := consul.NewClient(cfg)
 		if err != nil {
-			log.Printf("[NewConsulClient] Falha ao tentar %s: %v", node, err)
+			log.Printf("[NewConsulClient] Falha ao criar cliente para %s: %v", node, err)
 			continue
 		}
 
-		// Teste rápido de saúde
 		if _, err := client.Status().Leader(); err != nil {
-			log.Printf("[NewConsulClient] %s não respondeu ao health check: %v", node, err)
+			log.Printf("[NewConsulClient] %s indisponível: %v", node, err)
 			continue
 		}
 
-		log.Printf("[NewConsulClient] Conectado com sucesso ao nó Consul: %s", node)
+		log.Printf("[NewConsulClient] ✅ Conectado com sucesso ao nó Consul: %s", node)
+		log.Printf("[NewConsulClient] Meu nó Consul definitivo agora é %s",node)
 		return client, nil
 	}
 
-	return nil, fmt.Errorf("nenhum nó Consul disponível em: %s", addrs)
+	return nil, fmt.Errorf("[NewConsulClient] Nenhum nó Consul disponível em: %s", addrs)
 }
 //END OF FILE jokenpo/internal/cluster/client.go

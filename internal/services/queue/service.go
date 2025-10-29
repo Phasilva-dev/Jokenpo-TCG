@@ -146,7 +146,9 @@ func (m *QueueMaster) tryPairingMatches() {
 
 func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeAnyHealthy}
+	log.Printf("[purchasePacksFromShop] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
 	gameRoomServiceAddr := m.serviceCache.Discover("jokenpo-gameroom", opts)
+	m.serviceCache.PrintEntries()
 	if gameRoomServiceAddr == "" {
 		reason := "Could not create room: GameRoom service not found"
 		log.Println("ERROR:", reason)

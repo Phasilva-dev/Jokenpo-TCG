@@ -79,13 +79,32 @@ func main() {
 	}
 	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
-	// --- MUDANÇA: Cria o ConsulManager uma vez ---
+	// --- LÓGICA DE REGISTRO RESILIENTE ---
+	// 1. Cria o ConsulManager, que gerencia a conexão de forma contínua.
 	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
 	}
 
-	// --- MUDANÇA: Passa o manager para o GameHandler ---
+	// 2. Cria o ServiceRegistrar, que sabe como registrar este serviço.
+	registrar, err := cluster.NewServiceRegistrar(
+		consulManager,
+		cfg.ServiceName,
+		cfg.AdvertisedHostname,
+		cfg.ServicePort,
+		cfg.HealthPort,
+	)
+	if err != nil {
+		log.Fatalf("Fatal: Falha ao criar o Service Registrar: %v", err)
+	}
+
+	// 3. Conecta os dois: toda vez que o manager se reconectar, ele tentará registrar o serviço novamente.
+	consulManager.OnReconnect(registrar.Register)
+
+	// 4. CORREÇÃO: Realiza o primeiro registro manualmente na inicialização.
+	registrar.Register()
+	// --- FIM DA LÓGICA DE REGISTRO RESILIENTE ---
+
 	gameHandler, err := session.NewGameHandler(consulManager, cfg.AdvertisedHostname)
 	if err != nil {
 		log.Fatalf("Falha ao criar o GameHandler: %v", err)
@@ -101,10 +120,7 @@ func main() {
 	http.HandleFunc("/game-event", gameHandler.CallbackGameEvent)
 	log.Printf("[Main] Handlers de Health Check e Callback registrados.")
 
-	err = cluster.RegisterServiceInConsul(cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
-	if err != nil {
-		log.Fatalf("Fatal: Falha ao registrar serviço no Consul: %v", err)
-	}
+	// A chamada antiga e única ao RegisterServiceInConsul foi removida.
 
 	address := fmt.Sprintf("0.0.0.0:%d", cfg.ServicePort)
 	log.Printf("[Main] Servidor principal (WebSocket & HTTP) iniciado em %s.", address)
