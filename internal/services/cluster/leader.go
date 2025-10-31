@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
 	"sync/atomic"
 	"time"
 
@@ -33,15 +32,14 @@ type LeaderElector struct {
 	isLeader      atomic.Bool
 }
 
-func NewLeaderElector(serviceName string, manager *ConsulManager) (*LeaderElector, error) {
-	hostname := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
-	if hostname == "" {
-		return nil, fmt.Errorf("SERVICE_ADVERTISED_HOSTNAME environment variable is not set")
+func NewLeaderElector(serviceName string, manager *ConsulManager, nodeID string) (*LeaderElector, error) {
+	if nodeID == "" {
+		return nil, fmt.Errorf("nodeID (hostname) não pode ser vazio para o LeaderElector")
 	}
 
 	elector := &LeaderElector{
 		consulManager: manager,
-		nodeID:        hostname,
+		nodeID:        nodeID, // Usa o nodeID recebido como parâmetro
 		serviceName:   serviceName,
 		leaderKey:     fmt.Sprintf(leaderKeyPrefix, serviceName),
 		stateKey:      fmt.Sprintf(stateKeyPrefix, serviceName),

@@ -1,0 +1,42 @@
+version: '3.8'
+
+networks:
+  consul-net:
+    external: true
+
+services:
+  jokenpo-shop:
+    build:
+      context: .
+      dockerfile: ./cmd/server/shop/Dockerfile
+    networks: [consul-net]
+    deploy: { replicas: 2 }
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - SHOP_SERVICE_PORT=8081
+      - HEALTH_CHECK_PORT=8081
+    restart: unless-stopped
+
+  jokenpo-queue:
+    build:
+      context: .
+      dockerfile: ./cmd/server/queue/Dockerfile
+    networks: [consul-net]
+    deploy: { replicas: 2 }
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - QUEUE_SERVICE_PORT=8082
+      - HEALTH_CHECK_PORT=8082
+    restart: unless-stopped
+
+  jokenpo-gameroom:
+    build:
+      context: .
+      dockerfile: ./cmd/server/gameroom/Dockerfile
+    networks: [consul-net]
+    deploy: { replicas: 3 }
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - GAMEROOM_SERVICE_PORT=8083
+      - HEALTH_CHECK_PORT=8083
+    restart: unless-stopped

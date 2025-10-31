@@ -77,6 +77,14 @@ func main() {
 
 	// 2. Cria o ServiceRegistrar, que sabe como registrar este serviço.
 	advertisedHost := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
+	if advertisedHost == "" {
+		// Fallback: se a variável não for definida, usa o hostname do próprio contêiner.
+		hostname, err := os.Hostname()
+		if err != nil {
+			log.Fatalf("Fatal: Falha ao obter hostname do contêiner: %v", err)
+		}
+		advertisedHost = hostname
+	}
 	registrar, err := cluster.NewServiceRegistrar(
 		consulManager,
 		cfg.ServiceName,
@@ -98,7 +106,7 @@ func main() {
 	shopService := shop.NewShopService()
 	log.Println("[Main] Ator do ShopService criado.")
 
-	elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager)
+	elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager, advertisedHost)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar eleitor de líder: %v", err)
 	}

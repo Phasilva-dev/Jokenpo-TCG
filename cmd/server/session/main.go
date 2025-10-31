@@ -55,7 +55,12 @@ func loadConfig() (*Config, error) {
 	}
 	advertisedHostname := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
 	if advertisedHostname == "" {
-		return nil, fmt.Errorf("a variável de ambiente SERVICE_ADVERTISED_HOSTNAME deve ser definida")
+		// Fallback: usa o hostname do próprio container se a variável não estiver definida
+		hostname, err := os.Hostname()
+		if err != nil {
+			return nil, fmt.Errorf("falha ao obter hostname do container: %w", err)
+		}
+		advertisedHostname = hostname
 	}
 	return &Config{
 		ServiceName:        serviceName,

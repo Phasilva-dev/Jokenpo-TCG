@@ -1,0 +1,64 @@
+version: '3.8'
+
+volumes:
+  consul_data_1:
+  consul_data_2:
+  consul_data_3:
+
+networks:
+  consul-net:
+    external: true # Diz ao Compose para usar a rede que já criamos manualmente
+
+services:
+  # --- INFRAESTRUTURA: CLUSTER CONSUL ---
+  consul-1:
+    image: hashicorp/consul:1.22
+    hostname: consul-1
+    networks: [consul-net]
+    volumes:
+      - consul_data_1:/consul/data
+    ports: ["8500:8500"]
+    command: >
+      agent -server -ui -node=consul-node-1 -bootstrap-expect=3
+      -client=0.0.0.0 -advertise=consul-1 # <-- MUDANÇA CRÍTICA
+      -retry-join=consul-2 -retry-join=consul-3
+    restart: unless-stopped
+
+  consul-2:
+    image: hashicorp/consul:1.22
+    hostname: consul-2
+    networks: [consul-net]
+    volumes:
+      - consul_data_2:/consul/data
+    ports: ["8501:8500"]
+    command: >
+      agent -server -node=consul-node-2 -client=0.0.0.0
+      -advertise=consul-2 # <-- MUDANÇA CRÍTICA
+      -retry-join=consul-1 -retry-join=consul-3
+    restart: unless-stopped
+
+  consul-3:
+    image: hashicorp/consul:1.22
+    hostname: consul-3
+    networks: [consul-net]
+    volumes:
+      - consul_data_3:/consul/data
+    ports: ["8502:8500"]
+    command: >
+      agent -server -node=consul-node-3 -client=0.0.0.0
+      -advertise=consul-3 # <-- MUDANÇA CRÍTICA
+      -retry-join=consul-1 -retry-join=consul-2
+    restart: unless-stopped
+
+  # --- CAMADA DE ENTRADA: LOAD BALANCERS ---
+  load-balancer-1:
+    build:
+      context: .
+      dockerfile: ./cmd/server/loadbalancer/Dockerfile
+    networks: [consul-net]
+    ports: ["9080:80"]
+    environment:
+      - CONSUL_HTTP_ADDR=consul-1:8500,consul-2:8500,consul-3:8500
+      - LB_TARGET_SERVICE=jokenpo-session
+      - LB_LISTEN_ADDR=:80
+    restart: unless-stopped
