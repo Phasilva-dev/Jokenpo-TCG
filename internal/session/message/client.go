@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/message/client.go
 package message
 //Isso aqui são as mensagens que vão no sentido servidor -> client
 import (
@@ -51,3 +52,4 @@ func CreatePromptInputMessage() network.Message {
 		Payload: nil, // Não precisa de payload
 	}
 }
+//END OF FILE jokenpo/internal/session/message/client.go

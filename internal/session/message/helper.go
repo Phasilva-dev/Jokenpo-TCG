@@ -1,3 +1,4 @@
+//START OF FILE jokenpo/internal/session/message/helper.go
 package message
 
 import (
@@ -38,3 +39,4 @@ func SendSuccessAndPrompt(sender MessageSender, state, message string, data any)
 func SendPromptInput(sender MessageSender) { //, state, message string, data any
 	sender.Send() <- CreatePromptInputMessage()
 }
+//END OF FILE jokenpo/internal/session/message/helper.go
