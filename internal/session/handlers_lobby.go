@@ -1,5 +1,4 @@
 //START OF FILE jokenpo/internal/session/handlers_lobby.go
-
 package session
 
 import (
@@ -10,29 +9,26 @@ import (
 	"strings"
 )
 
+// ... (handleFindMatch e handleTradeCard permanecem inalterados) ...
+
 //Opção 1
-//Interage com o MicroServiço queue
 func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	if !checkLobbyState(session) {
 		message.SendErrorAndPrompt(session.Client, "You are not in the lobby.")
 		return
 	}
 
-	// --- MUDANÇA: Obtém o deck do jogador antes de chamar o helper ---
-	// Usa a função ToJSON que já existe no seu deck.go para obter o deck como []byte.
 	deckJSON, err := session.Player.Inventory().GameDeck().ToJSON()
 	if err != nil {
 		message.SendErrorAndPrompt(session.Client, "Failed to prepare your deck for matchmaking: %v", err)
 		return
 	}
-	// Converte o JSON []byte para um []string que o nosso DTO espera.
 	var deckKeys []string
 	if err := json.Unmarshal(deckJSON, &deckKeys); err != nil {
 		message.SendErrorAndPrompt(session.Client, "Failed to process your deck for matchmaking: %v", err)
 		return
 	}
 
-	// Chama o helper atualizado, passando o deck.
 	err = h.enterMatchQueue(session, deckKeys)
 	if err != nil {
 		message.SendErrorAndPrompt(session.Client, "Failed to join match queue: %v", err)
@@ -40,21 +36,16 @@ func handleFindMatch(h *GameHandler, session *PlayerSession, payload json.RawMes
 	}
 
 	session.State = state_IN_MATCH_QUEUE
-	
 	message.SendSuccessAndPrompt(session.Client, session.State, "You have been added to the matchmaking queue. Searching for an opponent...", nil)
 }
 
 //Opção 2
-// handleTradeCard processa o comando do jogador para entrar na fila de troca às cegas.
-//Interage com o MicroServiço queue
 func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
-	// 1. Validação de Contexto: Só pode trocar se estiver no lobby.
 	if !checkLobbyState(session) {
 		message.SendErrorAndPrompt(session.Client, "You must be in the lobby to trade a card.")
 		return
 	}
 
-	// 2. Desserializa o Input: Precisamos saber qual carta o jogador quer oferecer.
 	var req struct {
 		CardKey string `json:"cardKey"`
 	}
@@ -63,16 +54,11 @@ func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMes
 		return
 	}
 
-	// 3. Validação de Negócio: O jogador realmente possui a carta que quer trocar?
-	// (Esta é uma verificação importante para evitar trapaças).
 	if err := session.Player.Inventory().HasCardInCollection(req.CardKey, 1); err != nil {
 		message.SendErrorAndPrompt(session.Client, "Cannot trade card: %v", err)
 		return
 	}
 
-	// 4. Lógica de Troca (Chamada ao Helper)
-	// Removemos a carta da coleção do jogador ANTES de entrar na fila.
-	// Se a entrada na fila falhar, precisaremos adicioná-la de volta (rollback).
 	if err := session.Player.Inventory().Collection().RemoveCard(req.CardKey, 1); err != nil {
 		message.SendErrorAndPrompt(session.Client, "An internal error occurred while preparing the trade: %v", err)
 		return
@@ -80,15 +66,12 @@ func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMes
 
 	err := h.enterTradeQueue(session, req.CardKey)
 	if err != nil {
-		// ROLLBACK: A chamada ao QueueService falhou. Devolvemos a carta ao jogador.
 		session.Player.Inventory().Collection().AddCard(req.CardKey, 1)
 		message.SendErrorAndPrompt(session.Client, "Failed to join trade queue: %v", err)
 		return
 	}
 
-	// 5. Atualização de Estado e Resposta de Sucesso
-	session.State = state_IN_TRADE_QUEUE // Novo estado
-	
+	session.State = state_IN_TRADE_QUEUE
 	message.SendSuccessAndPrompt(
 		session.Client,
 		session.State,
@@ -99,7 +82,6 @@ func handleTradeCard(h *GameHandler, session *PlayerSession, payload json.RawMes
 
 //Opção 3
 // handlePurchasePackage processa o comando explícito do jogador para comprar pacotes.
-// Interage com o shop service
 func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 	// 1. Validação de Contexto
 	if !checkLobbyState(session) {
@@ -116,11 +98,10 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 		return
 	}
 
-	// 3. Lógica de Compra (Chamada ao Helper)
-	cardKeys, err := h.purchasePacksFromShop(req.Quantity)
+	// 3. Lógica de Compra (Chamada ao Shop Service)
+	// O Shop agora é responsável por gerar UUIDs e registrar na Blockchain!
+	cardKeys, err := h.purchasePacksFromShop(session.ID, req.Quantity)
 	if err != nil {
-		// O helper retornou um erro (timeout, serviço offline, erro de negócio)
-		// Aqui, tratamos o erro de forma contextual: informamos o jogador e pedimos um novo comando.
 		message.SendErrorAndPrompt(session.Client, "Purchase failed: %v", err)
 		return
 	}
@@ -129,7 +110,6 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	addedCards := []string{}
 	for _, key := range cardKeys {
 		if err := session.Player.Inventory().Collection().AddCard(key, 1); err != nil {
-			// Se falhar a adição (ex: limite de coleção), é um erro do broker.
 			message.SendErrorAndPrompt(session.Client, "Failed to add card '%s' to your collection: %v", key, err)
 			return
 		}
@@ -146,11 +126,12 @@ func handlePurchasePackage(h *GameHandler, session *PlayerSession, payload json.
 	message.SendSuccessAndPrompt(
 		session.Client,
 		session.State,
-		"Package purchased successfully!",
+		"Package purchased successfully! (Registered on Blockchain)",
 		sb.String(),
 	)
 }
 
+// ... (Resto dos handlers sem alterações) ...
 
 //Opção 4
 func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
@@ -160,18 +141,14 @@ func handleSeeCollection(h *GameHandler, session *PlayerSession, payload json.Ra
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-	// 2. Chamada da Lógica de Negócio:
 	collectionString, err := session.Player.SeeCollection()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-
-	// 3. Envio da Resposta de Sucesso:
 	response := message.CreateSuccessResponse(session.State, "Your card collection:", collectionString)
 	session.Client.Send() <- response
-
 	session.Client.Send() <- message.CreatePromptInputMessage()
 }
 
@@ -183,24 +160,17 @@ func handleSeeDeck(h *GameHandler, session *PlayerSession, payload json.RawMessa
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-	// 2. Chamada da Lógica de Negócio:
-	// Acessamos o método 'SeeCollection' do Player, que já faz todo o trabalho de
-	// buscar os dados do inventário e formatá-los em uma string legível.
 	deckString, err := session.Player.SeeDeck()
 	if err != nil {
 		session.Client.Send() <- message.CreateErrorResponse(err.Error())
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-
-	// 3. Envio da Resposta de Sucesso:
 	response := message.CreateSuccessResponse(session.State, "Your Deck:", deckString)
 	session.Client.Send() <- response
-
 	session.Client.Send() <- message.CreatePromptInputMessage()
 }
 
-// Adiciona um card da coleção pro deck, payload card key
 //Opção 6
 func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
@@ -221,7 +191,6 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 	}
 
 	cardKey := *req.Key
-
 	result, err := session.Player.AddCardToDeck(cardKey)
 
 	if err != nil {
@@ -229,14 +198,10 @@ func handleAddCardToDeck(h *GameHandler, session *PlayerSession, payload json.Ra
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
-
 	session.Client.Send() <- message.CreatePromptInputMessage()
-	
 }
 
-//Remove uma carta do deck, payload int index
 //Opção 7
 func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
 
@@ -282,11 +247,8 @@ func handleRemoveCardFromDeck(h *GameHandler, session *PlayerSession, payload js
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-	
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
-
 	session.Client.Send() <- message.CreatePromptInputMessage()
-	
 }
 
 // Opção 8
@@ -334,41 +296,50 @@ func handleReplaceCardToDeck(h *GameHandler, session *PlayerSession, payload jso
 		session.Client.Send() <- message.CreatePromptInputMessage()
 		return
 	}
-	
 	session.Client.Send() <- message.CreateSuccessResponse(session.State, result, nil)
-
 	session.Client.Send() <- message.CreatePromptInputMessage()
 
 }
 
-func (h *GameHandler) registerLobbyHandlers() {
-	// --- Ações de Matchmaking ---
-	// O comando para entrar na fila de espera para uma partida.
-	h.lobbyRouter["FIND_MATCH"] = handleFindMatch
-	h.lobbyRouter["TRADE_CARD"] = handleTradeCard
+//Opção 10
+func handleViewAuditLogs(h *GameHandler, session *PlayerSession, payload json.RawMessage) {
+	if !checkLobbyState(session) {
+		message.SendErrorAndPrompt(session.Client, "You are not in lobby")
+		return
+	}
 
-	// --- Ações da Loja ---
-	// O comando para comprar pacotes de cartas.
-	h.lobbyRouter["PURCHASE_PACKAGE"] = handlePurchasePackage
+    if h.blockchain == nil {
+        message.SendErrorAndPrompt(session.Client, "Blockchain service is currently unavailable.")
+        return
+    }
 
-	// --- Ações de Visualização (Read-Only) ---
-	// O comando para ver a coleção completa de cartas do jogador.
-	h.lobbyRouter["VIEW_COLLECTION"] = handleSeeCollection
-	// O comando para ver o baralho de jogo atual.
-	h.lobbyRouter["VIEW_DECK"] = handleSeeDeck
+    report, err := h.blockchain.GetAuditReport()
+    if err != nil {
+        message.SendErrorAndPrompt(session.Client, "Failed to fetch audit logs: %v", err)
+        return
+    }
 
-	// --- Ações de Gerenciamento do Baralho ---
-	// O comando para adicionar uma carta da coleção ao baralho.
-	h.lobbyRouter["ADD_CARD_TO_DECK"] = handleAddCardToDeck
-	// O comando para remover uma carta do baralho pelo seu índice.
-	h.lobbyRouter["REMOVE_CARD_FROM_DECK"] = handleRemoveCardFromDeck
-	// O comando para substituir uma carta no baralho por outra da coleção.
-	h.lobbyRouter["REPLACE_CARD_TO_DECK"] = handleReplaceCardToDeck
+	message.SendSuccessAndPrompt(
+		session.Client,
+		session.State,
+		"Audit Report fetched from Blockchain:",
+		report, 
+	)
 }
 
+func (h *GameHandler) registerLobbyHandlers() {
+	h.lobbyRouter["FIND_MATCH"] = handleFindMatch
+	h.lobbyRouter["TRADE_CARD"] = handleTradeCard
+	h.lobbyRouter["PURCHASE_PACKAGE"] = handlePurchasePackage
+	h.lobbyRouter["VIEW_COLLECTION"] = handleSeeCollection
+	h.lobbyRouter["VIEW_DECK"] = handleSeeDeck
+	h.lobbyRouter["ADD_CARD_TO_DECK"] = handleAddCardToDeck
+	h.lobbyRouter["REMOVE_CARD_FROM_DECK"] = handleRemoveCardFromDeck
+	h.lobbyRouter["REPLACE_CARD_TO_DECK"] = handleReplaceCardToDeck
+	h.lobbyRouter["VIEW_AUDIT"] = handleViewAuditLogs
+}
 
 func checkLobbyState(session *PlayerSession) bool {
 	return session.State == state_LOBBY
 }
-
 //END OF FILE jokenpo/internal/session/handlers_lobby.go

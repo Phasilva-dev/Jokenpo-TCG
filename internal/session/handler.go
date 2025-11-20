@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"jokenpo/internal/services/blockchain"
 )
 
 // CommandHandlerFunc define a assinatura para todas as nossas funções que lidam com comandos.
@@ -26,10 +27,18 @@ type GameHandler struct {
 	matchRouter        map[string]CommandHandlerFunc
 	matchQueueRouter   map[string]CommandHandlerFunc
 	tradeQueueRouter   map[string]CommandHandlerFunc
+
+	blockchain *blockchain.BlockchainClient
 }
 
 // NewGameHandler agora recebe o ConsulManager para criar o ServiceCacheActor.
 func NewGameHandler(manager *cluster.ConsulManager, advertisedHostname string) (*GameHandler, error) {
+
+	bcClient, err := blockchain.NewBlockchainClient()
+    if err != nil {
+        log.Printf("AVISO: Blockchain indisponível (%v). O jogo rodará sem auditoria.", err)
+    }
+
 	h := &GameHandler{
 		sessionsByClient:   make(map[*network.Client]*PlayerSession),
 		sessionsByID:       make(map[string]*PlayerSession),
@@ -38,6 +47,8 @@ func NewGameHandler(manager *cluster.ConsulManager, advertisedHostname string) (
 		matchRouter:        make(map[string]CommandHandlerFunc),
 		matchQueueRouter:   make(map[string]CommandHandlerFunc),
 		tradeQueueRouter:   make(map[string]CommandHandlerFunc),
+
+		 blockchain: bcClient,
 	}
 
 	h.httpClient = &http.Client{
@@ -63,7 +74,8 @@ func (h *GameHandler) OnConnect(c *network.Client) {
 	log.Printf("Session created for %s. Total sessions: %d", c.Conn().RemoteAddr(), len(h.sessionsByClient))
 
 	const initialPacksToOpen = 4
-	initialCardKeys, err := h.purchasePacksFromShop(initialPacksToOpen)
+	// --- MUDANÇA: Passamos session.ID para o Shop fazer a mintagem na blockchain
+	initialCardKeys, err := h.purchasePacksFromShop(session.ID, initialPacksToOpen)
 	if err != nil {
 		log.Printf("CRITICAL: Failed to grant initial packs to player %s: %v", c.Conn().RemoteAddr(), err)
 		welcomeMsg := "Welcome to the Jokenpo Game!\n\n" +

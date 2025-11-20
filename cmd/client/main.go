@@ -24,32 +24,26 @@ var (
 	pingMutex     sync.Mutex
 )
 
-// --- MUDANÇA: Adicionado novo estado ---
 const (
 	StateMainMenu     = "MainMenu"
 	StateInQueue      = "InQueue"
-	StateInTradeQueue = "InTradeQueue" // Novo estado
+	StateInTradeQueue = "InTradeQueue"
 	StateInMatch      = "InMatch"
 )
 
 var clientState = StateMainMenu
 
 func main() {
-	// ... (função main sem mudanças) ...
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
 	// --- INÍCIO DA LÓGICA DE FAILOVER ---
-
-	// 1. Define a lista de endereços dos Load Balancers
 	lbAddresses := []string{
 		"localhost:9080",
 		"localhost:9081",
 		"localhost:9082",
 	}
 
-	// Permite que a lista seja sobrescrita por uma variável de ambiente (para flexibilidade)
-	// Ex: LB_ADDRESSES="192.168.1.10:80,192.168.1.11:80"
 	if addrsEnv := os.Getenv("LB_ADDRESSES"); addrsEnv != "" {
 		lbAddresses = strings.Split(addrsEnv, ",")
 	}
@@ -57,33 +51,28 @@ func main() {
 	var conn *websocket.Conn
 	var err error
 
-	// 2. Tenta conectar em cada endereço da lista até ter sucesso
+	// Tenta conectar em cada endereço da lista
 	for _, addr := range lbAddresses {
 		u := url.URL{Scheme: "ws", Host: strings.TrimSpace(addr), Path: "/ws"}
 		log.Printf("Tentando conectar ao Load Balancer em %s", u.String())
 
-		// Tenta a conexão. O 'nil' para o header é importante.
-		var resp *http.Response // Captura a resposta para depuração
+		var resp *http.Response
 		conn, resp, err = websocket.DefaultDialer.Dial(u.String(), nil)
 		if err == nil {
-			// Conexão bem-sucedida!
 			log.Println("Conexão WebSocket bem-sucedida!")
-			break // Sai do loop
+			break
 		}
 
-		// Se a conexão falhou, loga o motivo e tenta o próximo
 		log.Printf("AVISO: Falha ao conectar a %s: %v", addr, err)
 		if resp != nil {
 			log.Printf("AVISO: Status da resposta recebida: %s", resp.Status)
 		}
 	}
 
-	// 3. Se após o loop a conexão ainda for nula, todos os LBs falharam.
 	if conn == nil {
 		log.Fatalf("Não foi possível conectar a nenhum dos Load Balancers disponíveis. Encerrando.")
 	}
 	defer conn.Close()
-
 	// --- FIM DA LÓGICA DE FAILOVER ---
 
 	pingResultChan := make(chan time.Duration)
@@ -119,7 +108,6 @@ func main() {
 }
 
 func readLoop(conn *websocket.Conn, done chan struct{}) {
-	// ... (função readLoop sem mudanças) ...
 	defer close(done)
 	for {
 		var msg network.Message
@@ -133,13 +121,10 @@ func readLoop(conn *websocket.Conn, done chan struct{}) {
 			break
 		}
 
-		// --- MUDANÇA AQUI ---
-		// Tenta decodificar o estado de QUALQUER mensagem, não importa o tipo.
 		var payloadWithState struct {
 			State string `json:"state"`
 		}
 
-		// Tentamos o unmarshal, mas ignoramos o erro se o campo não existir.
 		if json.Unmarshal(msg.Payload, &payloadWithState) == nil {
 			if payloadWithState.State != "" {
 				updateClientState(payloadWithState.State)
@@ -155,15 +140,12 @@ func readLoop(conn *websocket.Conn, done chan struct{}) {
 }
 
 func handleUserInput(conn *websocket.Conn, scanner *bufio.Scanner, userInput string, pingResultChan chan time.Duration) {
-	// --- MUDANÇA: Adicionado case para o novo estado ---
 	if (clientState == StateInQueue || clientState == StateInTradeQueue) && userInput == "0" {
-		// Comando genérico para sair de qualquer fila
 		msg := network.Message{Type: "LEAVE_QUEUE"}
 		if err := conn.WriteJSON(msg); err != nil {
 			log.Printf("Erro ao enviar mensagem: %v", err)
 		}
 	} else if clientState == StateMainMenu && userInput == "9" {
-		// ... (lógica do ping, sem mudanças)
 		fmt.Println("\nEnviando ping...")
 
 		pingMutex.Lock()
@@ -187,28 +169,26 @@ func handleUserInput(conn *websocket.Conn, scanner *bufio.Scanner, userInput str
 		}
 		printPrompt()
 	} else {
-		// Roteia para o handler correto com base no estado.
 		switch clientState {
 		case StateMainMenu:
 			handleMainMenuInput(conn, scanner, userInput)
 		case StateInQueue:
 			handleInQueueInput(conn, userInput)
 		case StateInTradeQueue:
-			handleInTradeQueueInput(conn, userInput) // Novo handler
+			handleInTradeQueueInput(conn, userInput)
 		case StateInMatch:
 			handleInMatchInput(conn, userInput)
 		}
 	}
 }
 
-// --- MUDANÇA: Adicionado case para o novo estado ---
 func updateClientState(newState string) {
 	switch newState {
 	case "lobby":
 		clientState = StateMainMenu
-	case "in-match-queue": // Nome do estado atualizado
+	case "in-match-queue":
 		clientState = StateInQueue
-	case "in-trade-queue": // Novo estado
+	case "in-trade-queue":
 		clientState = StateInTradeQueue
 	case "in-match":
 		clientState = StateInMatch
@@ -218,7 +198,6 @@ func updateClientState(newState string) {
 	}
 }
 
-// --- MUDANÇA: Lógica de "Trocar Carta" adicionada ---
 func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice string) {
 	var msg network.Message
 	shouldSend := true
@@ -226,13 +205,11 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 	case "1":
 		msg.Type = "FIND_MATCH"
 	case "2":
-		// Solicita ao jogador a carta que ele quer oferecer.
 		cardKey := promptForString(scanner, "Digite a chave da carta que você quer trocar (ex: rock:5:red): ")
 		if cardKey == "" {
 			fmt.Println("A chave da carta não pode ser vazia.")
 			shouldSend = false
 		} else {
-			// Cria o payload com o campo "cardKey" que o servidor espera.
 			payload, _ := json.Marshal(map[string]string{"cardKey": cardKey})
 			msg = network.Message{Type: "TRADE_CARD", Payload: payload}
 		}
@@ -245,7 +222,6 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 			payload, _ := json.Marshal(map[string]int{"quantity": amount})
 			msg = network.Message{Type: "PURCHASE_PACKAGE", Payload: payload}
 		}
-	// ... (resto dos cases sem mudanças)
 	case "4":
 		msg.Type = "VIEW_COLLECTION"
 	case "5":
@@ -274,7 +250,11 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 		payload, _ := json.Marshal(map[string]interface{}{"index": index, "key": key})
 		msg = network.Message{Type: "REPLACE_CARD_TO_DECK", Payload: payload}
 	case "9":
+		// Ping é tratado no handleUserInput, aqui apenas previne envio de mensagem vazia
 		shouldSend = false
+	case "10":
+		// --- MUDANÇA: NOVA OPÇÃO BLOCKCHAIN ---
+		msg.Type = "VIEW_AUDIT"
 	default:
 		fmt.Println("Opção inválida.")
 		shouldSend = false
@@ -289,28 +269,21 @@ func handleMainMenuInput(conn *websocket.Conn, scanner *bufio.Scanner, choice st
 	}
 }
 
-// Unificado: a única opção é sair.
 func handleInQueueInput(conn *websocket.Conn, choice string) {
 	if choice != "0" {
 		fmt.Println("Opção inválida.")
 		printPrompt()
 	}
-	// A lógica de envio foi movida para handleUserInput
 }
 
-// --- NOVO HANDLER ---
-// A única opção na fila de troca também é sair.
 func handleInTradeQueueInput(conn *websocket.Conn, choice string) {
 	if choice != "0" {
 		fmt.Println("Opção inválida.")
 		printPrompt()
 	}
-	// A lógica de envio foi movida para handleUserInput
 }
 
-
 func handleInMatchInput(conn *websocket.Conn, choice string) {
-	// ... (função sem mudanças) ...
 	index, err := strconv.Atoi(choice)
 	if err != nil {
 		fmt.Println("Entrada inválida. Por favor, digite um número.")
@@ -325,7 +298,6 @@ func handleInMatchInput(conn *websocket.Conn, choice string) {
 }
 
 func printServerMessage(msg *network.Message) {
-	// ... (função sem mudanças) ...
 	if msg.Type == "PROMPT_INPUT" {
 		return
 	}
@@ -357,10 +329,9 @@ func printServerMessage(msg *network.Message) {
 	}
 }
 
-// --- MUDANÇA: Adicionado menu para o novo estado ---
 func printPrompt() {
 	var prompt string
-	time.Sleep(100 * time.Millisecond) // Reduzido para uma melhor experiência
+	time.Sleep(100 * time.Millisecond)
 	switch clientState {
 	case StateMainMenu:
 		prompt = `
@@ -374,12 +345,13 @@ func printPrompt() {
 7. Remover Carta do Deck
 8. Substituir Carta no Deck
 9. Medir Ping (WebSocket)
+10. [BLOCKCHAIN] Ver Livro Razão (Auditoria)
 ---------------------------------
 
 (Lobby) Digite uma opção: `
 	case StateInQueue:
 		prompt = "\n(Na Fila de Partida) Digite 0 para sair: "
-	case StateInTradeQueue: // Novo menu
+	case StateInTradeQueue:
 		prompt = "\n(Na Fila de Troca) Digite 0 para sair: "
 	case StateInMatch:
 		prompt = "\n(Em Jogo) Digite o índice da carta para jogar: "
@@ -388,13 +360,11 @@ func printPrompt() {
 }
 
 func promptForString(scanner *bufio.Scanner, prompt string) string {
-	// ... (função sem mudanças) ...
 	fmt.Print(prompt)
 	scanner.Scan()
 	return scanner.Text()
 }
 func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
-	// ... (função sem mudanças) ...
 	fmt.Print(prompt)
 	scanner.Scan()
 	input := scanner.Text()
@@ -404,5 +374,4 @@ func promptForInt(scanner *bufio.Scanner, prompt string) (int, error) {
 	}
 	return num, nil
 }
-
 //END OF FILE jokenpo/cmd/client/main.go

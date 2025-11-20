@@ -198,3 +198,24 @@ services:
       - LB_TARGET_SERVICE=jokenpo-session
       - LB_LISTEN_ADDR=:80
     profiles: [game]
+
+# =========================================
+  # 4. BLOCKCHAIN: Geth (Ethereum Privado)
+  # =========================================
+  jokenpo-blockchain:
+    image: ethereum/client-go:stable
+    container_name: jokenpo-blockchain
+    hostname: jokenpo-blockchain
+    command: 
+      - --dev               # Modo desenvolvedor (mineração instantânea, conta admin pré-criada)
+      - --dev.period=1      # Gera blocos sob demanda
+      - --http              # Habilita API HTTP
+      - --http.addr=0.0.0.0 # Aceita conexões externas (dos outros containers)
+      - --http.api=eth,net,web3,personal,miner
+      - --http.corsdomain=*
+      - --http.vhosts=*
+    ports:
+      - "8545:8545" # Porta RPC padrão
+    networks:
+      - consul-net
+    profiles: [bc]
