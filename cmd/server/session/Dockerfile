@@ -1,7 +1,7 @@
 # --- Estágio 1: Build (O Construtor) ---
 # Usa uma imagem Go para compilar o projeto
 # NOTA: golang:1.25.0 ainda não existe, a versão mais recente é 1.22. Ajuste se necessário.
-FROM golang:1.25.0-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # O diretório de trabalho dentro do contêiner de build
 WORKDIR /app

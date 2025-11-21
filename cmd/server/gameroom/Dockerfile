@@ -1,7 +1,7 @@
 # --- Estágio 1: Build (O Construtor) ---
 # Usa uma imagem oficial do Go para compilar nosso código.
 # Garanta que esta versão corresponda à do seu arquivo go.mod (ex: 1.22).
-FROM golang:1.25.0-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Define o diretório de trabalho dentro do contêiner de build.
 WORKDIR /app

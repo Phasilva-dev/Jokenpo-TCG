@@ -1,4 +1,4 @@
-// START OF FILE jokenpo/cmd/server/gameroom/main.go
+//START OF FILE jokenpo/cmd/server/gameroom/main.go
 package main
 
 import (
@@ -75,16 +75,13 @@ func main() {
 	log.Println("[Main] Catálogo de cartas inicializado com sucesso.")
 
 	// --- LÓGICA DE REGISTRO RESILIENTE ---
-	// 1. Cria o ConsulManager, que gerencia a conexão de forma contínua.
 	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
 	}
 
-	// 2. Cria o ServiceRegistrar, que sabe como registrar este serviço.
 	advertisedHost := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
 	if advertisedHost == "" {
-		// Fallback: se a variável não for definida, usa o hostname do próprio contêiner.
 		hostname, err := os.Hostname()
 		if err != nil {
 			log.Fatalf("Fatal: Falha ao obter hostname do contêiner: %v", err)
@@ -102,15 +99,14 @@ func main() {
 		log.Fatalf("Fatal: Falha ao criar o Service Registrar: %v", err)
 	}
 
-	// 3. Conecta os dois: toda vez que o manager se reconectar, ele tentará registrar o serviço novamente.
 	consulManager.OnReconnect(registrar.Register)
-
-	// 4. CORREÇÃO: Realiza o primeiro registro manualmente na inicialização.
 	registrar.Register()
 	// --- FIM DA LÓGICA DE REGISTRO RESILIENTE ---
 
-	roomManager := gameroom.NewRoomManager()
-	go roomManager.Run()
+    // --- CORREÇÃO AQUI: Passando o consulManager ---
+	roomManager := gameroom.NewRoomManager(consulManager)
+	
+    go roomManager.Run()
 	log.Println("[Main] RoomManager actor criado e iniciado.")
 
 	mux := http.NewServeMux()
@@ -118,8 +114,6 @@ func main() {
 
 	gameroom.RegisterHandlers(mux, roomManager, cfg.ServicePort)
 	log.Println("[Main] Handlers HTTP registrados para /rooms e /health.")
-
-	// A chamada antiga e única ao RegisterServiceInConsul foi removida.
 
 	listenAddress := fmt.Sprintf(":%d", cfg.ServicePort)
 	log.Printf("[Main] Servidor HTTP do serviço GameRoom iniciando em %s.", listenAddress)

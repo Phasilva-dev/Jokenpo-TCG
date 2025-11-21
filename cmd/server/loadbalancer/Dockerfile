@@ -1,6 +1,6 @@
 # --- Estágio 1: Build (O Construtor) ---
 # Usamos uma imagem oficial do Go (versão Alpine para ser menor) para compilar nosso código.
-FROM golang:1.25.0-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Define o diretório de trabalho dentro do contêiner de build.
 WORKDIR /app

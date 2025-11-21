@@ -2,6 +2,8 @@
 package gameroom
 
 import (
+	"jokenpo/internal/services/blockchain" // Importar
+	"jokenpo/internal/services/cluster"    // Importar
 	"log"
 	"net/http"
 	"time"
@@ -21,13 +23,51 @@ type RoomManager struct {
 	rooms      map[string]*GameRoom
 	requestCh  chan interface{}
 	httpClient *http.Client
+	blockchain *blockchain.BlockchainClient // Novo campo
 }
 
-func NewRoomManager() *RoomManager {
+// NewRoomManager agora recebe o ConsulManager para localizar o contrato
+func NewRoomManager(manager *cluster.ConsulManager) *RoomManager {
+	var bcClient *blockchain.BlockchainClient
+	var contractAddr string
+
+	// --- LÓGICA DE ESPERA (POLLING) ---
+	// Igual ao Session e Shop: espera o Deployer salvar o endereço
+	log.Println("GAMEROOM: Aguardando endereço do contrato no Consul...")
+	client := manager.GetClient()
+
+	for i := 0; i < 30; i++ {
+		if client == nil {
+			client = manager.GetClient()
+		}
+		if client != nil {
+			pair, _, err := client.KV().Get("jokenpo/config/contract_address", nil)
+			if err == nil && pair != nil {
+				contractAddr = string(pair.Value)
+				break
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	if contractAddr != "" {
+		var err error
+		// Conecta no contrato existente
+		bcClient, _, err = blockchain.InitBlockchain(contractAddr)
+		if err != nil {
+			log.Printf("GAMEROOM AVISO: Erro ao conectar na blockchain: %v", err)
+		} else {
+			log.Printf("GAMEROOM: Conectado à Blockchain em %s", contractAddr)
+		}
+	} else {
+		log.Println("GAMEROOM AVISO: Timeout aguardando contrato. Auditoria desabilitada.")
+	}
+
 	return &RoomManager{
 		rooms:      make(map[string]*GameRoom),
 		requestCh:  make(chan interface{}),
 		httpClient: &http.Client{Timeout: 10 * time.Second},
+		blockchain: bcClient, // Armazena o cliente
 	}
 }
 
@@ -44,7 +84,6 @@ type cleanupFinishedRooms struct{}
 
 // --- APIs Públicas do Ator ---
 
-// CreateRoom envia um pedido para o ator para criar uma nova sala.
 func (rm *RoomManager) CreateRoom(p1, p2 *InitialPlayerInfo) *GameRoom {
 	reply := make(chan *GameRoom)
 	rm.requestCh <- createRoomRequest{
@@ -54,18 +93,13 @@ func (rm *RoomManager) CreateRoom(p1, p2 *InitialPlayerInfo) *GameRoom {
 	return <-reply
 }
 
-// GetRoom envia um pedido para o ator para obter uma referência a uma sala existente.
-// Este é o método crucial que o handler da API usará para rotear ações.
 func (rm *RoomManager) GetRoom(roomID string) *GameRoom {
 	reply := make(chan *GameRoom)
 	rm.requestCh <- getRoomRequest{roomID: roomID, reply: reply}
 	return <-reply
 }
 
-// --- Nova Função Helper ---
-// handleMessage processa uma única mensagem do canal.
-// O defer aqui garante que, se um pânico ocorrer, ele será capturado
-// e a função retornará, permitindo que o loop principal continue.
+// --- Helper ---
 func (rm *RoomManager) handleMessage(msg interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -76,12 +110,14 @@ func (rm *RoomManager) handleMessage(msg interface{}) {
 	switch req := msg.(type) {
 	case createRoomRequest:
 		roomID := uuid.NewString()
-		room, err := NewGameRoom(roomID, req.PlayerInfos, rm.httpClient)
-		log.Printf("[DEBUG] Created Room") // Mantive seu log
+		// CORREÇÃO DO ERRO: Agora passamos rm.blockchain como 4º argumento
+		room, err := NewGameRoom(roomID, req.PlayerInfos, rm.httpClient, rm.blockchain)
+		
+		log.Printf("[DEBUG] Created Room %s", roomID)
 		if err != nil {
 			log.Printf("ERROR: Failed to create new game room: %v", err)
 			req.reply <- nil
-			return // Retorna de handleMessage
+			return
 		}
 		rm.rooms[roomID] = room
 		go room.Run()
@@ -100,7 +136,6 @@ func (rm *RoomManager) handleMessage(msg interface{}) {
 	}
 }
 
-// --- Função Run Simplificada ---
 func (rm *RoomManager) Run() {
 	log.Println("[RoomManager] Actor started.")
 	cleanupTicker := time.NewTicker(1 * time.Minute)
@@ -109,11 +144,9 @@ func (rm *RoomManager) Run() {
 	for {
 		select {
 		case msg := <-rm.requestCh:
-			// Processa a mensagem de forma segura
 			rm.handleMessage(msg)
 
 		case <-cleanupTicker.C:
-			// Processa a limpeza de forma segura
 			rm.handleMessage(cleanupFinishedRooms{})
 		}
 	}

@@ -1,4 +1,4 @@
-// START OF FILE jokenpo/internal/services/gameroom/room_logic.go
+//START OF FILE jokenpo/internal/services/gameroom/room_logic.go
 package gameroom
 
 import (
@@ -21,8 +21,6 @@ type PlayCardAction struct {
 
 // startGame embaralha os decks, compra as mãos iniciais e inicia a primeira rodada.
 func (gr *GameRoom) startGame() {
-	// --- MODIFICAÇÃO ---
-	// A verificação de fase agora usa os métodos get/set thread-safe.
 	if gr.getGameState() != phase_ROOM_START {
 		gr.handleGameOver("", "Game start failed: invalid phase.")
 		return
@@ -31,7 +29,7 @@ func (gr *GameRoom) startGame() {
 	drawStatus := make(map[string]bool)
 
 	for playerID, pInfo := range gr.players {
-		pInfo.GameDeck.Shuffle(deck.DECK,gr.rng)
+		pInfo.GameDeck.Shuffle(deck.DECK, gr.rng)
 		drawStatus[playerID] = gr.drawCardsAndNotify(playerID, initial_HAND_SIZE)
 	}
 
@@ -41,14 +39,12 @@ func (gr *GameRoom) startGame() {
 
 	log.Printf("[GameRoom %s] Match started, timer of 5s activated.", gr.ID)
 
-	// --- MODIFICAÇÃO ---
-	// Notifica os jogadores via callback HTTP que o jogo começou.
 	gr.broadcastEvent("GAME_START", map[string]string{
-		"message": "The match has started! You have 5 seconds to play your card.",
+		"message": "The match has started! You have 2 seconds to play your card.",
 	})
 
 	gr.setGameState(phase_WAITING_FOR_PLAYS)
-	gr.roundTimer = time.NewTimer(5 * time.Second)
+	gr.roundTimer = time.NewTimer(2 * time.Second)
 }
 
 // startNewRound compra uma nova carta para cada jogador e inicia a próxima rodada.
@@ -69,21 +65,16 @@ func (gr *GameRoom) startNewRound() {
 		return
 	}
 
-	// --- MODIFICAÇÃO ---
-	// Notifica os jogadores via callback HTTP.
 	gr.broadcastEvent("NEW_ROUND", map[string]string{
-		"message": "A new round has started! You have 5 seconds to play your card.",
+		"message": "A new round has started! You have 2 seconds to play your card.",
 	})
 
 	gr.setGameState(phase_WAITING_FOR_PLAYS)
-	gr.roundTimer = time.NewTimer(5 * time.Second)
+	gr.roundTimer = time.NewTimer(2 * time.Second)
 }
 
 // HandlePlayCard processa a jogada de um jogador.
 func (gr *GameRoom) HandlePlayCard(playerID string, cardIndex int) {
-	// --- MODIFICAÇÃO ---
-	// Toda a lógica foi adaptada para usar `playerID` e `gr.players`
-	// em vez de `*PlayerSession`, e para enviar callbacks em vez de mensagens de WebSocket.
 	if gr.getGameState() != phase_WAITING_FOR_PLAYS {
 		gr.sendCallbackToPlayer(playerID, "ERROR", map[string]string{"message": "It's not time to play a card right now."})
 		return
@@ -94,7 +85,7 @@ func (gr *GameRoom) HandlePlayCard(playerID string, cardIndex int) {
 	}
 
 	pInfo := gr.players[playerID]
-	if pInfo == nil { return } // Verificação de segurança
+	if pInfo == nil { return }
 
 	playedCard, err := pInfo.GameDeck.PlayCardFromHand(cardIndex)
 	if err != nil {
@@ -115,14 +106,12 @@ func (gr *GameRoom) HandlePlayCard(playerID string, cardIndex int) {
 	if len(gr.playedCards) == len(gr.players) {
 		gr.roundTimer.Stop()
 		gr.setGameState(phase_RESOLVING_ROUND)
-		// A resolução agora é chamada pela goroutine Run para evitar bloqueio.
+		// A resolução agora é chamada pela goroutine Run
 	}
 }
 
 // resolveRound compara as cartas e determina o resultado da rodada.
 func (gr *GameRoom) resolveRound() {
-	// --- MODIFICAÇÃO ---
-	// Lógica adaptada para usar `playerID` e `pInfo`.
 	if gr.getGameState() != phase_RESOLVING_ROUND {
 		gr.handleGameOver("", "Round resolution failed: invalid phase.")
 		return
@@ -135,7 +124,6 @@ func (gr *GameRoom) resolveRound() {
 	p1Info, p2Info := gr.players[p1ID], gr.players[p2ID]
 	p1Card, p2Card := gr.playedCards[p1ID], gr.playedCards[p2ID]
 
-	// Verifica se ambas as cartas foram jogadas antes de comparar
 	if p1Card == nil || p2Card == nil {
 		gr.handleGameOver("", "Failed to resolve round: one or more players did not play a card.")
 		return
@@ -189,8 +177,6 @@ func (gr *GameRoom) resolveRound() {
 
 // handleGameOver finaliza a partida e notifica os jogadores.
 func (gr *GameRoom) handleGameOver(winnerID string, reason string) {
-	// --- MODIFICAÇÃO ---
-	// Lógica adaptada para usar `playerID` e `broadcastEvent`.
 	if gr.IsFinished() { return }
 	gr.setGameState(phase_GAME_OVER)
 	
@@ -199,18 +185,30 @@ func (gr *GameRoom) handleGameOver(winnerID string, reason string) {
 	}
 	log.Printf("[GameRoom %s] Game Over. Winner: %s. Reason: %s", gr.ID, winnerID, reason)
 	
+    // --- REGISTRO NA BLOCKCHAIN ---
+    if gr.blockchain != nil && winnerID != "" {
+        // Identifica o perdedor
+        loserID := gr.getLoserID(winnerID)
+        
+        go func() {
+            if err := gr.blockchain.LogMatch(gr.ID, winnerID, loserID); err != nil {
+                log.Printf("GAMEROOM ERRO: Falha ao registrar partida na blockchain: %v", err)
+            } else {
+                log.Printf("[BLOCKCHAIN]: Partida %s registrada na blockchain (Vencedor: %s)", gr.ID, winnerID)
+            }
+        }()
+    }
+
 	gr.broadcastEvent("GAME_OVER", map[string]interface{}{
 		"winnerId": winnerID,
 		"reason":   reason,
 	})
 
-	close(gr.quit) // Sinaliza para a goroutine Run() terminar.
+	close(gr.quit)
 }
 
 // handleTimeout força a jogada de jogadores que não agiram a tempo.
 func (gr *GameRoom) handleTimeout() {
-	// --- MODIFICAÇÃO ---
-	// Lógica adaptada para usar `playerID` e callbacks.
 	if gr.getGameState() != phase_WAITING_FOR_PLAYS { return }
 	log.Printf("[GameRoom %s] Round timer expired. Forcing remaining plays.", gr.ID)
 
@@ -242,15 +240,12 @@ func (gr *GameRoom) handleTimeout() {
 
 
 // ============================================================================
-// Funções Helper (Adaptadas)
+// Funções Helper
 // ============================================================================
 
-// drawCardsAndNotify compra cartas para um jogador e o notifica via callback.
 func (gr *GameRoom) drawCardsAndNotify(playerID string, numToDraw int) bool {
-	// --- MODIFICAÇÃO ---
-	// Lógica completamente reescrita para usar `playerID` e enviar callbacks HTTP.
 	pInfo, ok := gr.players[playerID]
-	if !ok { return false } // O jogador não está na sala.
+	if !ok { return false }
 	
 	drawSuccessful := true
 	var warningMessage string
@@ -269,7 +264,6 @@ func (gr *GameRoom) drawCardsAndNotify(playerID string, numToDraw int) bool {
 		handKeys[i] = c.Key()
 	}
 	
-	log.Printf("[GameRoom %s] Player %s hand updated (cards: %d). drawSuccessful=%t", gr.ID, playerID, len(handKeys), drawSuccessful)
 	gr.sendCallbackToPlayer(playerID, "UPDATE_HAND", map[string]interface{}{
 	"message": warningMessage,
 	"hand":    handKeys,
@@ -278,10 +272,7 @@ func (gr *GameRoom) drawCardsAndNotify(playerID string, numToDraw int) bool {
 	return drawSuccessful
 }
 
-// checkDeckOutWinCondition verifica se algum jogador venceu por falta de cartas do oponente.
 func (gr *GameRoom) checkDeckOutWinCondition(drawStatus map[string]bool) bool {
-	// --- MODIFICAÇÃO ---
-	// Adaptado para usar `playerID` em vez de ponteiros.
 	playerIDs := gr.getPlayerIDs()
 	if len(playerIDs) != 2 { return false }
 	p1ID, p2ID := playerIDs[0], playerIDs[1]
@@ -303,7 +294,6 @@ func (gr *GameRoom) checkDeckOutWinCondition(drawStatus map[string]bool) bool {
 	return false
 }
 
-// getOpponentID é o novo utilitário para encontrar o ID do oponente.
 func (gr *GameRoom) getOpponentID(playerID string) string {
 	for id := range gr.players {
 		if id != playerID {
@@ -311,5 +301,15 @@ func (gr *GameRoom) getOpponentID(playerID string) string {
 		}
 	}
 	return ""
+}
+
+// Helper para identificar o perdedor dado um vencedor
+func (gr *GameRoom) getLoserID(winnerID string) string {
+	for id := range gr.players {
+		if id != winnerID {
+			return id
+		}
+	}
+	return "Unknown"
 }
 //END OF FILE jokenpo/internal/services/gameroom/room_logic.go
