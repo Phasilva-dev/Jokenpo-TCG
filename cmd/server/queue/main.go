@@ -82,17 +82,14 @@ func main() {
 	log.Printf("[Main] Configuração carregada: ServiceName=%s, Port=%d, HealthPort=%d, ConsulAddrs=%s",
 		cfg.ServiceName, cfg.ServicePort, cfg.HealthPort, cfg.ConsulAddrs)
 
-	// --- LÓGICA DE REGISTRO RESILIENTE ---
-	// 1. Cria o ConsulManager, que gerencia a conexão de forma contínua.
+	// 1. Cria o ConsulManager
 	consulManager, err := cluster.NewConsulManager(cfg.ConsulAddrs)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar Consul Manager: %v", err)
 	}
 
-	// 2. Cria o ServiceRegistrar, que sabe como registrar este serviço.
 	advertisedHost := os.Getenv("SERVICE_ADVERTISED_HOSTNAME")
 	if advertisedHost == "" {
-		// Fallback: se a variável não for definida, usa o hostname do próprio contêiner.
 		hostname, err := os.Hostname()
 		if err != nil {
 			log.Fatalf("Fatal: Falha ao obter hostname do contêiner: %v", err)
@@ -110,15 +107,14 @@ func main() {
 		log.Fatalf("Fatal: Falha ao criar o Service Registrar: %v", err)
 	}
 
-	// 3. Conecta os dois: toda vez que o manager se reconectar, ele tentará registrar o serviço novamente.
 	consulManager.OnReconnect(registrar.Register)
-
-	// 4. CORREÇÃO: Realiza o primeiro registro manualmente na inicialização.
 	registrar.Register()
-	// --- FIM DA LÓGICA DE REGISTRO RESILIENTE ---
 
+    // --- MUDANÇA CRUCIAL AQUI ---
+    // Passamos o consulManager para o QueueMaster poder descobrir a Blockchain
 	queueMaster := queue.NewQueueMaster(consulManager)
-	elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager, advertisedHost)
+	
+    elector, err := cluster.NewLeaderElector(cfg.ServiceName, consulManager, advertisedHost)
 	if err != nil {
 		log.Fatalf("Fatal: Falha ao criar eleitor de líder: %v", err)
 	}
@@ -133,8 +129,6 @@ func main() {
 	queue.RegisterQueueHandlers(mux, queueMaster, elector)
 	log.Println("[Main] Handlers HTTP registrados para /queue/* e /health.")
 
-	// A chamada antiga e única ao RegisterServiceInConsul foi removida.
-
 	listenAddress := fmt.Sprintf(":%d", cfg.ServicePort)
 	log.Printf("[Main] Servidor HTTP do serviço Queue iniciando em %s.", listenAddress)
 
@@ -142,5 +136,4 @@ func main() {
 		log.Fatalf("Fatal: Falha ao iniciar servidor HTTP: %v", err)
 	}
 }
-
 //END OF FILE jokenpo/cmd/server/queue/main.go

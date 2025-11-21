@@ -5,30 +5,24 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"jokenpo/internal/services/blockchain"
 	"jokenpo/internal/services/cluster"
 	"log"
 	"net/http"
 	"time"
 )
 
-// ============================================================================
-// Estruturas de Dados
-// ============================================================================
-
+// ... (Structs e NewQueueMaster permanecem iguais) ...
 type PlayerInfo struct {
 	ID          string   `json:"playerId"`
 	CallbackURL string   `json:"callbackUrl"`
-	MatchCallbackURL string // Não precisa de tag JSON, é usado apenas internamente
+	MatchCallbackURL string 
 	Deck        []string `json:"deck"`
 }
-
 type TradeInfo struct {
 	PlayerInfo
 	OfferCard string `json:"offerCard"`
 }
-
-// --- DTOs para comunicação com outros serviços ---
-
 type CreateRoomRequest struct {
 	PlayerInfos []*PlayerInfo `json:"playerInfos"`
 }
@@ -45,46 +39,58 @@ type MatchFailedPayload struct {
 	PlayerIDs []string `json:"playerIds"`
 	Reason    string   `json:"reason"`
 }
-
-// ============================================================================
-// Ator QueueMaster
-// ============================================================================
-
 type QueueMaster struct {
 	matchQueue   []*PlayerInfo
 	tradeQueue   []*TradeInfo
 	requestCh    chan actorMessage
 	httpClient   *http.Client
 	serviceCache *cluster.ServiceCacheActor
+    blockchain   *blockchain.BlockchainClient
 }
-
-// NewQueueMaster agora recebe o ConsulManager para resiliência.
 func NewQueueMaster(manager *cluster.ConsulManager) *QueueMaster {
+    var bcClient *blockchain.BlockchainClient
+    var contractAddr string
+    log.Println("QUEUE: Aguardando endereço do contrato no Consul...")
+    client := manager.GetClient()
+    for i := 0; i < 60; i++ {
+        if client == nil { client = manager.GetClient() }
+        if client != nil {
+            pair, _, err := client.KV().Get("jokenpo/config/contract_address", nil)
+            if err == nil && pair != nil {
+                contractAddr = string(pair.Value)
+                break
+            }
+        }
+        time.Sleep(2 * time.Second)
+    }
+    if contractAddr != "" {
+        var err error
+        bcClient, _, err = blockchain.InitBlockchain(contractAddr)
+        if err != nil { log.Printf("QUEUE AVISO: %v", err) } else { log.Printf("QUEUE: Conectado blockchain %s", contractAddr) }
+    } else { log.Println("QUEUE AVISO: Timeout blockchain.") }
+
 	return &QueueMaster{
 		matchQueue:   make([]*PlayerInfo, 0),
 		tradeQueue:   make([]*TradeInfo, 0),
 		requestCh:    make(chan actorMessage),
 		httpClient:   &http.Client{Timeout: 10 * time.Second},
-		serviceCache: cluster.NewServiceCacheActor(30*time.Second, manager), // Passa o manager para o cache
+		serviceCache: cluster.NewServiceCacheActor(30*time.Second, manager),
+        blockchain:   bcClient,
 	}
 }
 
 type actorMessage interface{ isActorMessage() }
 type enqueueMatchRequest struct{ player *PlayerInfo }
-
 func (enqueueMatchRequest) isActorMessage() {}
 type dequeueMatchRequest struct{ playerID string }
-
 func (dequeueMatchRequest) isActorMessage() {}
 type enqueueTradeRequest struct{ trade *TradeInfo }
-
 func (enqueueTradeRequest) isActorMessage() {}
 type dequeueTradeRequest struct{ playerID string }
-
 func (dequeueTradeRequest) isActorMessage() {}
 
 func (m *QueueMaster) Run() {
-	log.Println("[QueueMaster] Actor started. Waiting for players...")
+	log.Println("[QueueMaster] Actor started.")
 	ticker := time.NewTicker(2 * time.Second)
 	defer ticker.Stop()
 	for {
@@ -93,12 +99,12 @@ func (m *QueueMaster) Run() {
 			switch req := msg.(type) {
 			case enqueueMatchRequest:
 				m.matchQueue = append(m.matchQueue, req.player)
-				log.Printf("[QueueMaster] Player '%s' added to MATCH queue. Queue size: %d", req.player.ID, len(m.matchQueue))
+				log.Printf("[QM] +MatchQueue: %s", req.player.ID)
 			case dequeueMatchRequest:
 				m.matchQueue = removePlayerFromMatchQueue(m.matchQueue, req.playerID)
 			case enqueueTradeRequest:
 				m.tradeQueue = append(m.tradeQueue, req.trade)
-				log.Printf("[QueueMaster] Player '%s' added to TRADE queue with card '%s'. Queue size: %d", req.trade.ID, req.trade.OfferCard, len(m.tradeQueue))
+				log.Printf("[QM] +TradeQueue: %s offers %s", req.trade.ID, req.trade.OfferCard)
 			case dequeueTradeRequest:
 				m.tradeQueue = removePlayerFromTradeQueue(m.tradeQueue, req.playerID)
 			}
@@ -108,15 +114,13 @@ func (m *QueueMaster) Run() {
 		}
 	}
 }
-
 func (m *QueueMaster) EnqueueMatch(player *PlayerInfo) { m.requestCh <- enqueueMatchRequest{player: player} }
 func (m *QueueMaster) DequeueMatch(playerID string)   { m.requestCh <- dequeueMatchRequest{playerID: playerID} }
 func (m *QueueMaster) EnqueueTrade(trade *TradeInfo)  { m.requestCh <- enqueueTradeRequest{trade: trade} }
 func (m *QueueMaster) DequeueTrade(playerID string)   { m.requestCh <- dequeueTradeRequest{playerID: playerID} }
 
-// ============================================================================
-// Lógica de Pareamento e Orquestração
-// ============================================================================
+
+// --- MUDANÇA PRINCIPAL AQUI ---
 
 func (m *QueueMaster) tryPairingTrades() {
 	if len(m.tradeQueue) < 2 {
@@ -125,125 +129,107 @@ func (m *QueueMaster) tryPairingTrades() {
 	trade1 := m.tradeQueue[0]
 	trade2 := m.tradeQueue[1]
 	m.tradeQueue = m.tradeQueue[2:]
-	log.Printf("[QueueMaster] TRADE FOUND! Pairing '%s' and '%s'.", trade1.ID, trade2.ID)
-	// Para trocas, a CallbackURL original (que aponta para /trade-found) ainda é usada.
-	payload1 := map[string]string{"playerId": trade1.ID, "cardSent": trade1.OfferCard, "cardReceived": trade2.OfferCard}
+	log.Printf("[QueueMaster] TRADE MATCH: %s <-> %s", trade1.ID, trade2.ID)
+
+    // --- LÓGICA DE REGISTRO NA BLOCKCHAIN (Troca de Tokens Específicos) ---
+    if m.blockchain != nil {
+        go func() {
+            // 1. Encontrar o Token UUID real da carta do Jogador 1
+            token1, err := m.blockchain.FindTokenForCard(trade1.ID, trade1.OfferCard)
+            if err != nil {
+                log.Printf("QUEUE ERRO: Não foi possível encontrar o token blockchain para %s do player %s: %v", trade1.OfferCard, trade1.ID, err)
+                return // Aborta registro se não achar
+            }
+
+            // 2. Encontrar o Token UUID real da carta do Jogador 2
+            token2, err := m.blockchain.FindTokenForCard(trade2.ID, trade2.OfferCard)
+            if err != nil {
+                log.Printf("QUEUE ERRO: Não foi possível encontrar o token blockchain para %s do player %s: %v", trade2.OfferCard, trade2.ID, err)
+                return
+            }
+
+            log.Printf("QUEUE BLOCKCHAIN: Trocando tokens [%s] <-> [%s]", token1, token2)
+
+            // 3. Executa a Troca 1: A -> B (Envia Token 1)
+            if err := m.blockchain.LogTrade(trade1.ID, trade2.ID, token1); err != nil {
+                log.Printf("QUEUE ERRO: Falha TX A->B: %v", err)
+            } else {
+                 log.Printf("QUEUE SUCESSO: %s transferido para %s", token1, trade2.ID)
+            }
+
+            // 4. Executa a Troca 2: B -> A (Envia Token 2)
+            if err := m.blockchain.LogTrade(trade2.ID, trade1.ID, token2); err != nil {
+                log.Printf("QUEUE ERRO: Falha TX B->A: %v", err)
+            } else {
+                log.Printf("QUEUE SUCESSO: %s transferido para %s", token2, trade1.ID)
+            }
+        }()
+    }
+
+	// Callbacks HTTP para o Jogo (Mantém a lógica de inventário funcionando)
+	payload1 := map[string]string{
+		"playerId":     trade1.ID,
+		"cardSent":     trade1.OfferCard,
+		"cardReceived": trade2.OfferCard,
+		"partnerId":    trade2.ID, 
+	}
 	go m.sendCallback(trade1.CallbackURL, payload1)
-	payload2 := map[string]string{"playerId": trade2.ID, "cardSent": trade2.OfferCard, "cardReceived": trade1.OfferCard}
+
+	payload2 := map[string]string{
+		"playerId":     trade2.ID,
+		"cardSent":     trade2.OfferCard,
+		"cardReceived": trade1.OfferCard,
+		"partnerId":    trade1.ID,
+	}
 	go m.sendCallback(trade2.CallbackURL, payload2)
 }
 
 func (m *QueueMaster) tryPairingMatches() {
-	if len(m.matchQueue) < 2 {
-		return
-	}
-	player1 := m.matchQueue[0]
-	player2 := m.matchQueue[1]
+	if len(m.matchQueue) < 2 { return }
+	p1 := m.matchQueue[0]
+	p2 := m.matchQueue[1]
 	m.matchQueue = m.matchQueue[2:]
-	log.Printf("[QueueMaster] MATCH FOUND! Pairing '%s' and '%s'. Orchestrating room creation...", player1.ID, player2.ID)
-	go m.orchestrateRoomCreation(player1, player2)
+	log.Printf("[QueueMaster] MATCH FOUND! %s vs %s", p1.ID, p2.ID)
+	go m.orchestrateRoomCreation(p1, p2)
 }
 
 func (m *QueueMaster) orchestrateRoomCreation(p1, p2 *PlayerInfo) {
 	opts := cluster.DiscoveryOptions{Mode: cluster.ModeAnyHealthy}
-	log.Printf("[purchasePacksFromShop] Tentando descobrir o serviço 'jokenpo-queue' com options: %+v", opts)
-	gameRoomServiceAddr := m.serviceCache.Discover("jokenpo-gameroom", opts)
-	m.serviceCache.PrintEntries()
-	if gameRoomServiceAddr == "" {
-		reason := "Could not create room: GameRoom service not found"
-		log.Println("ERROR:", reason)
-		m.notifyMatchFailed(p1, p2, reason)
+	addr := m.serviceCache.Discover("jokenpo-gameroom", opts)
+	if addr == "" {
+		m.notifyMatchFailed(p1, p2, "GameRoom service not found")
 		return
 	}
-
 	createReq := CreateRoomRequest{PlayerInfos: []*PlayerInfo{p1, p2}}
 	reqBody, _ := json.Marshal(createReq)
-	createURL := fmt.Sprintf("http://%s/rooms", gameRoomServiceAddr)
-
-	resp, err := m.httpClient.Post(createURL, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := m.httpClient.Post(fmt.Sprintf("http://%s/rooms", addr), "application/json", bytes.NewBuffer(reqBody))
 	if err != nil || resp.StatusCode != http.StatusCreated {
-		var status string
-		if resp != nil {
-			status = resp.Status
-		}
-		reason := fmt.Sprintf("Failed to create room in GameRoomService: %v, status: %s", err, status)
-		log.Println("ERROR:", reason)
-		m.notifyMatchFailed(p1, p2, reason)
+		m.notifyMatchFailed(p1, p2, "Failed to create room")
 		return
 	}
 	defer resp.Body.Close()
-
 	var roomResp CreateRoomResponse
-	if err := json.NewDecoder(resp.Body).Decode(&roomResp); err != nil {
-		reason := fmt.Sprintf("Failed to parse GameRoomService response: %v", err)
-		log.Println("ERROR:", reason)
-		m.notifyMatchFailed(p1, p2, reason)
-		return
-	}
-
-	log.Printf("[QueueMaster] Room %s created at %s. Notifying session servers.", roomResp.RoomID, roomResp.ServiceAddr)
-	matchCreatedPayload := MatchCreatedPayload{
-		PlayerIDs:   []string{p1.ID, p2.ID},
-		RoomID:      roomResp.RoomID,
-		ServiceAddr: roomResp.ServiceAddr,
-	}
-	// Usa o campo MatchCallbackURL para notificar o resultado.
-	go m.sendCallback(p1.MatchCallbackURL, matchCreatedPayload)
-	go m.sendCallback(p2.MatchCallbackURL, matchCreatedPayload)
+	json.NewDecoder(resp.Body).Decode(&roomResp)
+	payload := MatchCreatedPayload{ PlayerIDs: []string{p1.ID, p2.ID}, RoomID: roomResp.RoomID, ServiceAddr: roomResp.ServiceAddr }
+	go m.sendCallback(p1.MatchCallbackURL, payload)
+	go m.sendCallback(p2.MatchCallbackURL, payload)
 }
-
-// --- Funções Helper ---
-
 func (m *QueueMaster) notifyMatchFailed(p1, p2 *PlayerInfo, reason string) {
-	failPayload := MatchFailedPayload{
-		PlayerIDs: []string{p1.ID, p2.ID},
-		Reason:    reason,
-	}
-	// Usa o campo MatchCallbackURL para notificar o resultado.
-	go m.sendCallback(p1.MatchCallbackURL, failPayload)
-	go m.sendCallback(p2.MatchCallbackURL, failPayload)
+	pl := MatchFailedPayload{ PlayerIDs: []string{p1.ID, p2.ID}, Reason: reason }
+	go m.sendCallback(p1.MatchCallbackURL, pl)
+	go m.sendCallback(p2.MatchCallbackURL, pl)
 }
-
-func removePlayerFromMatchQueue(queue []*PlayerInfo, playerID string) []*PlayerInfo {
-	for i, p := range queue {
-		if p.ID == playerID {
-			log.Printf("[QueueMaster] Player '%s' removed from MATCH queue.", playerID)
-			return append(queue[:i], queue[i+1:]...)
-		}
-	}
-	return queue
+func removePlayerFromMatchQueue(q []*PlayerInfo, id string) []*PlayerInfo {
+	for i, p := range q { if p.ID == id { return append(q[:i], q[i+1:]...) } }
+	return q
 }
-
-func removePlayerFromTradeQueue(queue []*TradeInfo, playerID string) []*TradeInfo {
-	for i, t := range queue {
-		if t.ID == playerID {
-			log.Printf("[QueueMaster] Player '%s' removed from TRADE queue.", playerID)
-			return append(queue[:i], queue[i+1:]...)
-		}
-	}
-	return queue
+func removePlayerFromTradeQueue(q []*TradeInfo, id string) []*TradeInfo {
+	for i, t := range q { if t.ID == id { return append(q[:i], q[i+1:]...) } }
+	return q
 }
-
-func (m *QueueMaster) sendCallback(callbackURL string, payload interface{}) {
-	if callbackURL == "" {
-		log.Printf("ERROR: Attempted to send callback but URL is empty. Payload: %+v", payload)
-		return
-	}
-	data, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("ERROR: Failed to marshal callback payload for URL %s: %v", callbackURL, err)
-		return
-	}
-	resp, err := m.httpClient.Post(callbackURL, "application/json", bytes.NewBuffer(data))
-	if err != nil {
-		log.Printf("ERROR: Failed to send callback to %s: %v", callbackURL, err)
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 300 {
-		log.Printf("WARN: Callback to %s returned non-success status: %s", callbackURL, resp.Status)
-	} else {
-		log.Printf("INFO: Successfully sent callback to %s", callbackURL)
-	}
+func (m *QueueMaster) sendCallback(url string, payload interface{}) {
+	if url == "" { return }
+	data, _ := json.Marshal(payload)
+	m.httpClient.Post(url, "application/json", bytes.NewBuffer(data))
 }
 //END OF FILE jokenpo/internal/services/queue/service.go

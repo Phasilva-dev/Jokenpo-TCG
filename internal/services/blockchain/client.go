@@ -188,4 +188,29 @@ func shortID(id string) string {
 	if len(id) > 8 { return id[:8] + "..." }
 	return id
 }
+
+// FindTokenForCard consulta a blockchain para encontrar um Token UUID que corresponda
+// à carta genérica (cardKey) que o jogador possui.
+// Ex: Entrada: "rock:1:red" -> Saída: "rock:1:red#uuid-1234..."
+func (bc *BlockchainClient) FindTokenForCard(playerID, cardKey string) (string, error) {
+    // Chamada de leitura (Call), não gasta gás e é rápida.
+    opts := &bind.CallOpts{Context: context.Background()}
+    
+    // Pega todos os ativos do jogador na blockchain
+    assets, err := bc.contract.GetPlayerAssets(opts, playerID)
+    if err != nil {
+        return "", fmt.Errorf("erro ao ler ativos da blockchain: %v", err)
+    }
+
+    // Procura o primeiro ativo que corresponda ao tipo da carta
+    // O formato na blockchain é "cardKey#UUID"
+    prefix := cardKey + "#"
+    for _, token := range assets {
+        if strings.HasPrefix(token, prefix) {
+            return token, nil
+        }
+    }
+
+    return "", fmt.Errorf("token não encontrado na blockchain para a carta %s do jogador %s", cardKey, playerID)
+}
 //END OF FILE jokenpo/internal/services/blockchain/client.go
