@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"jokenpo/internal/ledger" // O pacote gerado pelo abigen
+	"jokenpo/internal/ledger"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -18,11 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-// Configurações do Geth --dev
 const (
-	// Endereço do container docker (visto de dentro da rede docker)
 	BlockchainURL = "http://jokenpo-blockchain:8545"
-	// Chave privada padrão do modo --dev
 	DevPrivateKey = "b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291"
 )
 
@@ -33,122 +30,144 @@ type BlockchainClient struct {
 	address  common.Address
 }
 
-// LogEntry é uma struct auxiliar para ordenar logs misturados por data
 type LogEntry struct {
 	Timestamp uint64
 	Message   string
 }
 
-func NewBlockchainClient() (*BlockchainClient, error) {
-	// 1. Conecta no Geth
-	client, err := ethclient.Dial(BlockchainURL)
+func InitBlockchain(existingAddr string) (*BlockchainClient, string, error) {
+	var client *ethclient.Client
+	var err error
+
+	log.Println("[Blockchain] Tentando conectar ao nó Geth...")
+	for i := 0; i < 10; i++ {
+		client, err = ethclient.Dial(BlockchainURL)
+		if err == nil {
+			if _, err := client.ChainID(context.Background()); err == nil {
+				break
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
 	if err != nil {
-		return nil, fmt.Errorf("falha ao conectar no Geth: %v", err)
+		return nil, "", fmt.Errorf("timeout connecting to Geth: %v", err)
 	}
 
-	// 2. Configura Autenticação (Admin)
-	privateKey, err := crypto.HexToECDSA(DevPrivateKey)
-	if err != nil {
-		return nil, fmt.Errorf("erro na chave privada: %v", err)
-	}
+	privateKey, _ := crypto.HexToECDSA(DevPrivateKey)
 	chainID, _ := client.ChainID(context.Background())
 	auth, _ := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	auth.GasLimit = 3000000 // Limite alto para evitar erros de estimativa em dev
 
-	// 3. Deploy ou Load do Contrato
-	// Para simplificar no PBL: Toda vez que o serviço sobe, ele tenta fazer deploy.
-	// O endereço retornado será usado para interações.
-	addr, _, instance, err := ledger.DeployLedger(auth, client)
-	if err != nil {
-		return nil, fmt.Errorf("falha ao fazer deploy/load do contrato: %v", err)
+	var contract *ledger.Ledger
+	var addr common.Address
+	var finalAddrStr string
+
+	if existingAddr == "" {
+		// MODO DEPLOY
+		for i := 0; i < 5; i++ {
+			addr, _, contract, err = ledger.DeployLedger(auth, client)
+			if err == nil { break }
+			time.Sleep(1 * time.Second)
+		}
+		if err != nil { return nil, "", fmt.Errorf("deploy failed: %v", err) }
+		finalAddrStr = addr.Hex()
+		log.Printf(">>> [Blockchain] CONTRATO CRIADO EM: %s <<<", finalAddrStr)
+	} else {
+		// MODO CONNECT
+		log.Printf(">>> [Blockchain] CONECTANDO EM: %s <<<", existingAddr)
+		addr = common.HexToAddress(existingAddr)
+		contract, err = ledger.NewLedger(addr, client)
+		if err != nil { return nil, "", fmt.Errorf("bind failed: %v", err) }
+		finalAddrStr = existingAddr
 	}
-	
-	log.Printf("[Blockchain] Contrato ativo em: %s", addr.Hex())
 
 	return &BlockchainClient{
 		client:   client,
-		contract: instance,
+		contract: contract,
 		auth:     auth,
 		address:  addr,
-	}, nil
+	}, finalAddrStr, nil
 }
 
-// GetAuditReport busca TODOS os eventos e formata como texto cronológico
 func (bc *BlockchainClient) GetAuditReport() (string, error) {
-	// Filtro para pegar desde o bloco 0
-	opts := &bind.FilterOpts{Start: 0}
-
+	opts := &bind.FilterOpts{Start: 0, Context: context.Background()}
 	var allLogs []LogEntry
 
-	// 1. Buscar Logs de Pacotes
 	iterPacks, err := bc.contract.FilterAuditPackOpened(opts)
 	if err == nil {
 		for iterPacks.Next() {
 			ev := iterPacks.Event
-			msg := fmt.Sprintf("Player %s abriu um pacote e recebeu %d cartas: %v", 
-				shortID(ev.PlayerId), len(ev.CardIds), ev.CardIds)
+			msg := fmt.Sprintf("PACK: Player %s... recebeu %d cartas", shortID(ev.PlayerId), len(ev.CardIds))
 			allLogs = append(allLogs, LogEntry{Timestamp: ev.Timestamp.Uint64(), Message: msg})
 		}
 	}
 
-	// 2. Buscar Logs de Trocas
 	iterTrades, err := bc.contract.FilterAuditTrade(opts)
 	if err == nil {
 		for iterTrades.Next() {
 			ev := iterTrades.Event
-			msg := fmt.Sprintf("Player %s TROCOU a carta %s com Player %s", 
-				shortID(ev.FromPlayer), ev.CardId, shortID(ev.ToPlayer))
+			msg := fmt.Sprintf("TRADE: %s -> %s (%s)", shortID(ev.FromPlayer), shortID(ev.ToPlayer), ev.CardId)
 			allLogs = append(allLogs, LogEntry{Timestamp: ev.Timestamp.Uint64(), Message: msg})
 		}
 	}
 
-	// 3. Buscar Logs de Partidas
 	iterMatches, err := bc.contract.FilterAuditMatch(opts)
 	if err == nil {
 		for iterMatches.Next() {
 			ev := iterMatches.Event
-			msg := fmt.Sprintf("PARTIDA %s: Vencedor %s vs Perdedor %s", 
-				shortID(ev.RoomId), shortID(ev.WinnerId), shortID(ev.LoserId))
+			msg := fmt.Sprintf("MATCH: Sala %s | Vencedor: %s", shortID(ev.RoomId), shortID(ev.WinnerId))
 			allLogs = append(allLogs, LogEntry{Timestamp: ev.Timestamp.Uint64(), Message: msg})
 		}
 	}
 
-	// 4. Ordenar por Data (Cronológico)
 	sort.Slice(allLogs, func(i, j int) bool {
 		return allLogs[i].Timestamp < allLogs[j].Timestamp
 	})
 
-	// 5. Formatar String Final
 	var sb strings.Builder
-	sb.WriteString("=== RELATÓRIO DE AUDITORIA BLOCKCHAIN (IMUTÁVEL) ===\n\n")
+	sb.WriteString(fmt.Sprintf("=== AUDITORIA BLOCKCHAIN (Contrato: %s) ===\n", shortID(bc.address.Hex())))
 	if len(allLogs) == 0 {
-		sb.WriteString("(Nenhum registro encontrado na blockchain ainda)\n")
+		sb.WriteString("(Nenhum registro encontrado ainda)\n")
 	}
 	for _, l := range allLogs {
 		t := time.Unix(int64(l.Timestamp), 0)
 		sb.WriteString(fmt.Sprintf("[%s] %s\n", t.Format("15:04:05"), l.Message))
 	}
-	sb.WriteString("\n====================================================")
-
+	sb.WriteString("=======================================")
 	return sb.String(), nil
 }
 
-// Funções de Escrita (Helpers para seus outros serviços usarem)
+// Helper para enviar e aguardar mineração
+func (bc *BlockchainClient) sendAndWait(txFunc func() error) error {
+	return nil 
+}
 
 func (bc *BlockchainClient) LogPack(playerId string, uniqueCardIds []string) error {
-	// Atualiza o Nonce para evitar erro de transação substituta
-	nonce, err := bc.client.PendingNonceAt(context.Background(), bc.auth.From)
-	if err != nil {
-		return fmt.Errorf("erro ao obter nonce: %v", err)
-	}
+	nonce, _ := bc.client.PendingNonceAt(context.Background(), bc.auth.From)
 	bc.auth.Nonce = big.NewInt(int64(nonce))
 	
-	// Chama o contrato inteligente
 	tx, err := bc.contract.LogPackOpening(bc.auth, playerId, uniqueCardIds)
-	if err != nil {
-		return err
-	}
+	if err != nil { return err }
 
-	log.Printf("[Blockchain] Transação LogPack enviada! Hash: %s", tx.Hash().Hex())
+    // Aguarda mineração
+    receipt, err := bind.WaitMined(context.Background(), bc.client, tx)
+    if err != nil { return err }
+    if receipt.Status == 0 { return fmt.Errorf("transação falhou (REVERT)") }
+    
+	log.Printf("[Blockchain] LogPack Confirmado! Bloco: %d", receipt.BlockNumber)
+	return nil
+}
+
+func (bc *BlockchainClient) LogTrade(from, to, cardId string) error {
+	nonce, _ := bc.client.PendingNonceAt(context.Background(), bc.auth.From)
+	bc.auth.Nonce = big.NewInt(int64(nonce))
+
+	tx, err := bc.contract.LogTrade(bc.auth, from, to, cardId)
+	if err != nil { return err }
+
+    receipt, err := bind.WaitMined(context.Background(), bc.client, tx)
+    if err != nil { return err }
+    if receipt.Status == 0 { return fmt.Errorf("transação falhou (REVERT)") }
 	return nil
 }
 
@@ -156,16 +175,17 @@ func (bc *BlockchainClient) LogMatch(roomId, winnerId, loserId string) error {
 	nonce, _ := bc.client.PendingNonceAt(context.Background(), bc.auth.From)
 	bc.auth.Nonce = big.NewInt(int64(nonce))
 
-	_, err := bc.contract.LogMatchResult(bc.auth, roomId, winnerId, loserId)
-	return err
+	tx, err := bc.contract.LogMatchResult(bc.auth, roomId, winnerId, loserId)
+	if err != nil { return err }
+    
+    receipt, err := bind.WaitMined(context.Background(), bc.client, tx)
+    if err != nil { return err }
+    if receipt.Status == 0 { return fmt.Errorf("transação falhou (REVERT)") }
+	return nil
 }
 
-// Helper visual
 func shortID(id string) string {
-	if len(id) > 8 {
-		return id[:8] + "..."
-	}
+	if len(id) > 8 { return id[:8] + "..." }
 	return id
 }
-
 //END OF FILE jokenpo/internal/services/blockchain/client.go

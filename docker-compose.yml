@@ -219,3 +219,14 @@ services:
     networks:
       - consul-net
     profiles: [bc]
+
+  jokenpo-deployer:
+    build:
+      context: .
+      # Vamos usar um Dockerfile inline simples ou apontar para um arquivo
+      dockerfile: ./cmd/deployer/Dockerfile 
+    networks: [consul-net]
+    profiles: [game]
+    # Importante: não reiniciar infinitamente se der certo
+    restart: on-failure
+
