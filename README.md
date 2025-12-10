@@ -1,81 +1,126 @@
-# Jokenpo Game 🎮✊✋✌️
+# Jokenpo Game Multiplayer (Hybrid Web2/Web3) 🎮✊✋✌️⛓️
 
-Projeto desenvolvido em **Go** que implementa um jogo de **Pedra, Papel e Tesoura** sobre uma **arquitetura de microsserviços distribuída**. A solução é projetada para ser escalável e tolerante a falhas, utilizando **Docker Compose** para orquestração e **HashiCorp Consul** para descoberta de serviço e eleição de líder.
+Projeto desenvolvido em **Go** que implementa um jogo de **Pedra, Papel e Tesoura** sobre uma **arquitetura de microsserviços distribuída e híbrida**.
+
+A solução combina a performance de servidores de jogo em tempo real (Web2) com a transparência e imutabilidade de uma **Blockchain Ethereum** (Web3). Utilizamos **Docker Compose** para orquestração, **HashiCorp Consul** para descoberta de serviço/eleição de líder e **Geth (Go-Ethereum)** para o livro razão distribuído.
 
 ---
 
 ## 📂 Estrutura do Projeto
 
-*   `cmd/` → Contém o código-fonte dos executáveis:
-    *   `client/` → O cliente de terminal para o jogador.
-    *   `server/` → Os diferentes microsserviços:
-        *   `session/` → API Gateway que gerencia conexões de clientes via WebSocket.
-        *   `queue/` → Serviço de matchmaking (fila de pareamento).
-        *   `shop/` → Serviço de loja para compra de cartas.
-        *   `gameroom/` → Serviço que hospeda as partidas ativas.
-        *   `loadbalancer/` → Proxy reverso dinâmico para os serviços de sessão.
-*   `internal/` → Pacotes e lógica compartilhada entre os serviços:
-    *   `network/` → Camada de comunicação WebSocket base.
-    *   `game/` → Lógica e regras do jogo de cartas.
-    *   `services/cluster/` → Implementação da integração com Consul (descoberta, eleição, etc.).
-*   `docker-compose.yml` → Arquivo principal que orquestra todos os contêineres e a rede.
-*   `go.mod` / `go.sum` → Dependências do projeto Go.
-*   `LICENSE` → Licença do projeto.
+*   `cmd/` → Código-fonte dos executáveis:
+    *   `client/` → Cliente de terminal (CLI) para o jogador.
+    *   `deployer/` → **(Novo)** Serviço utilitário que publica o Smart Contract e configura o endereço no Consul.
+    *   `server/` → Microsserviços:
+        *   `session/` → API Gateway e BFF (Backend for Frontend) via WebSocket.
+        *   `queue/` → Matchmaker e gerenciador de trocas (Atomic Swaps).
+        *   `shop/` → Loja de pacotes (Minting de ativos).
+        *   `gameroom/` → Lógica da partida e regras do jogo.
+        *   `loadbalancer/` → Proxy reverso dinâmico em Go.
+*   `contract/` → **(Novo)** Código fonte do Smart Contract (`JokenpoLedger.sol`).
+*   `internal/` → Pacotes compartilhados:
+    *   `services/blockchain/` → **(Novo)** Cliente Go para interação com Ethereum.
+    *   `ledger/` → Bindings Go gerados a partir do contrato Solidity.
+    *   `network/`, `game/`, `cluster/` → Core do sistema.
+*   `docker-compose.yml` → Orquestração completa do ambiente.
 
 ---
 
 ## 🚀 Pré-requisitos
 
-Antes de rodar o projeto, certifique-se de ter instalado:
-
 *   [Go 1.22+](https://go.dev/dl/)
-*   [Docker](https://docs.docker.com/get-docker/)
-*   [Docker Compose](https://docs.docker.com/compose/)
+*   [Docker](https://docs.docker.com/get-docker/) e [Docker Compose](https://docs.docker.com/compose/)
 
 ---
 
-## 🐳 Executando com Docker Compose (Recomendado)
+## 🐳 Executando o Projeto
 
-A arquitetura foi projetada para ser executada como um conjunto de contêineres. Siga os passos abaixo:
+A inicialização deve seguir uma ordem estrita para garantir que a infraestrutura e a blockchain estejam prontas antes dos serviços de jogo.
 
 ### 1. Iniciar a Infraestrutura (Cluster Consul)
-
-Este comando inicia os 3 nós do Consul que formam o "cérebro" do nosso sistema.
-
-```bash
-docker-compose --profile infra up -d
-```
-
-> **Aguarde cerca de 30 segundos** para que o cluster Consul se estabilize e eleja um líder antes de prosseguir.
-
-### 2. Iniciar os Serviços da Aplicação
-
-Este comando inicia todas as réplicas dos serviços do jogo, os load balancers e os conecta à rede do Consul.
+Sobe os 3 nós do Consul para formar o quórum de descoberta e eleição.
 
 ```bash
-docker-compose --profile game up -d --scale jokenpo-session=2 --scale jokenpo-queue=2 --scale jokenpo-shop=2 --scale jokenpo-gameroom=3
+docker-compose --profile infra up --build -d
 ```
+> ⏳ **Aguarde ~10 segundos** para o cluster eleger um líder.
 
-### 3. (Opcional) Observar o Cluster
-
-Você pode ver todos os serviços registrados e seu status de saúde acessando a interface do Consul no seu navegador:
-**[http://localhost:8500](http://localhost:8500)**
-
-### 4. Executar o Cliente
-
-O cliente é executado localmente na sua máquina e se conecta ao sistema através dos load balancers.
-
-Em um novo terminal, na raiz do projeto, execute:
+### 2. Iniciar a Blockchain (Geth)
+Sobe o nó Ethereum privado em modo de desenvolvimento (mineração instantânea).
 
 ```bash
-go run ./cmd/client/main.go
+docker-compose --profile bc up --build -d
+```
+> ⏳ **Aguarde ~5 segundos** para o nó Geth estar pronto para aceitar conexões RPC.
+
+### 3. Iniciar o Jogo e Deployer
+Sobe os microsserviços do jogo e o `deployer`. O `deployer` publicará o contrato na blockchain e avisará os outros serviços automaticamente via Consul.
+
+```bash
+docker-compose --profile game up --build -d --scale jokenpo-session=2 --scale jokenpo-queue=2 --scale jokenpo-shop=2 --scale jokenpo-gameroom=3
 ```
 
-> O cliente tentará se conectar a `localhost:9080`, `localhost:9081` ou `localhost:9082`. Ele possui lógica de failover e se conectará a qualquer um dos load balancers que estiver disponível.
+---
 
-### 5. Desligar o Ambiente
+## 🕹️ Como Jogar
 
-Para parar e remover todos os contêineres, execute:
+O cliente roda localmente na sua máquina (fora do Docker) e conecta nos Load Balancers.
+
+1.  Abra um terminal na raiz do projeto.
+2.  Execute o cliente:
+    ```bash
+    go run ./cmd/client/main.go
+    ```
+3.  O cliente tentará conectar em `localhost:9080`, `9081` ou `9082` (Load Balancers).
+4.  **No Menu:**
+    *   Use as opções **1-8** para jogar, comprar pacotes e trocar cartas.
+    *   Use a opção **10. [BLOCKCHAIN] Ver Livro Razão** para auditar suas transações diretamente da rede Ethereum.
+
+---
+
+## 🔍 Monitoramento e Logs (Debug)
+
+Para verificar se a integração Web3 está funcionando, você pode acompanhar os logs específicos:
+
+### Ver a Blockchain trabalhando (Mineração)
+Veja os blocos sendo criados e transações sendo aceitas.
+```bash
+docker logs -f jokenpo-blockchain
+```
+
+### Ver o Deploy do Contrato
+Confira se o contrato foi publicado e o endereço salvo no Consul.
+```bash
+docker logs jokenpo-deployer
+```
+
+### Ver Transações de Compra (Shop Leader)
+Acompanhe o líder da loja "mintando" novas cartas.
+```bash
+docker logs -f jokenpo-shop-1
+# ou jokenpo-shop-2 (dependendo de quem for o líder)
+```
+
+---
+
+## 🧪 Arquitetura e Resiliência
+
+### Híbrido Web2 + Web3
+*   **Performance:** O jogo roda em memória (Web2) para garantir UX fluida (sem lag de blockchain).
+*   **Confiança:** Operações críticas (Compra, Troca, Resultado de Partida) são persistidas assincronamente na Blockchain.
+*   **Consistência:** Utilizamos o padrão de **Eleição de Líder** (via Consul) para garantir que apenas uma instância do serviço escreva na Blockchain por vez, evitando conflitos de transação (Nonce) e gasto duplo.
+
+### Teste de Falha (Chaos Test)
+Você pode derrubar o líder da loja ou da fila enquanto o sistema roda.
+1.  Descubra quem é o líder no Consul ([http://localhost:8500](http://localhost:8500) -> Key/Value -> `service/jokenpo-shop/leader`).
+2.  Pare o container: `docker stop <ContainerID>`.
+3.  O Consul detectará a falha, elegerá um novo líder, e o novo líder retomará a conexão com a Blockchain automaticamente.
+
+---
+
+## 🧹 Limpeza
+
+Para parar e remover todos os contêineres, redes e volumes:
 
 ```bash
 docker-compose down
@@ -83,45 +128,6 @@ docker-compose down
 
 ---
 
-## 🧪 Teste de Resiliência (Chaos Test)
-
-Este cenário de teste valida a capacidade de auto-recuperação do sistema em caso de falha de um componente crítico. Vamos simular a falha do líder do serviço de loja:
-
-1.  **Inicie o ambiente completo** conforme as instruções da seção anterior.
-
-2.  **Identifique o líder atual do `jokenpo-shop`:**
-    *   Acesse a UI do Consul: [http://localhost:8500](http://localhost:8500).
-    *   Vá para a aba **Key/Value**.
-    *   Clique na chave `service/jokenpo-shop/leader`. O valor exibido no campo "Value" é o hostname do contêiner líder (ex: `b91b6cac2597`).
-
-3.  **Encontre o ID do contêiner líder:**
-    No seu terminal, liste os contêineres em execução e encontre aquele com o hostname que você anotou.
-    ```bash
-    docker ps
-    ```
-
-4.  **Injete a falha (derrube o líder):**
-    Use o ID do contêiner para pará-lo.
-    ```bash
-    docker stop <ID_DO_CONTAINER_LIDER>
-    ```
-
-5.  **Observe a recuperação:**
-    *   **Nos logs:** Observe os logs da outra réplica do `jokenpo-shop` (`docker logs -f <ID_DA_REPLICA>`). Você verá mensagens indicando que ela se tornou o novo líder.
-    *   **Na UI do Consul:** Atualize a página Key/Value. O valor da chave `service/jokenpo-shop/leader` terá mudado para o hostname do novo contêiner líder.
-
-O serviço de loja continuará funcionando, agora servido pela réplica que foi promovida automaticamente.
-
----
-
-## 📖 Como Jogar
-
-1.  O cliente conecta ao sistema via **WebSocket** através de um dos **Load Balancers**.
-2.  O jogador escolhe uma das opções que o menu exibe, enviando comandos ao servidor.
-3.  O **serviço de sessão** recebe os comandos e os orquestra com os serviços de backend (fila, loja, sala de jogo) para processar a lógica e retornar os resultados.
-
----
-
 ## ⚖️ Licença
 
-Este projeto é distribuído sob a licença MIT. Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto é distribuído sob a licença MIT.
